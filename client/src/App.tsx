@@ -69,8 +69,16 @@ function Navigation() {
 function HomePage() {
   return (
     <div className="max-w-xl mx-auto p-6 bg-white rounded shadow-md">
-      <h1 className="text-3xl font-bold mb-4">Home Page</h1>
-      <p className="text-gray-700">Welcome! Use the navigation links above to explore the app.</p>
+      <h1 className="text-3xl font-bold mb-4">Welcome to Fantasy Reddit Stocks</h1>
+      <p className="text-gray-700 mb-4">
+        This app lets you simulate buying and selling “stocks” based on trending Reddit posts,
+        primarily from r/wallstreetbets. Track your portfolio, buy shares in posts you like,
+        and see how your investments perform as post scores change over time.
+      </p>
+      <p className="text-gray-700">
+        Use the navigation links above to browse your portfolio, explore popular Reddit posts,
+        and engage with the fantasy stock market built around social media trends!
+      </p>
     </div>
   )
 }
