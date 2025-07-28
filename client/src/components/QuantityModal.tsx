@@ -9,6 +9,9 @@ interface QuantityModalProps {
   min: number
   initialAmount?: number
   title?: string
+  symbol: string
+  cost: number
+  type: 'buy' | 'sell'
 }
 
 export const QuantityModal: React.FC<QuantityModalProps> = ({
@@ -18,7 +21,10 @@ export const QuantityModal: React.FC<QuantityModalProps> = ({
   max,
   min,
   initialAmount = 1,
-  title = "Choose Quantity",
+  title,
+  symbol,
+  cost,
+  type
 }) => {
   const [amount, setAmount] = useState(initialAmount)
 
@@ -49,6 +55,9 @@ export const QuantityModal: React.FC<QuantityModalProps> = ({
 
   if (!isOpen) return null
 
+  const total = (amount * cost).toFixed(2)
+  const bgColor = type === 'buy' ? 'pink' : 'green'
+
   return createPortal(
     <div
       style={{
@@ -64,12 +73,18 @@ export const QuantityModal: React.FC<QuantityModalProps> = ({
       aria-modal="true"
       aria-labelledby="quantity-modal-title"
     >
-      <div className="bg-white p-6 rounded shadow-lg w-full max-w-sm">
-        <h2 id="quantity-modal-title" className="text-xl font-bold mb-4">
-          {title}
+      <div className="bg-white p-6 rounded shadow-lg w-full max-w-sm" id="quantity-modal"
+            style={{
+              backgroundColor : bgColor
+        }}>
+        <h2 id="quantity-modal-title" className="text-xl font-bold mb-2">
+          {title} {symbol} @ ${cost} per share
         </h2>
 
-        {/* Increment / Decrement Buttons */}
+        <div className="mb-4 text-gray-700 font-semibold">
+          {amount} share{amount !== 1 ? "s" : ""} × {cost} = <span className="text-blue-600">{total}</span>
+        </div>
+
         <div className="flex flex-wrap gap-2 mb-4">
           {[1, 10, 100].map(n => (
             <button
@@ -105,7 +120,6 @@ export const QuantityModal: React.FC<QuantityModalProps> = ({
           )}
         </div>
 
-        {/* Amount Input */}
         <div className="mb-4">
           <input
             type="number"
@@ -124,7 +138,6 @@ export const QuantityModal: React.FC<QuantityModalProps> = ({
           />
         </div>
 
-        {/* Action Buttons */}
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
@@ -133,7 +146,9 @@ export const QuantityModal: React.FC<QuantityModalProps> = ({
             Cancel
           </button>
           <button
-            onClick={handleConfirm}
+            onClick={() => {
+              handleConfirm()
+            }}
             className="px-4 py-2 bg-blue-600 text-white rounded"
           >
             Confirm

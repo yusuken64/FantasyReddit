@@ -28,6 +28,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
   const { buy, sell } = useStockActions()
   const [isBuying, setIsBuying] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
+  const [modalType, setModalType] = useState<"buy" | "sell">("buy");
   const [sharesState, setSharesState] = useState(shares)
   const [avgCostState, setAvgCostState] = useState(avgCost)
   const [post, setPost] = useState(initialPost)
@@ -109,12 +110,19 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
 
       <QuantityModal
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => 
+        {
+          handleRefresh()
+          setModalOpen(false)}
+        }
         max={isBuying ? 1000000 : shares}
         min={0}
         initialAmount={1}
         title={isBuying ? "Buy Shares" : "Sell Shares"}
         onConfirm={handleConfirm}
+        symbol={post.id}
+        cost={post.score}
+        type={modalType}
       />
       <div className="flex justify-between items-center">
         <a
@@ -154,13 +162,21 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
 
       <div className="mt-2 flex gap-2">
         <button
-          onClick={() => openModal(true)}
+          onClick={() => 
+          {
+            setModalType("buy");
+            openModal(true)}
+          }
           className="px-2 py-1 bg-green-500 text-white rounded"
         >
           Buy
         </button>
         <button
-          onClick={() => openModal(false)}
+          onClick={() => 
+            {
+            setModalType("sell");
+              openModal(false)}
+            }
           className="px-2 py-1 bg-red-500 text-white rounded"
           disabled={sharesState === 0}
         >
