@@ -131,33 +131,41 @@ app.post('/sell', authMiddleware, async (req, res) => {
 app.get('/portfolio', authMiddleware, (req, res) => {
   const userId = req.user.id;
 
-  // Allowed sort columns and directions
-  const validSortColumns = ['total_spent', 'shares', 'stock_symbol'];
+  const validSortColumns = ['stock_symbol', 'shares', 'total_spent'];
   const validSortDirections = ['ASC', 'DESC'];
 
-  // Get query parameters for sorting (default sort by stock_symbol ascending)
-  let sortBy = req.query.sortBy || 'shares';
-  let sortDir = (req.query.sortDir || 'DESC').toUpperCase();
+  let sortBy = req.query.sortBy;
+  let sortDir = req.query.sortDir;
+  let limit = parseInt(req.query.limit) || 10;
+  let offset = parseInt(req.query.offset) || 0;
 
-  // Validate inputs
   if (!validSortColumns.includes(sortBy)) {
-    sortBy = 'shares';
+    sortBy = 'stock_symbol';
   }
-  if (!validSortDirections.includes(sortDir)) {
-    sortDir = 'DESC';
+
+  if (!validSortDirections.includes(sortDir?.toUpperCase())) {
+    sortDir = 'ASC';
+  } else {
+    sortDir = sortDir.toUpperCase();
   }
 
   try {
     const stmt = db.prepare(`
-      SELECT * FROM portfolios 
-      WHERE user_id = ? 
+      SELECT * FROM portfolios
+      WHERE user_id = ?
       ORDER BY ${sortBy} ${sortDir}
+      LIMIT ? OFFSET ?
     `);
 
-    const portfolio = stmt.all(userId);
-    res.json(portfolio);
+    const portfolio = stmt.all(userId, limit, offset);
+
+    // Optionally return total count for frontend pagination UI
+    const countStmt = db.prepare('SELECT COUNT(*) AS total FROM portfolios WHERE user_id = ?');
+    const { total } = countStmt.get(userId);
+
+    res.json({ data: portfolio, total });
   } catch (err) {
-    console.error(err);
+    console.error('Error fetching portfolio:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

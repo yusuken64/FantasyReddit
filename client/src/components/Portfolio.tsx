@@ -22,13 +22,16 @@ const Portfolio: React.FC = () => {
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([])
   const [loading, setLoading] = useState(true)
   const [postsMap, setPostsMap] = useState<Record<string, RedditPost>>({})
-  const [sortBy, setSortBy] = useState<'stock_symbol' | 'shares' | 'total_spent'>('stock_symbol')
+  const [sortBy, setSortBy] = useState< 'shares' | 'total_spent'>('shares')
   const [sortDir, setSortDir] = useState<'ASC' | 'DESC'>('ASC')
+  const [page, setPage] = useState(1)
+  const limit = 5
+  const [total, setTotal] = useState(0)
 
   // Fetch portfolio on mount
   useEffect(() => {
     fetchPortfolio()
-  }, [sortBy, sortDir])
+  }, [sortBy, sortDir, page])
 
   async function getPost(stock_symbol: string): Promise<RedditPost | null> {
     try {
@@ -44,17 +47,21 @@ const Portfolio: React.FC = () => {
 
   async function fetchPortfolio() {
     try {
-      const res = await fetch(`http://localhost:5000/portfolio?sortBy=${sortBy}&sortDir=${sortDir}`, {
-        credentials: "include",
-      })
+      const offset = (page - 1) * limit
+
+      const res = await fetch(
+        `http://localhost:5000/portfolio?sortBy=${sortBy}&sortDir=${sortDir}&limit=${limit}&offset=${offset}`,
+        { credentials: "include" }
+      )
       if (!res.ok) throw new Error("Failed to fetch portfolio")
-      const data: PortfolioItem[] = await res.json()
-      setPortfolio(data)
+      const json = await res.json();
+      const portfolioData: PortfolioItem[] = json.data;
+      setPortfolio(portfolioData)
 
       // Fetch posts for each stock_symbol to display details in RedditStockItem
       const postsFetched: Record<string, RedditPost> = {}
       await Promise.all(
-        data.map(async (item) => {
+        portfolioData.map(async (item) => {
           const post = await getPost(item.stock_symbol)
           if (post) postsFetched[item.stock_symbol] = post
         })
@@ -116,6 +123,8 @@ const Portfolio: React.FC = () => {
           )
         })}
       </ul>
+
+
     </div>
   )
 }

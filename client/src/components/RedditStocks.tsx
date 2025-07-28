@@ -12,12 +12,6 @@ interface RedditPost {
   total_spent?: number
 }
 
-interface PortfolioItem {
-  stock_symbol: string
-  shares: number
-  total_spent: number
-}
-
 function extractPostId(input: string): string | null {
   const match = input.match(/comments\/([a-z0-9]+)/i)
   return match ? match[1] : null
@@ -32,7 +26,6 @@ export function RedditStocks() {
   const [threadId, setThreadId] = useState<string>('')
 
   const [posts, setPosts] = useState<RedditPost[]>([])
-  const [portfolio, setPortfolio] = useState<Record<string, PortfolioItem>>({})
   const [loading, setLoading] = useState(true)
 
   function handleFilterChange(type: typeof filter) {
@@ -94,16 +87,7 @@ export function RedditStocks() {
           }))
         }
 
-        const portfolioRes = await fetch('http://localhost:5000/portfolio', { credentials: 'include' })
-        const portfolioData: PortfolioItem[] = portfolioRes.ok ? await portfolioRes.json() : []
-
-        const portfolioMap: Record<string, PortfolioItem> = {}
-        for (const item of portfolioData) {
-          portfolioMap[item.stock_symbol] = item
-        }
-
         setPosts(mappedPosts)
-        setPortfolio(portfolioMap)
       } catch (err) {
         console.error('Failed to load stocks or portfolio', err)
       } finally {
@@ -188,13 +172,10 @@ export function RedditStocks() {
       </div>
 
       {posts.map(post => {
-        const owned = portfolio[post.id]
         return (
           <RedditStockItem
             key={post.id}
             post={post}
-            shares={owned?.shares ?? 0}
-            avgCost={owned && owned.shares > 0 ? owned.total_spent / owned.shares : 0}
           />
         )
       })}
