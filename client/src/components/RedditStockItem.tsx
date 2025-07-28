@@ -1,21 +1,21 @@
-import React, { useState } from "react"
-import { useStockActions } from "../hooks/useStockActions"
-import { QuantityModal } from "./QuantityModal"
+import React, { useState } from "react";
+import { useStockActions } from "../hooks/useStockActions";
+import { QuantityModal } from "./QuantityModal";
 
 interface RedditPost {
-  id: string
-  title: string
-  score: number
-  permalink: string
-  subreddit: string
-  author: string
+  id: string;
+  title: string;
+  score: number;
+  permalink: string;
+  subreddit: string;
+  author: string;
 }
 
 interface RedditStockItemProps {
-  post: RedditPost
-  shares?: number
-  avgCost?: number
-  showBuy?: boolean
+  post: RedditPost;
+  shares?: number;
+  avgCost?: number;
+  showBuy?: boolean;
 }
 
 export const RedditStockItem: React.FC<RedditStockItemProps> = ({
@@ -23,57 +23,47 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
   shares = 0,
   avgCost = 0,
 }) => {
-  const [lastRefreshed, setLastRefreshed] = useState(Date.now())
-  const [cooldown, setCooldown] = useState(false)
-  const { buy, sell } = useStockActions()
-  const [isBuying, setIsBuying] = useState(true)
-  const [modalOpen, setModalOpen] = useState(false)
+  const [lastRefreshed, setLastRefreshed] = useState(Date.now());
+  const [cooldown, setCooldown] = useState(false);
+  const [isBuying, setIsBuying] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"buy" | "sell">("buy");
-  const [sharesState, setSharesState] = useState(shares)
-  const [avgCostState, setAvgCostState] = useState(avgCost)
-  const [post, setPost] = useState(initialPost)
+  const [sharesState, setSharesState] = useState(shares);
+  const [avgCostState, setAvgCostState] = useState(avgCost);
+  const [post, setPost] = useState(initialPost);
   const [loading, setLoading] = useState(false);
 
+  const { buy, sell } = useStockActions();
+
   const openModal = (buyMode: boolean) => {
-    setIsBuying(buyMode)
-    setModalOpen(true)
-  }
+    setIsBuying(buyMode);
+    setModalType(buyMode ? "buy" : "sell");
+    setModalOpen(true);
+  };
 
   const handleConfirm = (amount: number) => {
-    if (isBuying) {
-      buy(post.id, amount);
-    } else {
-      sell(post.id, amount);
-    }
-
+    isBuying ? buy(post.id, amount) : sell(post.id, amount);
     handleRefresh();
     setModalOpen(false);
-  }
+  };
 
   const handleRefresh = async () => {
     if (cooldown) return;
-
     setLoading(true);
 
     try {
-      // Fetch portfolio data for this stock symbol (post.id)
       const res = await fetch(`http://localhost:5000/portfolio/${post.id}`, {
-        credentials: 'include',
+        credentials: "include",
       });
 
-      if (!res.ok) {
-        console.error('Failed to fetch portfolio item');
-        // Optionally clear state if fetch fails
-        setSharesState(0);
-        setAvgCostState(0);
-        setLoading(false);
-        return;
-      }
-
+      if (!res.ok) throw new Error("Failed to fetch portfolio item");
       const portfolioItem = await res.json();
 
-      // portfolioItem might be {} or null if no data found
-      if (portfolioItem && portfolioItem.shares !== undefined && portfolioItem.total_spent !== undefined) {
+      if (
+        portfolioItem &&
+        portfolioItem.shares !== undefined &&
+        portfolioItem.total_spent !== undefined
+      ) {
         setSharesState(portfolioItem.shares);
         setAvgCostState(
           portfolioItem.shares > 0
@@ -81,21 +71,19 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
             : 0
         );
       } else {
-        // No portfolio data found - reset state or keep existing?
         setSharesState(0);
         setAvgCostState(0);
       }
 
-      // Fetch updated Reddit post data
       const postRes = await fetch(`http://localhost:5000/api/reddit-post/${post.id}`);
       if (postRes.ok) {
         const updatedPost = await postRes.json();
         setPost(updatedPost);
-      } else {
-        console.error('Failed to fetch Reddit post');
       }
-    } catch (error) {
-      console.error('Error refreshing portfolio item:', error);
+    } catch (err) {
+      console.error("Refresh error:", err);
+      setSharesState(0);
+      setAvgCostState(0);
     } finally {
       setLastRefreshed(Date.now());
       setCooldown(true);
@@ -104,17 +92,15 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
     }
   };
 
-
   return (
-    <div className="p-4 rounded-2xl shadow-lg bg-gray-50 border-2 border-gray-300 hover:border-blue-500 transition duration-200">
+    <div className="p-5 rounded-xl shadow-md bg-white border border-gray-300 hover:border-blue-500 transition duration-200 space-y-3">
 
       <QuantityModal
         isOpen={modalOpen}
-        onClose={() => 
-        {
-          handleRefresh()
-          setModalOpen(false)}
-        }
+        onClose={() => {
+          handleRefresh();
+          setModalOpen(false);
+        }}
         max={isBuying ? 1000000 : shares}
         min={0}
         initialAmount={1}
@@ -124,65 +110,74 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
         cost={post.score}
         type={modalType}
       />
+
+      {/* Header */}
       <div className="flex justify-between items-center">
         <a
           href={`https://reddit.com${post.permalink}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-semibold text-lg text-blue-700 hover:underline"
+          className="font-semibold text-blue-600 text-lg hover:underline flex-1"
         >
           {post.title}
         </a>
+
         <button
           onClick={handleRefresh}
           disabled={cooldown || loading}
-          className={`text-sm px-2 py-1 rounded ${cooldown || loading
-            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-            : "bg-blue-500 text-white"
-            }`}
+          className={`ml-4 flex items-center gap-1 text-sm px-3 py-1 rounded-md transition ${
+            cooldown || loading
+              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+              : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
         >
-          {loading ? "Loading..." : "Refresh"}
+          {loading ? (
+            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          ) : (
+            "Refresh"
+          )}
         </button>
       </div>
 
-      <p className="text-sm text-gray-500">
-        r/{post.subreddit} • u/{post.author} • Score: {post.score}
+      <p className="text-sm text-gray-600">
+        <span className="font-medium">r/{post.subreddit}</span> • u/{post.author} •{" "}
+        <span className="text-gray-500">Score: {post.score}</span>
       </p>
 
-      {lastRefreshed && (
-        <p className="text-xs text-gray-400 mt-1">
-          Last refreshed: {new Date(lastRefreshed).toLocaleTimeString()}
-        </p>
-      )}
+      <p className="text-xs text-gray-400">
+        Last refreshed: {new Date(lastRefreshed).toLocaleTimeString()}
+      </p>
 
-      <div className="mt-2 text-sm">
-        <p>Shares: {sharesState}</p>
-        <p>Avg Cost: ${avgCostState.toFixed(2)}</p>
+      {/* Portfolio Info */}
+      <div className="flex gap-4 items-center text-sm">
+        <span className="px-2 py-1 bg-gray-100 border border-gray-300 rounded">
+          Shares: <strong>{sharesState}</strong>
+        </span>
+        <span className="px-2 py-1 bg-gray-100 border border-gray-300 rounded">
+          Avg Cost: <strong>${avgCostState.toFixed(2)}</strong>
+        </span>
       </div>
 
-      <div className="mt-2 flex gap-2">
+      {/* Action Buttons */}
+      <div className="flex gap-2 mt-2">
         <button
-          onClick={() => 
-          {
-            setModalType("buy");
-            openModal(true)}
-          }
-          className="px-2 py-1 bg-green-500 text-white rounded"
+          onClick={() => openModal(true)}
+          className="flex-1 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
         >
           Buy
         </button>
         <button
-          onClick={() => 
-            {
-            setModalType("sell");
-              openModal(false)}
-            }
-          className="px-2 py-1 bg-red-500 text-white rounded"
+          onClick={() => openModal(false)}
+          className={`flex-1 px-4 py-2 rounded-md transition ${
+            sharesState === 0
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-red-500 text-white hover:bg-red-600"
+          }`}
           disabled={sharesState === 0}
         >
           Sell
         </button>
       </div>
     </div>
-  )
-}
+  );
+};
