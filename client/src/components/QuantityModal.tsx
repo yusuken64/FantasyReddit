@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react"
+import React, { useEffect, useCallback, useState } from "react"
 import { createPortal } from "react-dom"
 
 interface QuantityModalProps {
@@ -20,7 +20,7 @@ export const QuantityModal: React.FC<QuantityModalProps> = ({
   initialAmount = 1,
   title = "Choose Quantity",
 }) => {
-  const [amount, setAmount] = React.useState(initialAmount)
+  const [amount, setAmount] = useState(initialAmount)
 
   // Reset amount when modal opens
   useEffect(() => {
@@ -42,11 +42,29 @@ export const QuantityModal: React.FC<QuantityModalProps> = ({
     }
   }, [isOpen, handleKeyDown])
 
+  const handleConfirm = () => {
+    onConfirm(amount)
+    onClose()
+  }
+
   if (!isOpen) return null
 
   return createPortal(
-    <div>
-      <div>
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="quantity-modal-title"
+    >
+      <div className="bg-white p-6 rounded shadow-lg w-full max-w-sm">
         <h2 id="quantity-modal-title" className="text-xl font-bold mb-4">
           {title}
         </h2>
@@ -77,21 +95,25 @@ export const QuantityModal: React.FC<QuantityModalProps> = ({
               -{n}
             </button>
           ))}
-          <button
-            onClick={() => setAmount(0)}
-            className="bg-red-200 text-red-900 px-3 py-1 rounded"
-          >
-            Zero
-          </button>
+          {min === 0 && (
+            <button
+              onClick={() => setAmount(0)}
+              className="bg-red-200 text-red-900 px-3 py-1 rounded"
+            >
+              Zero
+            </button>
+          )}
         </div>
 
         {/* Amount Input */}
         <div className="mb-4">
           <input
             type="number"
-            value={amount}
+            inputMode="numeric"
+            step="1"
             min={min}
             max={max}
+            value={amount}
             onChange={e => {
               const val = Number(e.target.value)
               if (!isNaN(val)) {
@@ -111,10 +133,7 @@ export const QuantityModal: React.FC<QuantityModalProps> = ({
             Cancel
           </button>
           <button
-            onClick={() => {
-              onConfirm(amount)
-              onClose()
-            }}
+            onClick={handleConfirm}
             className="px-4 py-2 bg-blue-600 text-white rounded"
           >
             Confirm
