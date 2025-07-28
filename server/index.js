@@ -128,12 +128,39 @@ app.post('/sell', authMiddleware, async (req, res) => {
   }
 });
 
-// Get user portfolio
 app.get('/portfolio', authMiddleware, (req, res) => {
-  const userId = req.user.id
-  const portfolio = db.prepare('SELECT * FROM portfolios WHERE user_id = ?').all(userId)
-  res.json(portfolio)
-})
+  const userId = req.user.id;
+
+  // Allowed sort columns and directions
+  const validSortColumns = ['total_spent', 'shares', 'stock_symbol'];
+  const validSortDirections = ['ASC', 'DESC'];
+
+  // Get query parameters for sorting (default sort by stock_symbol ascending)
+  let sortBy = req.query.sortBy || 'shares';
+  let sortDir = (req.query.sortDir || 'DESC').toUpperCase();
+
+  // Validate inputs
+  if (!validSortColumns.includes(sortBy)) {
+    sortBy = 'shares';
+  }
+  if (!validSortDirections.includes(sortDir)) {
+    sortDir = 'DESC';
+  }
+
+  try {
+    const stmt = db.prepare(`
+      SELECT * FROM portfolios 
+      WHERE user_id = ? 
+      ORDER BY ${sortBy} ${sortDir}
+    `);
+
+    const portfolio = stmt.all(userId);
+    res.json(portfolio);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 app.get('/portfolio/:stockSymbol', authMiddleware, (req, res) => {
   const { id: userId } = req.user;

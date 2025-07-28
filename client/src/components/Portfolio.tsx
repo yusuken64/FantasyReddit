@@ -21,13 +21,14 @@ type RedditPost = {
 const Portfolio: React.FC = () => {
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([])
   const [loading, setLoading] = useState(true)
-  // Keep posts fetched for each stock_symbol to pass to RedditStockItem
   const [postsMap, setPostsMap] = useState<Record<string, RedditPost>>({})
+  const [sortBy, setSortBy] = useState<'stock_symbol' | 'shares' | 'total_spent'>('stock_symbol')
+  const [sortDir, setSortDir] = useState<'ASC' | 'DESC'>('ASC')
 
   // Fetch portfolio on mount
   useEffect(() => {
     fetchPortfolio()
-  }, [])
+  }, [sortBy, sortDir])
 
   async function getPost(stock_symbol: string): Promise<RedditPost | null> {
     try {
@@ -43,7 +44,7 @@ const Portfolio: React.FC = () => {
 
   async function fetchPortfolio() {
     try {
-      const res = await fetch("http://localhost:5000/portfolio", {
+      const res = await fetch(`http://localhost:5000/portfolio?sortBy=${sortBy}&sortDir=${sortDir}`, {
         credentials: "include",
       })
       if (!res.ok) throw new Error("Failed to fetch portfolio")
@@ -73,6 +74,29 @@ const Portfolio: React.FC = () => {
   return (
     <div className="p-4 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Your Portfolio</h1>
+
+      <div className="mb-6 flex items-center space-x-4">
+        <label>
+          Sort By:&nbsp;
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+            className="border rounded px-2 py-1"
+          >
+            {/* <option value="stock_symbol">Stock Symbol</option> */}
+            <option value="shares">Shares</option>
+            <option value="total_spent">Total Spent</option>
+          </select>
+        </label>
+        <button
+          onClick={() => setSortDir(sortDir === 'ASC' ? 'DESC' : 'ASC')}
+          className="border rounded px-3 py-1"
+          aria-label="Toggle sort direction"
+        >
+          {sortDir === 'ASC' ? 'Ascending ↑' : 'Descending ↓'}
+        </button>
+      </div>
+
       <ul className="space-y-4">
         {portfolio.map((item) => {
           const post = postsMap[item.stock_symbol]
