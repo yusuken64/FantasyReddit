@@ -22,11 +22,11 @@ const Portfolio: React.FC = () => {
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([])
   const [loading, setLoading] = useState(true)
   const [postsMap, setPostsMap] = useState<Record<string, RedditPost>>({})
-  const [sortBy, setSortBy] = useState< 'shares' | 'total_spent'>('shares')
+  const [sortBy, setSortBy] = useState<'shares' | 'total_spent'>('shares')
   const [sortDir, setSortDir] = useState<'ASC' | 'DESC'>('ASC')
   const [page, setPage] = useState(1)
   const limit = 5
-  const [total, setTotal] = useState(0)
+  const [] = useState(0)
 
   // Fetch portfolio on mount
   useEffect(() => {
@@ -104,27 +104,54 @@ const Portfolio: React.FC = () => {
         </button>
       </div>
 
-      <ul className="space-y-4">
-        {portfolio.map((item) => {
-          const post = postsMap[item.stock_symbol]
-          if (!post) return null
+      <div className="flex justify-between mt-6">
+        <button
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <button
+          disabled={portfolio.length < limit}
+          onClick={() => setPage(page + 1)}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+      {portfolio.map((item) => {
+        const post = postsMap[item.stock_symbol]
+        if (!post) return null
 
-          const avgCost = item.shares > 0 ? item.total_spent / item.shares : 0
+        const avgCost = item.shares > 0 ? item.total_spent / item.shares : 0
 
-          return (
-            <li key={item.stock_symbol}>
-              <RedditStockItem
-                post={post}
-                shares={item.shares}
-                avgCost={avgCost}
-                showBuy={true}
-              />
-            </li>
-          )
-        })}
-      </ul>
+        return (
+          <RedditStockItem
+            post={post}
+            shares={item.shares}
+            avgCost={avgCost}
+            showBuy={true}
+          />
+        )
+      })}
 
-
+      <div className="flex justify-between mt-6">
+        <button
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <button
+          disabled={portfolio.length < limit}
+          onClick={() => setPage(page + 1)}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </div>
   )
 }
