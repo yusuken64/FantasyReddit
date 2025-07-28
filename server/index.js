@@ -137,15 +137,12 @@ app.get('/portfolio', authMiddleware, (req, res) => {
 
 app.get('/api/reddit-posts', async (req, res) => {
   try {
-    const response = await fetch('https://www.reddit.com/r/wallstreetbets/hot.json?limit=15')
-    if (!response.ok) {
-      return res.status(response.status).send('Failed to fetch from Reddit')
-    }
+    const response = await fetch('https://www.reddit.com/r/all/rising.json')
     const data = await response.json()
     res.json(data)
   } catch (err) {
-    console.error('Reddit fetch error:', err)
-    res.status(500).send('Server error fetching Reddit data')
+    console.error('Failed to fetch rising posts:', err)
+    res.status(500).send('Error fetching rising posts')
   }
 })
 

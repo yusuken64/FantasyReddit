@@ -16,7 +16,7 @@ interface RedditStockItemProps {
   shares?: number
   avgCost?: number
   showBuy?: boolean
-  onRefresh?: (id: string) => void // ← Add this to trigger refresh
+  onRefresh?: (id: string) => void
 }
 
 export const RedditStockItem: React.FC<RedditStockItemProps> = ({
@@ -27,7 +27,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
   avgCost = 0,
   onRefresh,
 }) => {
-  const [lastRefreshed, setLastRefreshed] = useState<number | null>(null)
+  const [lastRefreshed, setLastRefreshed] = useState<number | null>(Date.now())
   const [cooldown, setCooldown] = useState(false)
 
   const handleRefresh = () => {
@@ -40,9 +40,16 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
   }
 
   return (
-    <div className="p-4 rounded-xl shadow bg-white border">
+    <div className="p-4 rounded-2xl shadow-lg bg-gray-50 border-2 border-gray-300 hover:border-blue-500 transition duration-200">
       <div className="flex justify-between items-center">
-        <h2 className="font-semibold text-lg">{post.title}</h2>
+        <a
+          href={`https://reddit.com${post.permalink}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold text-lg text-blue-700 hover:underline"
+        >
+          {post.title}
+        </a>
         <button
           onClick={handleRefresh}
           disabled={cooldown}
@@ -53,13 +60,22 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
           Refresh
         </button>
       </div>
+
       <p className="text-sm text-gray-500">
         r/{post.subreddit} • u/{post.author} • Score: {post.score}
       </p>
+
+      {lastRefreshed && (
+        <p className="text-xs text-gray-400 mt-1">
+          Last refreshed: {new Date(lastRefreshed).toLocaleTimeString()}
+        </p>
+      )}
+
       <div className="mt-2 text-sm">
         <p>Shares: {shares}</p>
         <p>Avg Cost: ${avgCost.toFixed(2)}</p>
       </div>
+
       <div className="mt-2 flex gap-2">
         <button
           onClick={() => buy(post.id)}
