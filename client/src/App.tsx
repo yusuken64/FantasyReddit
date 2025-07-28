@@ -1,7 +1,6 @@
 import { useContext } from 'react'
 import { AuthContext } from './context/AuthContext'
 import { BrowserRouter, Routes, Route, NavLink, useNavigate } from 'react-router-dom'
-import { RedditScoreChecker } from './components/RedditScoreChecker'
 import Signup from './components/Signup'
 import Login from './components/Login'
 import { RedditStocks } from './components/RedditStocks'
@@ -51,10 +50,6 @@ function Navigation() {
         </>
       )}
 
-      <NavLink to="/test" className={({ isActive }) => (isActive ? activeClass : inactiveClass)}>
-        Test Post
-      </NavLink>
-
       <NavLink to="/redditStocks" className={({ isActive }) => (isActive ? activeClass : inactiveClass)}>
         Stocks
       </NavLink>
@@ -96,7 +91,6 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/test" element={<RedditScoreChecker />} />
             <Route path="/redditStocks" element={<RedditStocks />} />
             <Route path="/portfolio" element={<Portfolio />} />
           </Routes>

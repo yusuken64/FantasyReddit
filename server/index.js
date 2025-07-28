@@ -149,6 +149,40 @@ app.get('/api/reddit-posts', async (req, res) => {
   }
 })
 
+app.get('/api/reddit-posts/hot', async (req, res) => {
+  try {
+    const response = await fetch('https://www.reddit.com/r/all/hot.json')
+    const data = await response.json()
+    res.json(data)
+  } catch (err) {
+    console.error('Failed to fetch hot posts:', err)
+    res.status(500).send('Error fetching hot posts')
+  }
+})
+
+app.get('/api/reddit-posts/new', async (req, res) => {
+  try {
+    const response = await fetch('https://www.reddit.com/r/all/new.json')
+    const data = await response.json()
+    res.json(data)
+  } catch (err) {
+    console.error('Failed to fetch new posts:', err)
+    res.status(500).send('Error fetching new posts')
+  }
+})
+
+app.get('/api/reddit-posts/subreddit/:subreddit', async (req, res) => {
+  const { subreddit } = req.params
+  try {
+    const response = await fetch(`https://www.reddit.com/r/${subreddit}.json`)
+    const data = await response.json()
+    res.json(data)
+  } catch (err) {
+    console.error(`Failed to fetch posts from subreddit ${subreddit}:`, err)
+    res.status(500).send('Error fetching subreddit posts')
+  }
+})
+
 app.get('/api/reddit-post/:id', async (req, res) => {
   const postId = req.params.id
   try {
