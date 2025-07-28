@@ -135,6 +135,27 @@ app.get('/portfolio', authMiddleware, (req, res) => {
   res.json(portfolio)
 })
 
+app.get('/portfolio/:stockSymbol', authMiddleware, (req, res) => {
+  const { id: userId } = req.user;
+  const { stockSymbol } = req.params;
+
+  try {
+    const portfolioEntry = db.prepare(
+      'SELECT * FROM portfolios WHERE user_id = ? AND stock_symbol = ?'
+    ).get(userId, stockSymbol);
+
+    // Return empty object if not found instead of 404
+    if (!portfolioEntry) {
+      return res.json({});
+    }
+
+    res.json(portfolioEntry);
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.get('/api/reddit-posts', async (req, res) => {
   try {
     const response = await fetch('https://www.reddit.com/r/all/rising.json')

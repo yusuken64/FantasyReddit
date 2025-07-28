@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useContext } from "react"
-import { AuthContext } from '../context/AuthContext'
+import React, { useEffect, useState } from "react"
 import { RedditStockItem } from './RedditStockItem'
 
 type PortfolioItem = {
@@ -21,19 +20,26 @@ type RedditPost = {
 
 const Portfolio: React.FC = () => {
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([])
-  const [posts, setPosts] = useState<Record<string, RedditPost>>({})
   const [loading, setLoading] = useState(true)
-  const { updateCredits } = useContext(AuthContext)
+  // Keep posts fetched for each stock_symbol to pass to RedditStockItem
+  const [postsMap, setPostsMap] = useState<Record<string, RedditPost>>({})
 
   // Fetch portfolio on mount
   useEffect(() => {
     fetchPortfolio()
   }, [])
 
-  // Fetch Reddit posts on mount
-  useEffect(() => {
-    fetchPosts()
-  }, [])
+  async function getPost(stock_symbol: string): Promise<RedditPost | null> {
+    try {
+      const res = await fetch(`http://localhost:5000/api/reddit-post/${stock_symbol}`)
+      if (!res.ok) throw new Error(`Post not found for id ${stock_symbol}`)
+      const postData = await res.json()
+      return postData
+    } catch (err) {
+      console.error(err)
+      return null
+    }
+  }
 
   async function fetchPortfolio() {
     try {
@@ -41,86 +47,22 @@ const Portfolio: React.FC = () => {
         credentials: "include",
       })
       if (!res.ok) throw new Error("Failed to fetch portfolio")
-      const data = await res.json()
+      const data: PortfolioItem[] = await res.json()
       setPortfolio(data)
-    } catch (err) {
-      console.error(err)
-    }
-  }
 
-  async function fetchPosts() {
-    try {
-      const res = await fetch("http://localhost:5000/api/reddit-posts")
-      const data = await res.json()
-      const mappedPosts = data.data.children.reduce(
-        (acc: Record<string, RedditPost>, item: any) => {
-          const p = item.data
-          acc[p.id] = {
-            id: p.id,
-            title: p.title,
-            score: p.score,
-            permalink: p.permalink,
-            subreddit: p.subreddit,
-            author: p.author,
-          }
-          return acc
-        },
-        {}
+      // Fetch posts for each stock_symbol to display details in RedditStockItem
+      const postsFetched: Record<string, RedditPost> = {}
+      await Promise.all(
+        data.map(async (item) => {
+          const post = await getPost(item.stock_symbol)
+          if (post) postsFetched[item.stock_symbol] = post
+        })
       )
-      setPosts(mappedPosts)
+      setPostsMap(postsFetched)
     } catch (err) {
       console.error(err)
     } finally {
       setLoading(false)
-    }
-  }
-
-  async function handleSell(symbol: string) {
-    try {
-      const res = await fetch("http://localhost:5000/sell", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ symbol, quantity: 1 }),
-      })
-      if (!res.ok) throw new Error("Failed to sell stock")
-      await fetchPortfolio()
-      await updateCredits()
-    } catch (err) {
-      alert("Error selling stock")
-      console.error(err)
-    }
-  }
-
-  async function handleBuy(symbol: string) {
-    try {
-      const res = await fetch("http://localhost:5000/buy", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ symbol, quantity: 1 }),
-      })
-      if (!res.ok) throw new Error("Failed to buy stock")
-      await fetchPortfolio()
-      await updateCredits()
-    } catch (err) {
-      alert("Error buying stock")
-      console.error(err)
-    }
-  }
-
-  async function refreshPost(id: string) {
-    try {
-      const res = await fetch(`http://localhost:5000/api/reddit-post/${id}`)
-      if (!res.ok) throw new Error('Failed to fetch single post')
-      const updatedPost: RedditPost = await res.json()
-  
-      setPosts((prev) => ({
-        ...prev,
-        [id]: updatedPost,
-      }))
-    } catch (err) {
-      console.error('Error refreshing post:', err)
     }
   }
 
@@ -130,10 +72,10 @@ const Portfolio: React.FC = () => {
 
   return (
     <div className="p-4 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">📈 Your Portfolio</h1>
+      <h1 className="text-2xl font-bold mb-4">Your Portfolio</h1>
       <ul className="space-y-4">
         {portfolio.map((item) => {
-          const post = posts[item.stock_symbol]
+          const post = postsMap[item.stock_symbol]
           if (!post) return null
 
           const avgCost = item.shares > 0 ? item.total_spent / item.shares : 0
@@ -142,12 +84,9 @@ const Portfolio: React.FC = () => {
             <li key={item.stock_symbol}>
               <RedditStockItem
                 post={post}
-                buy={handleBuy}
-                sell={handleSell}
                 shares={item.shares}
                 avgCost={avgCost}
                 showBuy={true}
-                onRefresh={() => refreshPost(item.stock_symbol)}
               />
             </li>
           )

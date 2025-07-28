@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { RedditStockItem } from './RedditStockItem'
-import { useStockActions } from '../hooks/useStockActions'
 
 interface RedditPost {
   id: string
@@ -35,7 +34,6 @@ export function RedditStocks() {
   const [posts, setPosts] = useState<RedditPost[]>([])
   const [portfolio, setPortfolio] = useState<Record<string, PortfolioItem>>({})
   const [loading, setLoading] = useState(true)
-  const { buy, sell } = useStockActions()
 
   function handleFilterChange(type: typeof filter) {
     setFilter(type)
@@ -195,8 +193,6 @@ export function RedditStocks() {
           <RedditStockItem
             key={post.id}
             post={post}
-            buy={buy}
-            sell={sell}
             shares={owned?.shares ?? 0}
             avgCost={owned && owned.shares > 0 ? owned.total_spent / owned.shares : 0}
           />

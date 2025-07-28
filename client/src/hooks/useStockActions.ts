@@ -4,16 +4,16 @@ import { AuthContext } from '../context/AuthContext'
 export function useStockActions() {
   const { updateCredits } = useContext(AuthContext)
 
-  async function buy(symbol: string) {
+  async function buy(symbol: string, quantity: number) {
     try {
       const res = await fetch('http://localhost:5000/buy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ symbol, quantity: 1 }),
+        body: JSON.stringify({ symbol, quantity: quantity }),
       })
       if (res.ok) {
-        alert(`Bought 1 share of ${symbol}`)
+        alert(`Bought ${quantity} share of ${symbol}`)
         await updateCredits()
       } else {
         const err = await res.json()
@@ -25,16 +25,16 @@ export function useStockActions() {
     }
   }
 
-  async function sell(symbol: string) {
+  async function sell(symbol: string, quantity: number) {
     try {
       const res = await fetch('http://localhost:5000/sell', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ symbol, quantity: 1 }),
+        body: JSON.stringify({ symbol, quantity: quantity }),
       })
       if (res.ok) {
-        alert(`Sold 1 share of ${symbol}`)
+        alert(`Sold ${quantity} share of ${symbol}`)
         await updateCredits()
       } else {
         const err = await res.json()
