@@ -1,31 +1,55 @@
-const Database = require('better-sqlite3')
-const path = require('path')
+const sql = require('mssql')
 
-// Open or create the SQLite database file
-const dbPath = process.env.DB_PATH || path.resolve(process.env.HOME || __dirname, 'app.db')
-const db = new Database(dbPath)
+const config = {
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  server: process.env.DB_SERVER,
+  database: process.env.DB_NAME,
+  options: {
+    encrypt: true
+  }
+}
 
-// Create Users table
-db.prepare(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    credits INTEGER DEFAULT 10000
-  )
-`).run()
+// Create a connection pool
+const pool = new sql.ConnectionPool(config)
+const poolConnect = pool.connect()
 
-// Create Portfolios table: stores user’s stock holdings
-db.prepare(`
-  CREATE TABLE IF NOT EXISTS portfolios (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    stock_symbol TEXT NOT NULL,
-    shares INTEGER NOT NULL DEFAULT 0,
-    total_spent INTEGER NOT NULL DEFAULT 0,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    UNIQUE(user_id, stock_symbol)
-  );
-`).run()
+// Function to create tables if they don't exist
+async function createTables() {
+  await poolConnect // ensure connection established
 
-module.exports = db
+  // Create Users table
+  await pool.request().query(`
+    IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='users' AND xtype='U')
+    CREATE TABLE users (
+      id INT IDENTITY(1,1) PRIMARY KEY,
+      username NVARCHAR(255) UNIQUE NOT NULL,
+      password NVARCHAR(255) NOT NULL,
+      credits INT DEFAULT 10000
+    )
+  `)
+
+  // Create Portfolios table
+  await pool.request().query(`
+    IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='portfolios' AND xtype='U')
+    CREATE TABLE portfolios (
+      id INT IDENTITY(1,1) PRIMARY KEY,
+      user_id INT NOT NULL FOREIGN KEY REFERENCES users(id),
+      stock_symbol NVARCHAR(10) NOT NULL,
+      shares INT NOT NULL DEFAULT 0,
+      total_spent INT NOT NULL DEFAULT 0,
+      CONSTRAINT UQ_user_stock UNIQUE(user_id, stock_symbol)
+    )
+  `)
+}
+
+// Immediately create tables on module load
+createTables().catch(err => {
+  console.error('Error creating tables:', err)
+})
+
+module.exports = {
+  sql,
+  pool,
+  poolConnect
+}

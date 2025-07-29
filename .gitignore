@@ -4,3 +4,4 @@ server/app.db
 *.zip
 /server/node_modules
 server/app.db
+server/.env

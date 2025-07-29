@@ -1,86 +1,108 @@
-const db = require('../database');
+const { pool, poolConnect } = require('../database')
 
 /**
  * Get authenticated user's basic info
  * Route: GET /me
  */
-exports.getMe = (req, res) => {
-  const userId = req.user?.id;
+exports.getMe = async (req, res) => {
+  const userId = req.user?.id
 
   if (!userId) {
-    return res.status(401).json({ error: 'Unauthorized: no user info' });
+    return res.status(401).json({ error: 'Unauthorized: no user info' })
   }
 
   try {
-    const user = db.prepare('SELECT username, credits FROM users WHERE id = ?').get(userId);
+    await poolConnect
 
+    const result = await pool.request()
+      .input('id', userId)
+      .query('SELECT username, credits FROM users WHERE id = @id')
+
+    const user = result.recordset[0]
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: 'User not found' })
     }
 
-    res.json({ username: user.username, credits: user.credits });
+    res.json({ username: user.username, credits: user.credits })
   } catch (err) {
-    console.error('Error fetching user info:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error fetching user info:', err)
+    res.status(500).json({ error: 'Internal server error' })
   }
-};
+}
 
 /**
  * Get user's portfolio with sorting, pagination
  * Route: GET /portfolio
  */
-exports.getPortfolio = (req, res) => {
-  const userId = req.user.id;
+exports.getPortfolio = async (req, res) => {
+  const userId = req.user.id
 
-  const validSortColumns = ['stock_symbol', 'shares', 'total_spent'];
-  const validSortDirections = ['ASC', 'DESC'];
+  const validSortColumns = ['stock_symbol', 'shares', 'total_spent']
+  const validSortDirections = ['ASC', 'DESC']
 
-  let { sortBy, sortDir, limit = 10, offset = 0 } = req.query;
-  limit = parseInt(limit);
-  offset = parseInt(offset);
+  let { sortBy, sortDir, limit = 10, offset = 0 } = req.query
+  limit = parseInt(limit)
+  offset = parseInt(offset)
 
-  if (!validSortColumns.includes(sortBy)) sortBy = 'stock_symbol';
-  if (!validSortDirections.includes((sortDir || '').toUpperCase())) sortDir = 'ASC';
-  else sortDir = sortDir.toUpperCase();
+  if (!validSortColumns.includes(sortBy)) sortBy = 'stock_symbol'
+  if (!validSortDirections.includes((sortDir || '').toUpperCase())) sortDir = 'ASC'
+  else sortDir = sortDir.toUpperCase()
 
   try {
-    const data = db.prepare(`
+    await poolConnect
+
+    // SQL Server pagination syntax: OFFSET ... FETCH NEXT ... ROWS ONLY
+    const portfolioQuery = `
       SELECT * FROM portfolios
-      WHERE user_id = ?
+      WHERE user_id = @userId
       ORDER BY ${sortBy} ${sortDir}
-      LIMIT ? OFFSET ?
-    `).all(userId, limit, offset);
+      OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
+    `
 
-    const { total } = db.prepare(`
-      SELECT COUNT(*) AS total FROM portfolios WHERE user_id = ?
-    `).get(userId);
+    const dataResult = await pool.request()
+      .input('userId', userId)
+      .input('offset', offset)
+      .input('limit', limit)
+      .query(portfolioQuery)
 
-    res.json({ data, total });
+    const countResult = await pool.request()
+      .input('userId', userId)
+      .query('SELECT COUNT(*) AS total FROM portfolios WHERE user_id = @userId')
+
+    const total = countResult.recordset[0]?.total || 0
+
+    res.json({ data: dataResult.recordset, total })
   } catch (err) {
-    console.error('Error fetching portfolio:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error fetching portfolio:', err)
+    res.status(500).json({ error: 'Internal server error' })
   }
-};
+}
 
 /**
  * Get details for a specific stock in user's portfolio
  * Route: GET /portfolio/:stockSymbol
  */
-exports.getStock = (req, res) => {
-  const userId = req.user.id;
-  const { stockSymbol } = req.params;
+exports.getStock = async (req, res) => {
+  const userId = req.user.id
+  const { stockSymbol } = req.params
 
   try {
-    const entry = db.prepare(`
-      SELECT * FROM portfolios
-      WHERE user_id = ? AND stock_symbol = ?
-    `).get(userId, stockSymbol);
+    await poolConnect
 
-    if (!entry) return res.json({}); // Return empty object for no data
+    const result = await pool.request()
+      .input('userId', userId)
+      .input('stockSymbol', stockSymbol)
+      .query(`
+        SELECT * FROM portfolios
+        WHERE user_id = @userId AND stock_symbol = @stockSymbol
+      `)
 
-    res.json(entry);
+    const entry = result.recordset[0]
+    if (!entry) return res.json({}) // return empty object if not found
+
+    res.json(entry)
   } catch (err) {
-    console.error('Error fetching stock:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error fetching stock:', err)
+    res.status(500).json({ error: 'Internal server error' })
   }
-};
+}

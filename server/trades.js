@@ -1,58 +1,108 @@
-const db = require('./database');
+const { pool, poolConnect, sql } = require('./database')
 
-const buy = db.transaction((userId, symbol, quantity, price) => {
-  const totalCost = price * quantity;
+async function buy(userId, symbol, quantity, price) {
+  const totalCost = price * quantity
+  await poolConnect
 
-  const user = db.prepare('SELECT credits FROM users WHERE id = ?').get(userId);
-  if (!user) throw new Error('User not found');
-  if (user.credits < totalCost) throw new Error('Insufficient credits');
+  const transaction = new sql.Transaction(pool)
+  try {
+    await transaction.begin()
 
-  db.prepare('UPDATE users SET credits = credits - ? WHERE id = ?')
-    .run(totalCost, userId);
+    const request = new sql.Request(transaction)
 
-  const portfolio = db.prepare(`
-    SELECT shares, total_spent FROM portfolios WHERE user_id = ? AND stock_symbol = ?
-  `).get(userId, symbol);
+    // Check user credits
+    const userResult = await request
+      .input('userId', sql.Int, userId)
+      .query('SELECT credits FROM users WHERE id = @userId')
+    const user = userResult.recordset[0]
+    if (!user) throw new Error('User not found')
+    if (user.credits < totalCost) throw new Error('Insufficient credits')
 
-  if (!portfolio) {
-    // Insert new row with shares and total_spent
-    db.prepare(`
-      INSERT INTO portfolios (user_id, stock_symbol, shares, total_spent)
-      VALUES (?, ?, ?, ?)
-    `).run(userId, symbol, quantity, totalCost);
-  } else {
-    // Update existing row: add shares and total_spent
-    const newShares = portfolio.shares + quantity;
-    const newTotalSpent = portfolio.total_spent + totalCost;
+    // Deduct credits
+    await request
+      .input('totalCost', sql.Int, totalCost)
+      .input('userId', sql.Int, userId)
+      .query('UPDATE users SET credits = credits - @totalCost WHERE id = @userId')
 
-    db.prepare(`
-      UPDATE portfolios SET shares = ?, total_spent = ? WHERE user_id = ? AND stock_symbol = ?
-    `).run(newShares, newTotalSpent, userId, symbol);
+    // Get current portfolio entry
+    const portfolioResult = await request
+      .input('userId', sql.Int, userId)
+      .input('symbol', sql.NVarChar(10), symbol)
+      .query('SELECT shares, total_spent FROM portfolios WHERE user_id = @userId AND stock_symbol = @symbol')
+    const portfolio = portfolioResult.recordset[0]
+
+    if (!portfolio) {
+      // Insert new portfolio row
+      await request
+        .input('userId', sql.Int, userId)
+        .input('symbol', sql.NVarChar(10), symbol)
+        .input('shares', sql.Int, quantity)
+        .input('totalSpent', sql.Int, totalCost)
+        .query(`INSERT INTO portfolios (user_id, stock_symbol, shares, total_spent)
+                VALUES (@userId, @symbol, @shares, @totalSpent)`)
+    } else {
+      // Update existing portfolio row
+      const newShares = portfolio.shares + quantity
+      const newTotalSpent = portfolio.total_spent + totalCost
+      await request
+        .input('newShares', sql.Int, newShares)
+        .input('newTotalSpent', sql.Int, newTotalSpent)
+        .input('userId', sql.Int, userId)
+        .input('symbol', sql.NVarChar(10), symbol)
+        .query(`UPDATE portfolios SET shares = @newShares, total_spent = @newTotalSpent
+                WHERE user_id = @userId AND stock_symbol = @symbol`)
+    }
+
+    await transaction.commit()
+  } catch (err) {
+    await transaction.rollback()
+    throw err
   }
-});
+}
 
-const sell = db.transaction((userId, symbol, quantity, price) => {
-  const portfolio = db.prepare(`
-    SELECT shares, total_spent FROM portfolios WHERE user_id = ? AND stock_symbol = ?
-  `).get(userId, symbol);
+async function sell(userId, symbol, quantity, price) {
+  await poolConnect
+  const transaction = new sql.Transaction(pool)
 
-  if (!portfolio || portfolio.shares < quantity) throw new Error('Not enough shares to sell');
+  try {
+    await transaction.begin()
+    const request = new sql.Request(transaction)
 
-  const averageCost = portfolio.total_spent / portfolio.shares;
-  const totalProceeds = price * quantity;
+    // Get portfolio entry
+    const portfolioResult = await request
+      .input('userId', sql.Int, userId)
+      .input('symbol', sql.NVarChar(10), symbol)
+      .query('SELECT shares, total_spent FROM portfolios WHERE user_id = @userId AND stock_symbol = @symbol')
 
-  const newShares = portfolio.shares - quantity;
-  const newTotalSpent = portfolio.total_spent - averageCost * quantity;
+    const portfolio = portfolioResult.recordset[0]
+    if (!portfolio || portfolio.shares < quantity) throw new Error('Not enough shares to sell')
 
-  // Update portfolio shares and total_spent
-  db.prepare(`
-    UPDATE portfolios SET shares = ?, total_spent = ? WHERE user_id = ? AND stock_symbol = ?
-  `).run(newShares, newTotalSpent, userId, symbol);
+    const averageCost = portfolio.total_spent / portfolio.shares
+    const totalProceeds = price * quantity
 
-  // Add credits to user
-  db.prepare(`
-    UPDATE users SET credits = credits + ? WHERE id = ?
-  `).run(totalProceeds, userId);
-});
+    const newShares = portfolio.shares - quantity
+    const newTotalSpent = portfolio.total_spent - averageCost * quantity
 
-module.exports = { buy, sell };
+    // Update portfolio shares and total_spent
+    await request
+      .input('newShares', sql.Int, newShares)
+      .input('newTotalSpent', sql.Int, newTotalSpent)
+      .input('userId', sql.Int, userId)
+      .input('symbol', sql.NVarChar(10), symbol)
+      .query(`UPDATE portfolios SET shares = @newShares, total_spent = @newTotalSpent
+              WHERE user_id = @userId AND stock_symbol = @symbol`)
+
+    // Add credits to user
+    await request
+      .input('totalProceeds', sql.Int, totalProceeds)
+      .input('userId', sql.Int, userId)
+      .query('UPDATE users SET credits = credits + @totalProceeds WHERE id = @userId')
+
+    await transaction.commit()
+  } catch (err) {
+    await transaction.rollback()
+    throw err
+  }
+}
+
+module.exports = { buy, sell }

@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/c992d096-e1fd-4c2d-a5bd-e6cd1930e7b8/resourceGroups/appsvc_linux_eastus2/providers/Microsoft.Web/sites/FantasyRedditWebApp",
+    "appService.deploySubpath": "server"
+}
