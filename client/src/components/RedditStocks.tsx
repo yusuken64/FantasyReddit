@@ -104,18 +104,46 @@ export function RedditStocks() {
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">
         {filter === 'hot' ? 'Hot Reddit Stocks'
-         : filter === 'new' ? 'New Reddit Stocks'
-         : filter === 'subreddit' && subreddit ? `r/${subreddit} Stocks`
-         : filter === 'thread' && threadId ? `Post ID: ${threadId}`
-         : 'Trending Reddit Stocks'}
+          : filter === 'new' ? 'New Reddit Stocks'
+            : filter === 'subreddit' && subreddit ? `r/${subreddit} Stocks`
+              : filter === 'thread' && threadId ? `Post ID: ${threadId}`
+                : 'Trending Reddit Stocks'}
       </h2>
 
       <div className="mb-4 space-x-2">
-        <button onClick={() => handleFilterChange('default')} className="btn">Trending</button>
-        <button onClick={() => handleFilterChange('hot')} className="btn">Hot</button>
-        <button onClick={() => handleFilterChange('new')} className="btn">New</button>
-        <button onClick={() => handleFilterChange('subreddit')} className="btn">By Subreddit</button>
-        <button onClick={() => handleFilterChange('thread')} className="btn">By Thread ID</button>
+        <div className="mb-4 space-x-2">
+          <button
+            onClick={() => handleFilterChange('default')}
+            className={`btn ${filter === 'default' ? 'btn-selected' : ''}`}
+          >
+            Trending
+          </button>
+          <button
+            onClick={() => handleFilterChange('hot')}
+            className={`btn ${filter === 'hot' ? 'btn-selected' : ''}`}
+          >
+            Hot
+          </button>
+          <button
+            onClick={() => handleFilterChange('new')}
+            className={`btn ${filter === 'new' ? 'btn-selected' : ''}`}
+          >
+            New
+          </button>
+          <button
+            onClick={() => handleFilterChange('subreddit')}
+            className={`btn ${filter === 'subreddit' ? 'btn-selected' : ''}`}
+          >
+            By Subreddit
+          </button>
+          <button
+            onClick={() => handleFilterChange('thread')}
+            className={`btn ${filter === 'thread' ? 'btn-selected' : ''}`}
+          >
+            By Thread ID
+          </button>
+        </div>
+
 
         {filter === 'subreddit' && (
           <>
@@ -146,10 +174,9 @@ export function RedditStocks() {
               value={threadIdInput}
               onChange={(e) => setThreadIdInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter')
-                {
+                if (e.key === 'Enter') {
                   const extracted = extractPostId(threadIdInput.trim())
-                  setThreadId(extracted ?? threadIdInput.trim())                  
+                  setThreadId(extracted ?? threadIdInput.trim())
                 }
               }}
               placeholder="Enter Reddit post ID"
@@ -158,11 +185,10 @@ export function RedditStocks() {
             <button
               className="btn"
               disabled={!threadIdInput.trim()}
-              onClick={() => 
-                {
-                  const extracted = extractPostId(threadIdInput.trim())
-                  setThreadId(extracted ?? threadIdInput.trim())                  
-                }
+              onClick={() => {
+                const extracted = extractPostId(threadIdInput.trim())
+                setThreadId(extracted ?? threadIdInput.trim())
+              }
               }
             >
               Search

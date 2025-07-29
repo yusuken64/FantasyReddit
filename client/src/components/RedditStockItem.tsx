@@ -1,6 +1,17 @@
 import React, { useState } from "react";
 import { useStockActions } from "../hooks/useStockActions";
 import { QuantityModal } from "./QuantityModal";
+import {
+  Typography,
+  Link,
+  Button,
+  Paper,
+  CircularProgress,
+  Stack,
+  Chip,
+} from "@mui/material";
+import { useContext } from 'react'
+import { AuthContext } from '../context/AuthContext'
 
 interface RedditPost {
   id: string;
@@ -15,7 +26,6 @@ interface RedditStockItemProps {
   post: RedditPost;
   shares?: number;
   avgCost?: number;
-  showBuy?: boolean;
 }
 
 export const RedditStockItem: React.FC<RedditStockItemProps> = ({
@@ -25,24 +35,23 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
 }) => {
   const [lastRefreshed, setLastRefreshed] = useState(Date.now());
   const [cooldown, setCooldown] = useState(false);
-  const [isBuying, setIsBuying] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"buy" | "sell">("buy");
   const [sharesState, setSharesState] = useState(shares);
   const [avgCostState, setAvgCostState] = useState(avgCost);
   const [post, setPost] = useState(initialPost);
   const [loading, setLoading] = useState(false);
+  const {credits} = useContext(AuthContext)
 
   const { buy, sell } = useStockActions();
 
   const openModal = (buyMode: boolean) => {
-    setIsBuying(buyMode);
     setModalType(buyMode ? "buy" : "sell");
     setModalOpen(true);
   };
 
   const handleConfirm = (amount: number) => {
-    isBuying ? buy(post.id, amount) : sell(post.id, amount);
+    modalType === "buy" ? buy(post.id, amount) : sell(post.id, amount);
     handleRefresh();
     setModalOpen(false);
   };
@@ -50,12 +59,10 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
   const handleRefresh = async () => {
     if (cooldown) return;
     setLoading(true);
-
     try {
       const res = await fetch(`http://localhost:5000/portfolio/${post.id}`, {
         credentials: "include",
       });
-
       if (!res.ok) throw new Error("Failed to fetch portfolio item");
       const portfolioItem = await res.json();
 
@@ -75,7 +82,9 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
         setAvgCostState(0);
       }
 
-      const postRes = await fetch(`http://localhost:5000/api/reddit-post/${post.id}`);
+      const postRes = await fetch(
+        `http://localhost:5000/api/reddit-post/${post.id}`
+      );
       if (postRes.ok) {
         const updatedPost = await postRes.json();
         setPost(updatedPost);
@@ -93,91 +102,103 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
   };
 
   return (
-    <div className="p-5 rounded-xl shadow-md bg-white border border-gray-300 hover:border-blue-500 transition duration-200 space-y-3">
-
+    <Paper
+      elevation={3}
+      sx={{ p: 3, borderRadius: 2, border: "1px solid #ccc", mb: 2 }}
+    >
       <QuantityModal
         isOpen={modalOpen}
         onClose={() => {
           handleRefresh();
           setModalOpen(false);
         }}
-        max={isBuying ? 1000000 : shares}
+        max={modalType === "buy" ? 1000000 : sharesState}
         min={0}
         initialAmount={1}
-        title={isBuying ? "Buy Shares" : "Sell Shares"}
+        title={modalType === "buy" ? "Buy Shares" : "Sell Shares"}
         onConfirm={handleConfirm}
         symbol={post.id}
         cost={post.score}
         type={modalType}
+        maxMoney={modalType === "buy" ? credits || 0 : undefined}
       />
 
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <a
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        spacing={2}
+        mb={1}
+      >
+        <Link
           href={`https://reddit.com${post.permalink}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-semibold text-blue-600 text-lg hover:underline flex-1"
+          underline="hover"
+          variant="h6"
+          sx={{ flexGrow: 1 }}
         >
           {post.title}
-        </a>
+        </Link>
 
-        <button
+        <Button
+          variant="contained"
+          color="primary"
           onClick={handleRefresh}
           disabled={cooldown || loading}
-          className={`ml-4 flex items-center gap-1 text-sm px-3 py-1 rounded-md transition ${
-            cooldown || loading
-              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-              : "bg-blue-500 text-white hover:bg-blue-600"
-          }`}
+          startIcon={
+            loading ? (
+              <CircularProgress size={16} color="inherit" />
+            ) : undefined
+          }
         >
-          {loading ? (
-            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-          ) : (
-            "Refresh"
-          )}
-        </button>
-      </div>
+          Refresh
+        </Button>
+      </Stack>
 
-      <p className="text-sm text-gray-600">
-        <span className="font-medium">r/{post.subreddit}</span> • u/{post.author} •{" "}
-        <span className="text-gray-500">Score: {post.score}</span>
-      </p>
+      <Typography variant="body2" color="text.secondary" mb={0.5}>
+        <strong>r/{post.subreddit}</strong> • u/{post.author} • Score: {post.score}
+      </Typography>
 
-      <p className="text-xs text-gray-400">
+      <Typography variant="caption" color="text.disabled" mb={2}>
         Last refreshed: {new Date(lastRefreshed).toLocaleTimeString()}
-      </p>
+      </Typography>
 
       {/* Portfolio Info */}
-      <div className="flex gap-4 items-center text-sm">
-        <span className="px-2 py-1 bg-gray-100 border border-gray-300 rounded">
-          Shares: <strong>{sharesState}</strong>
-        </span>
-        <span className="px-2 py-1 bg-gray-100 border border-gray-300 rounded">
-          Avg Cost: <strong>${avgCostState.toFixed(2)}</strong>
-        </span>
-      </div>
+      <Stack direction="row" spacing={2} mb={2}>
+        <Chip
+          label={`Shares: ${sharesState}`}
+          variant="outlined"
+          color="default"
+        />
+        <Chip
+          label={`Avg Cost: $${avgCostState.toFixed(2)}`}
+          variant="outlined"
+          color="default"
+        />
+      </Stack>
 
       {/* Action Buttons */}
-      <div className="flex gap-2 mt-2">
-        <button
+      <Stack direction="row" spacing={2}>
+        <Button
+          fullWidth
+          variant="contained"
+          color="success"
           onClick={() => openModal(true)}
-          className="flex-1 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
         >
           Buy
-        </button>
-        <button
+        </Button>
+        <Button
+          fullWidth
+          variant="contained"
+          color="error"
           onClick={() => openModal(false)}
-          className={`flex-1 px-4 py-2 rounded-md transition ${
-            sharesState === 0
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-red-500 text-white hover:bg-red-600"
-          }`}
           disabled={sharesState === 0}
         >
           Sell
-        </button>
-      </div>
-    </div>
+        </Button>
+      </Stack>
+    </Paper>
   );
 };

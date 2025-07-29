@@ -1,17 +1,30 @@
-import React, { useEffect, useCallback, useState } from "react"
-import { createPortal } from "react-dom"
+import React, { useEffect, useCallback, useState } from "react";
+import { createPortal } from "react-dom";
+import {
+  Box,
+  Button,
+  Typography,
+  Modal,
+  Stack,
+  TextField,
+  useTheme,
+} from "@mui/material";
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import Tooltip from '@mui/material/Tooltip';
 
 interface QuantityModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onConfirm: (amount: number) => void
-  max: number
-  min: number
-  initialAmount?: number
-  title?: string
-  symbol: string
-  cost: number
-  type: 'buy' | 'sell'
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (amount: number) => void;
+  max: number;
+  min: number;
+  initialAmount?: number;
+  title?: string;
+  symbol: string;
+  cost: number;
+  type: "buy" | "sell";
+  maxMoney?: number;
 }
 
 export const QuantityModal: React.FC<QuantityModalProps> = ({
@@ -24,138 +37,166 @@ export const QuantityModal: React.FC<QuantityModalProps> = ({
   title,
   symbol,
   cost,
-  type
+  type,
+  maxMoney,
 }) => {
-  const [amount, setAmount] = useState(initialAmount)
+  const maxSharesByMoney = maxMoney !== undefined ? Math.floor(maxMoney / cost) : max;
+  const effectiveMax = Math.min(max, maxSharesByMoney);
+
+  const [amount, setAmount] = useState(initialAmount);
+  const theme = useTheme();
 
   // Reset amount when modal opens
   useEffect(() => {
-    if (isOpen) setAmount(initialAmount)
-  }, [isOpen, initialAmount])
+    if (isOpen) setAmount(initialAmount);
+  }, [isOpen, initialAmount]);
 
   // Close modal on Escape key
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
+      if (e.key === "Escape") onClose();
     },
     [onClose]
-  )
+  );
 
   useEffect(() => {
     if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown)
-      return () => document.removeEventListener("keydown", handleKeyDown)
+      document.addEventListener("keydown", handleKeyDown);
+      return () => document.removeEventListener("keydown", handleKeyDown);
     }
-  }, [isOpen, handleKeyDown])
+  }, [isOpen, handleKeyDown]);
 
-  const handleConfirm = () => {
-    onConfirm(amount)
-    onClose()
-  }
+  const total = (amount * cost);
 
-  if (!isOpen) return null
+  const color = type === "buy" ? theme.palette.error.light : theme.palette.success.light;
+  const textColor = type === "buy" ? theme.palette.error.main : theme.palette.success.main;
 
-  const total = (amount * cost).toFixed(2)
-  const bgColor = type === 'buy' ? 'pink' : 'green'
+  const adjustAmount = (delta: number) => {
+    setAmount((a) => Math.min(effectiveMax, Math.max(min, a + delta)));
+  };
 
   return createPortal(
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        zIndex: 9999,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="quantity-modal-title"
-    >
-      <div className="bg-white p-6 rounded shadow-lg w-full max-w-sm" id="quantity-modal"
-            style={{
-              backgroundColor : bgColor
-        }}>
-        <h2 id="quantity-modal-title" className="text-xl font-bold mb-2">
+    <Modal open={isOpen} onClose={onClose} aria-labelledby="quantity-modal-title" closeAfterTransition>
+      <Box
+        sx={{
+          position: "absolute" as const,
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          bgcolor: theme.palette.background.paper,
+          p: 4,
+          borderRadius: 2,
+          minWidth: 320,
+          maxWidth: "90vw",
+          boxShadow: 24,
+          outline: "none",
+        }}
+      >
+        {/* Title and total cost */}
+        <Typography id="quantity-modal-title" variant="h6" fontWeight="bold" gutterBottom>
           {title} {symbol} @ ${cost} per share
-        </h2>
+        </Typography>
 
-        <div className="mb-4 text-gray-700 font-semibold">
-          {amount} share{amount !== 1 ? "s" : ""} × {cost} = <span className="text-blue-600">{total}</span>
-        </div>
+        <Typography variant="subtitle1" mb={3}>
+          {amount} share{amount !== 1 ? "s" : ""} × {cost} ={" "}
+          <Box component="span" color={theme.palette.primary.main} fontWeight="bold">
+            ${(amount * cost).toFixed(2)}
+          </Box>
+        </Typography>
 
-        <div className="flex flex-wrap gap-2 mb-4">
-          {[1, 10, 100].map(n => (
-            <button
-              key={`plus-${n}`}
-              onClick={() => setAmount(a => Math.min(max, a + n))}
-              className="bg-green-100 text-green-800 px-3 py-1 rounded"
-            >
-              +{n}
-            </button>
-          ))}
-          <button
-            onClick={() => setAmount(max)}
-            className="bg-green-200 text-green-900 px-3 py-1 rounded"
-          >
-            Max
-          </button>
-          {[1, 10, 100].map(n => (
-            <button
-              key={`minus-${n}`}
-              onClick={() => setAmount(a => Math.max(min, a - n))}
-              className="bg-red-100 text-red-800 px-3 py-1 rounded"
-            >
-              -{n}
-            </button>
-          ))}
-          {min === 0 && (
-            <button
-              onClick={() => setAmount(0)}
-              className="bg-red-200 text-red-900 px-3 py-1 rounded"
-            >
-              Zero
-            </button>
-          )}
-        </div>
+        {/* Buttons for increments */}
+<Stack direction="row" spacing={2} flexWrap="wrap" mb={2} alignItems="center" justifyContent="space-between">
+  {/* Increment buttons */}
+  <Stack direction="row" spacing={1}>
+    {[1, 10, 100].map((n) => (
+      <Tooltip key={`plus-${n}`} title={`Add ${n}`}>
+        <Button
+          variant="outlined"
+          size="small"
+          color={type === "buy" ? "error" : "success"}
+          onClick={() => adjustAmount(n)}
+          startIcon={<AddIcon />}
+        >
+          {n}
+        </Button>
+      </Tooltip>
+    ))}
 
-        <div className="mb-4">
-          <input
-            type="number"
-            inputMode="numeric"
-            step="1"
-            min={min}
-            max={max}
-            value={amount}
-            onChange={e => {
-              const val = Number(e.target.value)
-              if (!isNaN(val)) {
-                setAmount(Math.min(max, Math.max(min, val)))
-              }
-            }}
-            className="w-full px-3 py-2 border rounded"
-          />
-        </div>
+    <Tooltip title={`Set to max (${effectiveMax})`}>
+      <Button
+        variant="contained"
+        size="small"
+        color={type === "buy" ? "error" : "success"}
+        onClick={() => setAmount(effectiveMax)}
+      >
+        Max ({effectiveMax})
+      </Button>
+    </Tooltip>
+  </Stack>
 
-        <div className="flex justify-end gap-2">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-300 text-gray-800 rounded"
-          >
+  {/* Decrement buttons */}
+  <Stack direction="row" spacing={1}>
+    {[1, 10, 100].map((n) => (
+      <Tooltip key={`minus-${n}`} title={`Subtract ${n}`}>
+        <Button
+          variant="outlined"
+          size="small"
+          color="inherit"
+          onClick={() => adjustAmount(-n)}
+          startIcon={<RemoveIcon />}
+        >
+          {n}
+        </Button>
+      </Tooltip>
+    ))}
+
+    {min === 0 && (
+      <Tooltip title="Set to zero">
+        <Button
+          variant="contained"
+          size="small"
+          color="inherit"
+          onClick={() => setAmount(0)}
+        >
+          Zero
+        </Button>
+      </Tooltip>
+    )}
+  </Stack>
+</Stack>
+
+        {/* Show max shares by money if relevant */}
+        {maxMoney !== undefined && maxSharesByMoney < max && (
+          <Typography variant="caption" color="text.secondary" mb={2}>
+            Max shares allowed by your budget ${maxMoney}: ({maxSharesByMoney})
+          </Typography>
+        )}
+
+        {/* Number input */}
+        <TextField
+          type="number"
+          inputProps={{ min, max: effectiveMax, step: 1 }}
+          value={amount}
+          onChange={(e) => {
+            const val = Number(e.target.value);
+            if (!isNaN(val)) setAmount(Math.min(effectiveMax, Math.max(min, val)));
+          }}
+          fullWidth
+          size="small"
+          sx={{ mb: 3, bgcolor: "background.paper", borderRadius: 1 }}
+        />
+
+        {/* Cancel / Confirm */}
+        <Stack direction="row" justifyContent="flex-end" spacing={2}>
+          <Button variant="outlined" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            onClick={() => {
-              handleConfirm()
-            }}
-            className="px-4 py-2 bg-blue-600 text-white rounded"
-          >
+          </Button>
+          <Button variant="contained" onClick={() => { onConfirm(amount); onClose(); }}>
             Confirm
-          </button>
-        </div>
-      </div>
-    </div>,
+          </Button>
+        </Stack>
+      </Box>
+    </Modal>,
     document.body
-  )
-}
+  );
+};
