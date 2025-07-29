@@ -60,7 +60,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
     if (cooldown) return;
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/portfolio/${post.id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/portfolio/${post.id}`, {
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to fetch portfolio item");

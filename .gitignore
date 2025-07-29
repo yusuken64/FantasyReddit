@@ -1,1 +1,5 @@
 server/app.db
+/node_modules
+/server/public
+*.zip
+/server/node_modules

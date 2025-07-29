@@ -131,7 +131,6 @@ const Portfolio: React.FC = () => {
             post={post}
             shares={item.shares}
             avgCost={avgCost}
-            showBuy={true}
           />
         )
       })}

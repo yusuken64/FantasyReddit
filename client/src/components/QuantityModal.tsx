@@ -66,11 +66,6 @@ export const QuantityModal: React.FC<QuantityModalProps> = ({
     }
   }, [isOpen, handleKeyDown]);
 
-  const total = (amount * cost);
-
-  const color = type === "buy" ? theme.palette.error.light : theme.palette.success.light;
-  const textColor = type === "buy" ? theme.palette.error.main : theme.palette.success.main;
-
   const adjustAmount = (delta: number) => {
     setAmount((a) => Math.min(effectiveMax, Math.max(min, a + delta)));
   };

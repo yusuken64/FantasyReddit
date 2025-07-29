@@ -2,7 +2,8 @@ const Database = require('better-sqlite3')
 const path = require('path')
 
 // Open or create the SQLite database file
-const db = new Database(path.resolve(__dirname, 'app.db'))
+const dbPath = process.env.DB_PATH || path.resolve(process.env.HOME || __dirname, 'app.db')
+const db = new Database(dbPath)
 
 // Create Users table
 db.prepare(`
