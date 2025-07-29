@@ -6,7 +6,7 @@ export function useStockActions() {
 
   async function buy(symbol: string, quantity: number) {
     try {
-      const res = await fetch('http://localhost:5000/buy', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/buy`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -27,7 +27,7 @@ export function useStockActions() {
 
   async function sell(symbol: string, quantity: number) {
     try {
-      const res = await fetch('http://localhost:5000/sell', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/sell`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

@@ -35,7 +35,7 @@ const Portfolio: React.FC = () => {
 
   async function getPost(stock_symbol: string): Promise<RedditPost | null> {
     try {
-      const res = await fetch(`http://localhost:5000/api/reddit-post/${stock_symbol}`)
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reddit-post/${stock_symbol}`)
       if (!res.ok) throw new Error(`Post not found for id ${stock_symbol}`)
       const postData = await res.json()
       return postData
@@ -50,7 +50,7 @@ const Portfolio: React.FC = () => {
       const offset = (page - 1) * limit
 
       const res = await fetch(
-        `http://localhost:5000/portfolio?sortBy=${sortBy}&sortDir=${sortDir}&limit=${limit}&offset=${offset}`,
+        `${import.meta.env.VITE_API_URL}/portfolio?sortBy=${sortBy}&sortDir=${sortDir}&limit=${limit}&offset=${offset}`,
         { credentials: "include" }
       )
       if (!res.ok) throw new Error("Failed to fetch portfolio")

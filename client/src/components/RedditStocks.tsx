@@ -52,7 +52,7 @@ export function RedditStocks() {
             setLoading(false)
             return
           }
-          const res = await fetch(`http://localhost:5000/api/reddit-post/${threadId.trim()}`)
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reddit-post/${threadId.trim()}`)
           if (!res.ok) throw new Error('Post not found')
           const postData = await res.json()
           mappedPosts = [{
@@ -64,7 +64,7 @@ export function RedditStocks() {
             author: postData.author
           }]
         } else {
-          let endpoint = 'http://localhost:5000/api/reddit-posts'
+          let endpoint = `${import.meta.env.VITE_API_URL}/api/reddit-posts`
           if (filter === 'hot') endpoint += '/hot'
           else if (filter === 'new') endpoint += '/new'
           else if (filter === 'subreddit') {

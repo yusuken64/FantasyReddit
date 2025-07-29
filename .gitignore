@@ -3,3 +3,4 @@ server/app.db
 /server/public
 *.zip
 /server/node_modules
+server/app.db

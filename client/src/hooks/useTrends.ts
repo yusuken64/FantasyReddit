@@ -4,7 +4,7 @@ export const useTrends = () =>
   useQuery({
     queryKey: ['trends'],
     queryFn: async () => {
-      const res = await fetch('http://localhost:5000/api/trends');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/trends`);
       if (!res.ok) throw new Error('Failed to fetch trends');
       return res.json();
     },
