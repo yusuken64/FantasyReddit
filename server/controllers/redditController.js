@@ -1,8 +1,14 @@
 const fetch = global.fetch;
 
+const redditHeaders = {
+  'User-Agent': 'fantasy-reddit-app/0.1 (by u/yusuken64)',
+};
+
 exports.getRisingPosts = async (req, res) => {
   try {
-    const response = await fetch('https://www.reddit.com/r/all/rising.json');
+    const response = await fetch('https://www.reddit.com/r/all/rising.json', {
+      headers: redditHeaders
+    });
     const data = await response.json();
     res.json(data);
   } catch (err) {
@@ -13,7 +19,9 @@ exports.getRisingPosts = async (req, res) => {
 
 exports.getHotPosts = async (req, res) => {
   try {
-    const response = await fetch('https://www.reddit.com/r/all/hot.json');
+    const response = await fetch('https://www.reddit.com/r/all/hot.json', {
+      headers: redditHeaders
+    });
     const data = await response.json();
     res.json(data);
   } catch (err) {
@@ -24,7 +32,9 @@ exports.getHotPosts = async (req, res) => {
 
 exports.getNewPosts = async (req, res) => {
   try {
-    const response = await fetch('https://www.reddit.com/r/all/new.json');
+    const response = await fetch('https://www.reddit.com/r/all/new.json', {
+      headers: redditHeaders
+    });
     const data = await response.json();
     res.json(data);
   } catch (err) {
@@ -36,7 +46,9 @@ exports.getNewPosts = async (req, res) => {
 exports.getSubredditPosts = async (req, res) => {
   const { subreddit } = req.params;
   try {
-    const response = await fetch(`https://www.reddit.com/r/${subreddit}.json`);
+    const response = await fetch(`https://www.reddit.com/r/${subreddit}.json`, {
+      headers: redditHeaders
+    });
     const data = await response.json();
     res.json(data);
   } catch (err) {
@@ -48,7 +60,9 @@ exports.getSubredditPosts = async (req, res) => {
 exports.getPostById = async (req, res) => {
   const { id: postId } = req.params;
   try {
-    const response = await fetch(`https://www.reddit.com/api/info.json?id=t3_${postId}`);
+    const response = await fetch(`https://www.reddit.com/api/info.json?id=t3_${postId}`, {
+      headers: redditHeaders
+    });
     if (!response.ok) {
       return res.status(response.status).send('Failed to fetch post from Reddit');
     }
