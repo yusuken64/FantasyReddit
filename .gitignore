@@ -5,3 +5,4 @@ server/app.db
 /server/node_modules
 server/app.db
 server/.env
+server/.env
