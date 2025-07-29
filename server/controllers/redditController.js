@@ -60,7 +60,7 @@ async function getJson(url, useAuth = false) {
 
 exports.getRisingPosts = async (req, res) => {
   try {
-    const data = await getJson('https://www.reddit.com/r/all/rising.json');
+    const data = await getJson('https://oauth.reddit.com/r/all/rising.json', true);
     res.json(data);
   } catch (err) {
     console.error('Failed to fetch rising posts:', err);
@@ -70,7 +70,7 @@ exports.getRisingPosts = async (req, res) => {
 
 exports.getHotPosts = async (req, res) => {
   try {
-    const data = await getJson('https://www.reddit.com/r/all/hot.json');
+    const data = await getJson('https://oauth.reddit.com/r/all/hot', true);
     res.json(data);
   } catch (err) {
     console.error('Failed to fetch hot posts:', err);
@@ -80,7 +80,7 @@ exports.getHotPosts = async (req, res) => {
 
 exports.getNewPosts = async (req, res) => {
   try {
-    const data = await getJson('https://www.reddit.com/r/all/new.json');
+    const data = await getJson('https://oauth.reddit.com/r/all/new', true);
     res.json(data);
   } catch (err) {
     console.error('Failed to fetch new posts:', err);
@@ -91,7 +91,7 @@ exports.getNewPosts = async (req, res) => {
 exports.getSubredditPosts = async (req, res) => {
   const { subreddit } = req.params;
   try {
-    const data = await getJson(`https://www.reddit.com/r/${subreddit}.json`);
+    const data = await getJson(`https://oauth.reddit.com/r/${subreddit}`, true);
     res.json(data);
   } catch (err) {
     console.error(`Failed to fetch subreddit ${subreddit}:`, err);
@@ -102,7 +102,7 @@ exports.getSubredditPosts = async (req, res) => {
 exports.getPostById = async (req, res) => {
   const { id: postId } = req.params;
   try {
-    const data = await getJson(`https://www.reddit.com/api/info.json?id=t3_${postId}`);
+    const data = await getJson(`https://oauth.reddit.com/api/info?id=t3_${postId}`, true);
     const post = data.data.children[0]?.data;
     if (!post) return res.status(404).send('Post not found');
     res.json(post);
