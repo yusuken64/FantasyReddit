@@ -40,9 +40,9 @@ try {
 // Step 3: Deploy the zip
 console.log(`🚀 Deploying ${ZIP_FILE} to Azure App Service "${APP_NAME}"...`);
 
-// run(
-//     `az webapp config appsettings set --resource-group ${RESOURCE_GROUP} --name ${APP_NAME} --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true`    
-// );
+run(
+    `az webapp config appsettings set --resource-group ${RESOURCE_GROUP} --name ${APP_NAME} --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true`    
+);
 
 run(
     `az webapp deploy --resource-group ${RESOURCE_GROUP} --name ${APP_NAME} --src-path ${ZIP_FILE} --type zip`
