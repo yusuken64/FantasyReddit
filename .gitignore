@@ -6,3 +6,4 @@ server/app.db
 server/app.db
 server/.env
 server/.env
+".env*" 
