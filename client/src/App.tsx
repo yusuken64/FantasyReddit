@@ -87,7 +87,7 @@ function Navigation() {
   )
 }
 
-import { FaTwitter, FaFacebook, FaInstagram, FaDiscord } from 'react-icons/fa'
+import { FaTwitter, FaDiscord } from 'react-icons/fa'
 
 function HomePage() {
   return (
