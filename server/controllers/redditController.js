@@ -58,6 +58,8 @@ async function getJson(url, useAuth = false) {
   return response.json();
 }
 
+exports.getJson = getJson;
+
 exports.getRisingPosts = async (req, res) => {
   try {
     const data = await getJson('https://oauth.reddit.com/r/all/rising.json', true);

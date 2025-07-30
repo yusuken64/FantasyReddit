@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { pool, poolConnect } = require('../database')
-const JWT_SECRET = process.env.JWT_SECRET || 'your-very-secure-secret'
+const JWT_SECRET = process.env.JWT_SECRET || 'your-very-secure-secret2'
 
 exports.signup = async (req, res) => {
   const { username, password } = req.body
@@ -67,7 +67,12 @@ exports.login = async (req, res) => {
     const token = jwt.sign({ username, id: user.id }, JWT_SECRET, { expiresIn: '1h' })
 
     // Send token as HttpOnly cookie
-    res.cookie('token', token, { httpOnly: true, sameSite: 'lax' })
+    res.cookie('token', token, 
+      {
+         httpOnly: true,
+         sameSite: 'none',
+         secure: true
+      })
     res.json({ message: 'Logged in' })
   } catch (err) {
     console.error('Login error:', err)

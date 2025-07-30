@@ -87,19 +87,55 @@ function Navigation() {
   )
 }
 
+import { FaTwitter, FaFacebook, FaInstagram, FaDiscord } from 'react-icons/fa'
+
 function HomePage() {
   return (
-    <div className="container my-5 p-4 bg-white rounded shadow-sm" style={{ maxWidth: '600px' }}>
+    <div
+      role="main"
+      className="container my-5 p-4 bg-white rounded shadow-sm"
+      style={{ maxWidth: '600px' }}
+    >
       <h1 className="display-4 mb-4">Welcome to Fantasy Reddit Stocks</h1>
       <p className="lead text-secondary mb-4">
-        This app lets you simulate buying and selling “stocks” based on trending Reddit posts,
-        primarily from r/wallstreetbets. Track your portfolio, buy shares in posts you like,
-        and see how your investments perform as post scores change over time.
+        This is a fantasy stock market where the value of “stocks” depends on how hot a Reddit thread is.
+        The hotness rises and falls based on how much engagement the thread gets — like upvotes, comments, and shares.
       </p>
-      <p className="text-secondary">
-        Use the navigation links above to browse your portfolio, explore popular Reddit posts,
-        and engage with the fantasy stock market built around social media trends!
+      <p className="text-secondary mb-4">
+        Buy shares in threads you think will get popular, track your portfolio, and watch how your investments change as the conversation evolves.
       </p>
+      <p className="text-secondary mb-4">
+        Use the navigation links above to explore posts, manage your portfolio, and dive into the social media-driven stock market!
+      </p>
+
+      <p className="text-warning fst-italic">
+        Note: This app is under construction. Things may break or change — please leave feedback on our social channels!
+      </p>
+
+      {/* Social media links with icons */}
+      <div className="mt-3">
+        <h5>Follow us on social media:</h5>
+        <div className="d-flex gap-4 fs-3">
+          {/* Replace '#' with actual URLs */}
+          <a
+            href="https://x.com/JuicyChickenDev"
+            aria-label="Twitter"
+            className="text-primary"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <FaTwitter />
+          </a>
+          <a
+            href="https://discord.gg/nJ84kqbbzV"
+            aria-label="Discord"
+            className="text-primary"
+            target="_blank"
+            rel="noopener noreferrer">
+            <FaDiscord />
+          </a>
+        </div>
+      </div>
     </div>
   )
 }
