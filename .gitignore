@@ -9,3 +9,4 @@ server/.env
 ".env*" 
 client/.env.production
 server/.env.cloud
+server/.env.local

@@ -1,8 +1,7 @@
 import { useContext } from 'react'
 import { AuthContext } from './context/AuthContext'
 import { BrowserRouter, Routes, Route, NavLink, useNavigate } from 'react-router-dom'
-import Signup from './components/Signup'
-import Login from './components/Login'
+import Login from './components/LoginWithReddit'
 import { RedditStocks } from './components/RedditStocks'
 import Portfolio from './components/Portfolio'
 import Leaderboard from './components/Leaderboard';
@@ -47,18 +46,6 @@ function Navigation() {
 
         {!username && (
           <>
-            <NavLink
-              to="/signup"
-              style={({ isActive }) => ({
-                textDecoration: 'none',
-                color: isActive ? '#1976d2' : '#555',
-                borderBottom: isActive ? '2px solid #1976d2' : 'none',
-                paddingBottom: 4,
-                fontWeight: isActive ? '600' : '400',
-              })}
-            >
-              Signup
-            </NavLink>
             <NavLink
               to="/login"
               style={({ isActive }) => ({
@@ -153,7 +140,6 @@ function App() {
         <main className="max-w-xl mx-auto p-4">
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
             <Route path="/redditStocks" element={<RedditStocks />} />
             <Route path="/portfolio" element={<Portfolio />} />

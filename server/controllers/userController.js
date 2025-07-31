@@ -1,6 +1,6 @@
 const { pool, poolConnect } = require('../database')
 const { buy, sell } = require('../trades');
-const { getJson } = require('./redditController');
+const { getJson, getAuthenticatedUser } = require('./redditController');
 const sql = require('mssql');
 
 /**
@@ -139,7 +139,9 @@ exports.deleteStock = async (req, res) => {
     let price = 0;
     
     if (entry) {
-      const redditData = await getJson(`https://oauth.reddit.com/by_id/t3_${stockSymbol}.json`, true);
+      const user = await getAuthenticatedUser(req);
+      if (!user) return res.status(401).json({ error: 'Unauthorized' });
+      const redditData = await getJson(`https://oauth.reddit.com/by_id/t3_${stockSymbol}.json`, user, true);
       const post = redditData?.data?.children?.[0]?.data;
       price = post?.score ?? 0;
     }

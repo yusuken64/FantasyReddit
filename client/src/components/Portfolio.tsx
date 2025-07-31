@@ -35,7 +35,9 @@ const Portfolio: React.FC = () => {
 
   async function getPost(stock_symbol: string): Promise<RedditPost | null> {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reddit-post/${stock_symbol}`)
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reddit-post/${stock_symbol}`, {
+        credentials: 'include',  // <-- required to send cookie
+      })
       if (!res.ok) throw new Error(`Post not found for id ${stock_symbol}`)
       const postData = await res.json()
       return postData
@@ -136,7 +138,7 @@ const Portfolio: React.FC = () => {
             shares={item.shares}
             avgCost={avgCost}
             onDelete={() => handleDeleteStock(post.id)}
-            owned = {true}
+            owned={true}
           />
         )
       })}

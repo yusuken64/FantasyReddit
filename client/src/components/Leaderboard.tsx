@@ -36,7 +36,10 @@ const Leaderboard: React.FC = () => {
       try {
         setLoading(true);
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/leaderboard?limit=${limit}&offset=${offset}`
+          `${import.meta.env.VITE_API_URL}/leaderboard?limit=${limit}&offset=${offset}`,
+          {
+            credentials: 'include',  // <-- required to send cookie
+          }
         );
         if (!res.ok) throw new Error('Failed to fetch leaderboard');
         const json: LeaderboardResponse = await res.json();

@@ -1,12 +1,14 @@
 const sql = require('mssql')
 
+const isLocal = process.env.NODE_ENV !== 'production';
 const config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   server: process.env.DB_SERVER,
   database: process.env.DB_NAME,
   options: {
-    encrypt: true
+    encrypt: !isLocal,                 // true for Azure, false for local
+    trustServerCertificate: isLocal    // allow self-signed certs locally
   }
 }
 
@@ -20,12 +22,18 @@ async function createTables() {
 
   // Create Users table
   await pool.request().query(`
-    IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='users' AND xtype='U')
+    IF NOT EXISTS (
+      SELECT * FROM sysobjects WHERE name='users' AND xtype='U'
+    )
     CREATE TABLE users (
       id INT IDENTITY(1,1) PRIMARY KEY,
       username NVARCHAR(255) UNIQUE NOT NULL,
-      password NVARCHAR(255) NOT NULL,
-      credits INT DEFAULT 10000
+      reddit_id NVARCHAR(50) UNIQUE NULL,
+      access_token NVARCHAR(MAX) NULL,
+      refresh_token NVARCHAR(MAX) NULL,
+      token_expiry DATETIME2 NULL,
+      credits INT DEFAULT 10000,
+      totalScore INT DEFAULT 0
     )
   `)
 

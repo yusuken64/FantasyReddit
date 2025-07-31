@@ -1,39 +1,6 @@
 const fetch = global.fetch;
-
-let cachedToken = null;
-let tokenExpiresAt = 0;
-
-async function getRedditAccessToken() {
-  const now = Date.now();
-  if (cachedToken && now < tokenExpiresAt) return cachedToken;
-
-  const auth = Buffer.from(
-    `${process.env.REDDIT_CLIENT_ID}:${process.env.REDDIT_CLIENT_SECRET}`
-  ).toString('base64');
-
-  const response = await fetch('https://www.reddit.com/api/v1/access_token', {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${auth}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      grant_type: 'password',
-      username: process.env.REDDIT_USERNAME,
-      password: process.env.REDDIT_PASSWORD,
-    }),
-  });
-
-  if (!response.ok) {
-    console.error(`Failed to fetch token: ${response.status}`);
-    throw new Error('Failed to get access token');
-  }
-
-  const data = await response.json();
-  cachedToken = data.access_token;
-  tokenExpiresAt = now + data.expires_in * 1000 - 60_000; // Refresh 1 minute early
-  return cachedToken;
-}
+const { pool } = require('../database');
+const { getValidAccessToken } = require('./authController');
 
 function getPublicHeaders() {
   return {
@@ -41,13 +8,18 @@ function getPublicHeaders() {
   };
 }
 
-async function getJson(url, useAuth = false) {
+async function getJson(url, user = null, useAuth = false) {
   const headers = getPublicHeaders();
 
   if (useAuth) {
-    const token = await getRedditAccessToken();
+    if (!user) throw new Error('Authenticated user required for authorized Reddit API call');
+    const token = await getValidAccessToken(user);
     headers.Authorization = `Bearer ${token}`;
   }
+
+  // console.log('Calling Reddit API:', url);
+  // console.log('Using token:', headers.Authorization?.slice(0, 30) + '...');
+  // console.log('User trying to fetch:', user.username, user.id, user.token_expiry);
 
   const response = await fetch(url, { headers });
 
@@ -58,58 +30,77 @@ async function getJson(url, useAuth = false) {
   return response.json();
 }
 
+async function getAuthenticatedUser(req) {
+  const result = await pool
+    .request()
+    .input('id', req.user.id)
+    .query('SELECT * FROM users WHERE id = @id');
+  return result.recordset[0] || null;
+}
+
+exports.getAuthenticatedUser = getAuthenticatedUser;
 exports.getJson = getJson;
 
 exports.getRisingPosts = async (req, res) => {
   try {
-    const data = await getJson('https://oauth.reddit.com/r/all/rising.json', true);
+    const user = await getAuthenticatedUser(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+    const data = await getJson('https://oauth.reddit.com/r/all/rising.json', user, true);
     res.json(data);
   } catch (err) {
-    console.error('Failed to fetch rising posts:', err);
-    res.status(500).send('Error fetching rising posts');
+    console.error('Failed to fetch rising posts for user:', req.user?.id, err);
+    res.status(500).json({ error: 'Error fetching rising posts' });
   }
 };
 
 exports.getHotPosts = async (req, res) => {
   try {
-    const data = await getJson('https://oauth.reddit.com/r/all/hot', true);
+    const user = await getAuthenticatedUser(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+    const data = await getJson('https://oauth.reddit.com/r/all/hot', user, true);
     res.json(data);
   } catch (err) {
-    console.error('Failed to fetch hot posts:', err);
-    res.status(500).send('Error fetching hot posts');
+    console.error('Failed to fetch hot posts for user:', req.user?.id, err);
+    res.status(500).json({ error: 'Error fetching hot posts' });
   }
 };
 
 exports.getNewPosts = async (req, res) => {
   try {
-    const data = await getJson('https://oauth.reddit.com/r/all/new', true);
+    const user = await getAuthenticatedUser(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+    const data = await getJson('https://oauth.reddit.com/r/all/new', user, true);
     res.json(data);
   } catch (err) {
-    console.error('Failed to fetch new posts:', err);
-    res.status(500).send('Error fetching new posts');
+    console.error('Failed to fetch new posts for user:', req.user?.id, err);
+    res.status(500).json({ error: 'Error fetching new posts' });
   }
 };
 
 exports.getSubredditPosts = async (req, res) => {
   const { subreddit } = req.params;
   try {
-    const data = await getJson(`https://oauth.reddit.com/r/${subreddit}`, true);
+    const user = await getAuthenticatedUser(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+    const data = await getJson(`https://oauth.reddit.com/r/${subreddit}`, user, true);
     res.json(data);
   } catch (err) {
-    console.error(`Failed to fetch subreddit ${subreddit}:`, err);
-    res.status(500).send('Error fetching subreddit posts');
+    console.error(`Failed to fetch subreddit ${subreddit} for user:`, req.user?.id, err);
+    res.status(500).json({ error: 'Error fetching subreddit posts' });
   }
 };
 
 exports.getPostById = async (req, res) => {
   const { id: postId } = req.params;
   try {
-    const data = await getJson(`https://oauth.reddit.com/api/info?id=t3_${postId}`, true);
+    const user = await getAuthenticatedUser(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+    const data = await getJson(`https://oauth.reddit.com/api/info?id=t3_${postId}`, user, true);
     const post = data.data.children[0]?.data;
-    if (!post) return res.status(404).send('Post not found');
+    if (!post) return res.status(404).json({ error: 'Post not found' });
     res.json(post);
   } catch (err) {
-    console.error('Failed to fetch post by ID:', err);
-    res.status(500).send('Error fetching post');
+    console.error('Failed to fetch post by ID for user:', req.user?.id, err);
+    res.status(500).json({ error: 'Error fetching post' });
   }
 };

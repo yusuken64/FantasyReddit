@@ -87,7 +87,9 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
       }
 
       const postRes = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/reddit-post/${post.id}`
+        `${import.meta.env.VITE_API_URL}/api/reddit-post/${post.id}`, {
+          credentials: 'include',
+        }
       );
       if (postRes.ok) {
         const updatedPost = await postRes.json();

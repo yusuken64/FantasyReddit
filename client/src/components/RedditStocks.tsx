@@ -52,7 +52,10 @@ export function RedditStocks() {
             setLoading(false)
             return
           }
-          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reddit-post/${threadId.trim()}`)
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reddit-post/${threadId.trim()}`,
+          {
+            credentials: 'include',
+          })
           if (!res.ok) throw new Error('Post not found')
           const postData = await res.json()
           mappedPosts = [{
@@ -75,7 +78,10 @@ export function RedditStocks() {
             endpoint += `/subreddit/${subreddit.trim()}`
           }
 
-          const postsRes = await fetch(endpoint)
+          const postsRes = await fetch(endpoint, {
+            credentials: 'include',
+          });
+
           const postsData = await postsRes.json()
           mappedPosts = postsData.data.children.map((item: any) => ({
             id: item.data.id,

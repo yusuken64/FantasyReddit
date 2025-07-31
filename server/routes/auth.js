@@ -1,8 +1,9 @@
 const express = require('express');
-const { signup, login } = require('../controllers/authController');
+const { redditLogin, redditCallback, redditLogout } = require('../controllers/authController');
 const router = express.Router();
 
-router.post('/signup', signup);
-router.post('/login', login);
+router.get('/auth/reddit', redditLogin);
+router.get('/auth/reddit/callback', redditCallback)
+router.post('/auth/reddit/logout', redditLogout);
 
 module.exports = router;
