@@ -5,6 +5,7 @@ import Signup from './components/Signup'
 import Login from './components/Login'
 import { RedditStocks } from './components/RedditStocks'
 import Portfolio from './components/Portfolio'
+import Leaderboard from './components/Leaderboard';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { AppBar, Toolbar, Button, Typography } from '@mui/material'
 
@@ -21,6 +22,7 @@ function Navigation() {
     { to: '/', label: 'Home', end: true },
     { to: '/redditStocks', label: 'Stocks' },
     { to: '/portfolio', label: 'Portfolio' },
+    { to: '/leaderboard', label: 'Leaderboard' },
   ]
 
   return (
@@ -155,6 +157,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/redditStocks" element={<RedditStocks />} />
             <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
           </Routes>
         </main>
       </div>
