@@ -45,6 +45,10 @@ const Portfolio: React.FC = () => {
     }
   }
 
+  const handleDeleteStock = (deletedId: string) => {
+    setPortfolio(prev => prev.filter(item => item.stock_symbol !== deletedId));
+  };
+
   async function fetchPortfolio() {
     try {
       const offset = (page - 1) * limit
@@ -131,6 +135,8 @@ const Portfolio: React.FC = () => {
             post={post}
             shares={item.shares}
             avgCost={avgCost}
+            onDelete={() => handleDeleteStock(post.id)}
+            owned = {true}
           />
         )
       })}

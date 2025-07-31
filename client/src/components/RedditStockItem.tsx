@@ -26,12 +26,16 @@ interface RedditStockItemProps {
   post: RedditPost;
   shares?: number;
   avgCost?: number;
+  onDelete?: () => void;
+  owned?: boolean;
 }
 
 export const RedditStockItem: React.FC<RedditStockItemProps> = ({
   post: initialPost,
   shares = 0,
   avgCost = 0,
+  onDelete,
+  owned = false,
 }) => {
   const [lastRefreshed, setLastRefreshed] = useState(Date.now());
   const [cooldown, setCooldown] = useState(false);
@@ -41,7 +45,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
   const [avgCostState, setAvgCostState] = useState(avgCost);
   const [post, setPost] = useState(initialPost);
   const [loading, setLoading] = useState(false);
-  const {credits} = useContext(AuthContext)
+  const { credits } = useContext(AuthContext)
 
   const { buy, sell } = useStockActions();
 
@@ -98,6 +102,31 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
       setCooldown(true);
       setTimeout(() => setCooldown(false), 1000);
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    const truncatedTitle =
+      post.title.length > 15 ? post.title.slice(0, 15) + '...' : post.title;
+
+    const confirmMsg = `Sell all ${sharesState} share${sharesState !== 1 ? 's' : ''} of "${truncatedTitle}" (${post.id}) and delete?`;
+    const confirmed = window.confirm(confirmMsg);
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/portfolio/${post.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (!res.ok) throw new Error("Failed to delete portfolio item");
+
+      const data = await res.json();
+      alert(`Sold ${data.sold} share${data.sold !== 1 ? 's' : ''} of ${post.id} at price ${data.price} with Delete`);
+
+      if (onDelete) onDelete();
+    } catch (err) {
+      console.error("Delete error:", err);
     }
   };
 
@@ -166,18 +195,42 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
       </Typography>
 
       {/* Portfolio Info */}
-      <Stack direction="row" spacing={2} mb={2}>
-        <Chip
-          label={`Shares: ${sharesState}`}
-          variant="outlined"
-          color="default"
-        />
-        <Chip
-          label={`Avg Cost: $${avgCostState.toFixed(2)}`}
-          variant="outlined"
-          color="default"
-        />
-      </Stack>
+      {owned && (
+        <Stack direction="row" spacing={2} mb={2}>
+          <Chip
+            label={`Shares: ${sharesState}`}
+            variant="outlined"
+            color="default"
+          />
+          <Chip
+            label={`Avg Cost: $${avgCostState.toFixed(2)}`}
+            variant="outlined"
+            color="default"
+          />
+          {(() => {
+            const pl = (post.score - avgCostState) * sharesState;
+            const sign = pl > 0 ? '+' : pl < 0 ? '−' : '';
+            const emoji = pl > 0 ? '📈' : pl < 0 ? '📉' : '⚖️';
+            return (
+              <Chip
+                label={`${sign}$${Math.abs(pl).toFixed(2)} ${emoji}`}
+                variant="outlined"
+                color={pl > 0 ? 'success' : pl < 0 ? 'error' : 'default'}
+              />
+            );
+          })()}
+          {owned && (
+            <Button
+              size="small"
+              variant="outlined"
+              color="warning"
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+          )}
+        </Stack>
+      )}
 
       {/* Action Buttons */}
       <Stack direction="row" spacing={2}>

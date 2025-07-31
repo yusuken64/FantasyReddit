@@ -3,7 +3,8 @@ const auth = require('../middleware/authMiddleware');
 const {
   getMe,
   getPortfolio,
-  getStock
+  getStock,
+  deleteStock
 } = require('../controllers/userController');
 
 const router = express.Router();
@@ -11,5 +12,6 @@ const router = express.Router();
 router.get('/me', auth, getMe);
 router.get('/portfolio', auth, getPortfolio);
 router.get('/portfolio/:stockSymbol', auth, getStock);
+router.delete('/portfolio/:stockSymbol', auth, deleteStock);
 
 module.exports = router;

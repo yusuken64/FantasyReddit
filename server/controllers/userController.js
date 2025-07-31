@@ -1,4 +1,7 @@
 const { pool, poolConnect } = require('../database')
+const { buy, sell } = require('../trades');
+const { getJson } = require('./redditController');
+const sql = require('mssql');
 
 /**
  * Get authenticated user's basic info
@@ -106,3 +109,63 @@ exports.getStock = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' })
   }
 }
+
+/**
+ * Sell all shares and remove a stock from user's portfolio
+ * Route: DELETE /portfolio/:stockSymbol
+ */
+exports.deleteStock = async (req, res) => {
+  const userId = req.user.id;
+  const { stockSymbol } = req.params;
+
+  try {
+    await poolConnect;
+
+    const transaction = new sql.Transaction(pool);
+    await transaction.begin();
+
+    const request = new sql.Request(transaction);
+
+    // Fetch current portfolio entry
+    const result = await request
+      .input('userId', sql.Int, userId)
+      .input('stockSymbol', sql.NVarChar(100), stockSymbol)
+      .query(`
+        SELECT shares, total_spent FROM portfolios
+        WHERE user_id = @userId AND stock_symbol = @stockSymbol
+      `);
+
+    const entry = result.recordset[0];
+    let price = 0;
+    
+    if (entry) {
+      const redditData = await getJson(`https://oauth.reddit.com/by_id/t3_${stockSymbol}.json`, true);
+      const post = redditData?.data?.children?.[0]?.data;
+      price = post?.score ?? 0;
+    }
+
+    const sharesToSell = entry?.shares ?? 0;
+    if (sharesToSell > 0 && price > 0) {
+      await sell(userId, stockSymbol, sharesToSell, price);
+    }
+
+    // Delete portfolio entry
+    request.parameters = {};
+    await request
+      .input('userId', sql.Int, userId)
+      .input('stockSymbol', sql.NVarChar(100), stockSymbol)
+      .query(`
+        DELETE FROM portfolios WHERE user_id = @userId AND stock_symbol = @stockSymbol
+      `);
+
+    await transaction.commit();
+    res.json({
+      success: true,
+      sold: sharesToSell,
+      price,
+    });
+  } catch (err) {
+    console.error('Error deleting stock:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
