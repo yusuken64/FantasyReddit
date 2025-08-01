@@ -2,6 +2,7 @@ import { createContext, useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
 
 interface AuthContextType {
+  userId: number | null;
   username: string | null
   credits: number | null
   setUsername: (username: string | null) => void
@@ -11,6 +12,7 @@ interface AuthContextType {
 }
 
 export const AuthContext = createContext<AuthContextType>({
+  userId: null,
   username: null,
   credits: null,
   setUsername: () => { },
@@ -21,7 +23,8 @@ export const AuthContext = createContext<AuthContextType>({
   }
 })
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }) {  
+  const [userId, setUserId] = useState<number | null>(null);
   const [username, setUsername] = useState<string | null>(null)
   const [credits, setCredits] = useState<number | null>(null)
 
@@ -35,10 +38,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return res.json()
       })
       .then((data) => {
+        setUserId(data.id);
         setUsername(data.username)
         setCredits(data.credits)
       })
       .catch(() => {
+        setUserId(null);
         setUsername(null)
         setCredits(null)
       })
@@ -61,13 +66,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       method: 'POST',
       credentials: 'include',
     }).then(() => {
+      setUserId(null)
       setUsername(null)
       setCredits(null)
     })
   }
 
   return (
-<AuthContext.Provider value={{ username, credits, setUsername, setCredits, logout, updateCredits }}>
+<AuthContext.Provider value={{ userId, username, credits, setUsername, setCredits, logout, updateCredits }}>
   {children}
 </AuthContext.Provider>
   )

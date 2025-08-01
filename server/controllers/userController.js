@@ -19,14 +19,14 @@ exports.getMe = async (req, res) => {
 
     const result = await pool.request()
       .input('id', userId)
-      .query('SELECT username, credits FROM users WHERE id = @id')
+      .query('SELECT id, username, credits FROM users WHERE id = @id')
 
     const user = result.recordset[0]
     if (!user) {
       return res.status(404).json({ error: 'User not found' })
     }
 
-    res.json({ username: user.username, credits: user.credits })
+    res.json({ id: user.id, username: user.username, credits: user.credits })
   } catch (err) {
     console.error('Error fetching user info:', err)
     res.status(500).json({ error: 'Internal server error' })

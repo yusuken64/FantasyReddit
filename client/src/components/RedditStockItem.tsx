@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { useContext } from 'react'
 import { AuthContext } from '../context/AuthContext'
+import PriceHistoryGraph from './PriceHistoryGraph';
 
 interface RedditPost {
   id: string;
@@ -45,7 +46,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
   const [avgCostState, setAvgCostState] = useState(avgCost);
   const [post, setPost] = useState(initialPost);
   const [loading, setLoading] = useState(false);
-  const { credits } = useContext(AuthContext)
+  const { credits, userId } = useContext(AuthContext)
 
   const { buy, sell } = useStockActions();
 
@@ -88,8 +89,8 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
 
       const postRes = await fetch(
         `${import.meta.env.VITE_API_URL}/api/reddit-post/${post.id}`, {
-          credentials: 'include',
-        }
+        credentials: 'include',
+      }
       );
       if (postRes.ok) {
         const updatedPost = await postRes.json();
@@ -232,6 +233,15 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
             </Button>
           )}
         </Stack>
+      )}
+
+      {(owned && userId !== null) && (
+        <PriceHistoryGraph
+          userId={userId}
+          stockSymbol={post.id}
+          start={new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString()} // 7 days ago
+          end={new Date().toISOString()}  // now
+        />
       )}
 
       {/* Action Buttons */}
