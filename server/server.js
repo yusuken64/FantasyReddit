@@ -1,5 +1,5 @@
 //require('dotenv').config()
-require('dotenv').config({ path: '.env.local' });
+require('dotenv').config({ path: '.env.cloud' });
 
 const express = require('express');
 const cookieParser = require('cookie-parser');

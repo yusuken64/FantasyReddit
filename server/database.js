@@ -1,6 +1,9 @@
 const sql = require('mssql');
 
-const isLocal = process.env.NODE_ENV !== 'production';
+console.log(`TEST DEBUG POINT`);
+console.log(`Running in ${process.env.NODE_ENV}`);
+
+const isLocal = false;
 const config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -11,6 +14,8 @@ const config = {
     trustServerCertificate: isLocal
   }
 };
+
+console.log(config.options);
 
 // Create a connection pool
 const pool = new sql.ConnectionPool(config);
