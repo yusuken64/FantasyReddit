@@ -134,10 +134,11 @@ const Holdings: React.FC = () => {
 
         return (
           <RedditStockItem
+            key={item.stock_symbol} 
             post={post}
             shares={item.shares}
             avgCost={avgCost}
-            onDelete={() => handleDeleteStock(post.id)}
+            onDelete={() => handleDeleteStock(item.stock_symbol)}
             owned={true}
           />
         )
