@@ -39,17 +39,17 @@ async function createTables() {
 
   // Create Portfolios table
   await pool.request().query(`
-    IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='portfolios' AND xtype='U')
-    CREATE TABLE portfolios (
-      id INT IDENTITY(1,1) PRIMARY KEY,
-      user_id INT NOT NULL,
-      stock_symbol NVARCHAR(10) NOT NULL,
-      shares INT NOT NULL DEFAULT 0,
-      total_spent INT NOT NULL DEFAULT 0,
-      CONSTRAINT UQ_user_stock UNIQUE(user_id, stock_symbol),
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    )
-  `)
+  IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='portfolios' AND xtype='U')
+  CREATE TABLE portfolios (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL,
+    stock_symbol NVARCHAR(10) NOT NULL,
+    shares INT NOT NULL DEFAULT 0,
+    total_spent INT NOT NULL DEFAULT 0,
+    CONSTRAINT UQ_user_stock UNIQUE(user_id, stock_symbol),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+`);
 
   // Create Transactions table
   await pool.request().query(`
@@ -64,8 +64,23 @@ async function createTables() {
     total_cost DECIMAL(18,2) NOT NULL,
     timestamp DATETIME2 DEFAULT SYSUTCDATETIME(),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-  )
-`)
+  );
+`);
+
+  // Create stock_price_history table
+  await pool.request().query(`
+  IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='stock_price_history' AND xtype='U')
+  CREATE TABLE stock_price_history (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL,
+    stock_symbol NVARCHAR(10) NOT NULL,
+    score INT NOT NULL,
+    timestamp DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT FK_StockPriceHistory_Portfolios FOREIGN KEY (user_id, stock_symbol)
+      REFERENCES portfolios(user_id, stock_symbol)
+      ON DELETE CASCADE
+  );
+`);
 }
 
 // Immediately create tables on module load
