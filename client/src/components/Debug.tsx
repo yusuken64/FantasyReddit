@@ -6,7 +6,7 @@ const Debug: React.FC = () => {
   const [status, setStatus] = useState<string | null>(null)
 
   const handleReset = async () => {
-    const confirmReset = window.confirm('Are you sure you want to reset your account? This will reset your credits and portfolio.')
+    const confirmReset = window.confirm('Are you sure you want to reset your account? This will reset your credits and holdings.')
     if (!confirmReset) return
 
     try {

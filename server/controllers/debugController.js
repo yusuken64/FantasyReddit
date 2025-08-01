@@ -11,7 +11,7 @@ async function resetAccount(userId) {
 
   await pool.request()
     .input('userId', sql.Int, userId)
-    .query(`DELETE FROM portfolios WHERE user_id = @userId`)
+    .query(`DELETE FROM holdings WHERE user_id = @userId`)
 
   await pool.request()
     .input('userId', sql.Int, userId)

@@ -1,4 +1,5 @@
 const { pool, poolConnect, sql } = require('./database')
+const { COOLDOWN_MINUTES } = require('./module/priceUpdater');
 
 async function buy(userId, symbol, quantity, price) {
   const totalCost = price * quantity;
@@ -26,29 +27,60 @@ async function buy(userId, symbol, quantity, price) {
       .input('userId', sql.Int, userId)
       .query('UPDATE users SET credits = credits - @totalCost WHERE id = @userId');
 
-    // Get current portfolio entry
+    // Get current holdings entry
     request = new sql.Request(transaction);
-    const portfolioResult = await request
+    const holdingsResult = await request
       .input('userId', sql.Int, userId)
       .input('symbol', sql.NVarChar(10), symbol)
-      .query('SELECT shares, total_spent FROM portfolios WHERE user_id = @userId AND stock_symbol = @symbol');
+      .query('SELECT shares, total_spent FROM holdings WHERE user_id = @userId AND stock_symbol = @symbol');
 
-    const portfolio = portfolioResult.recordset[0];
+    const holding = holdingsResult.recordset[0];
 
-    if (!portfolio) {
-      // Insert new portfolio row
+    if (!holding) {
+      // Insert new holding row
       request = new sql.Request(transaction);
       await request
         .input('userId', sql.Int, userId)
         .input('symbol', sql.NVarChar(10), symbol)
         .input('shares', sql.Int, quantity)
         .input('totalSpent', sql.Int, totalCost)
-        .query(`INSERT INTO portfolios (user_id, stock_symbol, shares, total_spent)
+        .query(`INSERT INTO holdings (user_id, stock_symbol, shares, total_spent)
                 VALUES (@userId, @symbol, @shares, @totalSpent)`);
+
+      //insert into price history
+      const checkStaleQuery = `
+        SELECT 1
+        FROM stock_price_history
+        WHERE stock_symbol = @symbol
+        AND timestamp >= DATEADD(minute, -@cooldown, SYSUTCDATETIME())
+      `;
+
+      request = new sql.Request(transaction);
+      request.input('symbol', sql.NVarChar(10), symbol);
+      request.input('cooldown', sql.Int, COOLDOWN_MINUTES);
+      const { recordset } = await request.query(checkStaleQuery);
+
+      const isFresh = recordset.length > 0;
+
+      if (!isFresh) {
+        // safe to insert new price snapshot
+        const now = new Date().toISOString();
+
+        request = new sql.Request(transaction);
+        await request
+          .input('symbol', sql.NVarChar(10), symbol)
+          .input('timestamp', sql.DateTime2, now)
+          .input('score', sql.BigInt, price)
+          .query(`
+            INSERT INTO stock_price_history (stock_symbol, timestamp, score)
+            VALUES (@symbol, @timestamp, @score)
+          `);
+      }
+
     } else {
-      // Update existing portfolio row
-      const newShares = portfolio.shares + quantity;
-      const newTotalSpent = portfolio.total_spent + totalCost;
+      // Update existing holding row
+      const newShares = holding.shares + quantity;
+      const newTotalSpent = holding.total_spent + totalCost;
 
       request = new sql.Request(transaction);
       await request
@@ -56,7 +88,7 @@ async function buy(userId, symbol, quantity, price) {
         .input('newTotalSpent', sql.Int, newTotalSpent)
         .input('userId', sql.Int, userId)
         .input('symbol', sql.NVarChar(10), symbol)
-        .query(`UPDATE portfolios SET shares = @newShares, total_spent = @newTotalSpent
+        .query(`UPDATE holdings SET shares = @newShares, total_spent = @newTotalSpent
                 WHERE user_id = @userId AND stock_symbol = @symbol`);
     }
 
@@ -90,29 +122,29 @@ async function sell(userId, symbol, quantity, price) {
 
     let request = new sql.Request(transaction);
 
-    // Get portfolio entry
-    const portfolioResult = await request
+    // Get holding entry
+    const holdingResult = await request
       .input('userId', sql.Int, userId)
       .input('symbol', sql.NVarChar(10), symbol)
-      .query('SELECT shares, total_spent FROM portfolios WHERE user_id = @userId AND stock_symbol = @symbol');
+      .query('SELECT shares, total_spent FROM holdings WHERE user_id = @userId AND stock_symbol = @symbol');
 
-    const portfolio = portfolioResult.recordset[0];
-    if (!portfolio || portfolio.shares < quantity) throw new Error('Not enough shares to sell');
+    const holding = holdingResult.recordset[0];
+    if (!holding || holding.shares < quantity) throw new Error('Not enough shares to sell');
 
-    const averageCost = portfolio.total_spent / portfolio.shares;
+    const averageCost = holding.total_spent / holding.shares;
     const totalProceeds = price * quantity;
 
-    const newShares = portfolio.shares - quantity;
-    const newTotalSpent = portfolio.total_spent - averageCost * quantity;
+    const newShares = holding.shares - quantity;
+    const newTotalSpent = holding.total_spent - averageCost * quantity;
 
-    // Update portfolio shares and total_spent
+    // Update holding shares and total_spent
     request = new sql.Request(transaction);
     await request
       .input('newShares', sql.Int, newShares)
       .input('newTotalSpent', sql.Int, newTotalSpent)
       .input('userId', sql.Int, userId)
       .input('symbol', sql.NVarChar(10), symbol)
-      .query(`UPDATE portfolios SET shares = @newShares, total_spent = @newTotalSpent
+      .query(`UPDATE holdings SET shares = @newShares, total_spent = @newTotalSpent
               WHERE user_id = @userId AND stock_symbol = @symbol`);
 
     // Add credits to user

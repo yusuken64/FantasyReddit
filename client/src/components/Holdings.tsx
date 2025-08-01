@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { RedditStockItem } from './RedditStockItem'
 
-type PortfolioItem = {
+type HoldingItem = {
   id: number
   user_id: number
   stock_symbol: string
@@ -18,8 +18,8 @@ type RedditPost = {
   author: string
 }
 
-const Portfolio: React.FC = () => {
-  const [portfolio, setPortfolio] = useState<PortfolioItem[]>([])
+const Holdings: React.FC = () => {
+  const [holdings, setHoldings] = useState<HoldingItem[]>([])
   const [loading, setLoading] = useState(true)
   const [postsMap, setPostsMap] = useState<Record<string, RedditPost>>({})
   const [sortBy, setSortBy] = useState<'shares' | 'total_spent'>('shares')
@@ -28,9 +28,9 @@ const Portfolio: React.FC = () => {
   const limit = 5
   const [] = useState(0)
 
-  // Fetch portfolio on mount
+  // Fetch holding on mount
   useEffect(() => {
-    fetchPortfolio()
+    fetchHoldings()
   }, [sortBy, sortDir, page])
 
   async function getPost(stock_symbol: string): Promise<RedditPost | null> {
@@ -48,26 +48,26 @@ const Portfolio: React.FC = () => {
   }
 
   const handleDeleteStock = (deletedId: string) => {
-    setPortfolio(prev => prev.filter(item => item.stock_symbol !== deletedId));
+    setHoldings(prev => prev.filter(item => item.stock_symbol !== deletedId));
   };
 
-  async function fetchPortfolio() {
+  async function fetchHoldings() {
     try {
       const offset = (page - 1) * limit
 
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/portfolio?sortBy=${sortBy}&sortDir=${sortDir}&limit=${limit}&offset=${offset}`,
+        `${import.meta.env.VITE_API_URL}/holdings?sortBy=${sortBy}&sortDir=${sortDir}&limit=${limit}&offset=${offset}`,
         { credentials: "include" }
       )
-      if (!res.ok) throw new Error("Failed to fetch portfolio")
+      if (!res.ok) throw new Error("Failed to fetch holdings")
       const json = await res.json();
-      const portfolioData: PortfolioItem[] = json.data;
-      setPortfolio(portfolioData)
+      const holdingData: HoldingItem[] = json.data;
+      setHoldings(holdingData)
 
       // Fetch posts for each stock_symbol to display details in RedditStockItem
       const postsFetched: Record<string, RedditPost> = {}
       await Promise.all(
-        portfolioData.map(async (item) => {
+        holdingData.map(async (item) => {
           const post = await getPost(item.stock_symbol)
           if (post) postsFetched[item.stock_symbol] = post
         })
@@ -82,11 +82,11 @@ const Portfolio: React.FC = () => {
 
   if (loading) return <p>Loading your portfolio...</p>
 
-  if (portfolio.length === 0) return <p>You don't own any Reddit stocks yet.</p>
+  if (holdings.length === 0) return <p>You don't own any Reddit stocks yet.</p>
 
   return (
     <div className="p-4 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Your Portfolio</h1>
+      <h1 className="text-2xl font-bold mb-4">Your Holdings</h1>
 
       <div className="mb-6 flex items-center space-x-4">
         <label>
@@ -119,14 +119,14 @@ const Portfolio: React.FC = () => {
           Previous
         </button>
         <button
-          disabled={portfolio.length < limit}
+          disabled={holdings.length < limit}
           onClick={() => setPage(page + 1)}
           className="px-3 py-1 border rounded disabled:opacity-50"
         >
           Next
         </button>
       </div>
-      {portfolio.map((item) => {
+      {holdings.map((item) => {
         const post = postsMap[item.stock_symbol]
         if (!post) return null
 
@@ -152,7 +152,7 @@ const Portfolio: React.FC = () => {
           Previous
         </button>
         <button
-          disabled={portfolio.length < limit}
+          disabled={holdings.length < limit}
           onClick={() => setPage(page + 1)}
           className="px-3 py-1 border rounded disabled:opacity-50"
         >
@@ -163,4 +163,4 @@ const Portfolio: React.FC = () => {
   )
 }
 
-export default Portfolio
+export default Holdings

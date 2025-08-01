@@ -2,7 +2,7 @@ const express = require('express');
 const auth = require('../middleware/authMiddleware');
 const {
   getMe,
-  getPortfolio,
+  getHoldings,
   getStock,
   deleteStock
 } = require('../controllers/userController');
@@ -13,9 +13,9 @@ const {
 const router = express.Router();
 
 router.get('/me', auth, getMe);
-router.get('/portfolio', auth, getPortfolio);
-router.get('/portfolio/:stockSymbol', auth, getStock);
-router.delete('/portfolio/:stockSymbol', auth, deleteStock);
+router.get('/holdings', auth, getHoldings);
+router.get('/holdings/:stockSymbol', auth, getStock);
+router.delete('/holdings/:stockSymbol', auth, deleteStock);
 router.get('/leaderboard', auth, getLeaderboard);
 
 module.exports = router;

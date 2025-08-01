@@ -34,10 +34,10 @@ exports.getMe = async (req, res) => {
 }
 
 /**
- * Get user's portfolio with sorting, pagination
- * Route: GET /portfolio
+ * Get user's holdings with sorting, pagination
+ * Route: GET /holdings
  */
-exports.getPortfolio = async (req, res) => {
+exports.getHoldings = async (req, res) => {
   const userId = req.user.id
 
   const validSortColumns = ['stock_symbol', 'shares', 'total_spent']
@@ -55,8 +55,8 @@ exports.getPortfolio = async (req, res) => {
     await poolConnect
 
     // SQL Server pagination syntax: OFFSET ... FETCH NEXT ... ROWS ONLY
-    const portfolioQuery = `
-      SELECT * FROM portfolios
+    const holdingsQuery = `
+      SELECT * FROM holdings
       WHERE user_id = @userId
       ORDER BY ${sortBy} ${sortDir}
       OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
@@ -66,24 +66,24 @@ exports.getPortfolio = async (req, res) => {
       .input('userId', userId)
       .input('offset', offset)
       .input('limit', limit)
-      .query(portfolioQuery)
+      .query(holdingsQuery)
 
     const countResult = await pool.request()
       .input('userId', userId)
-      .query('SELECT COUNT(*) AS total FROM portfolios WHERE user_id = @userId')
+      .query('SELECT COUNT(*) AS total FROM holdings WHERE user_id = @userId')
 
     const total = countResult.recordset[0]?.total || 0
 
     res.json({ data: dataResult.recordset, total })
   } catch (err) {
-    console.error('Error fetching portfolio:', err)
+    console.error('Error fetching holdings:', err)
     res.status(500).json({ error: 'Internal server error' })
   }
 }
 
 /**
- * Get details for a specific stock in user's portfolio
- * Route: GET /portfolio/:stockSymbol
+ * Get details for a specific stock in user's holdings
+ * Route: GET /holdings/:stockSymbol
  */
 exports.getStock = async (req, res) => {
   const userId = req.user.id
@@ -96,7 +96,7 @@ exports.getStock = async (req, res) => {
       .input('userId', userId)
       .input('stockSymbol', stockSymbol)
       .query(`
-        SELECT * FROM portfolios
+        SELECT * FROM holdings
         WHERE user_id = @userId AND stock_symbol = @stockSymbol
       `)
 
@@ -111,8 +111,8 @@ exports.getStock = async (req, res) => {
 }
 
 /**
- * Sell all shares and remove a stock from user's portfolio
- * Route: DELETE /portfolio/:stockSymbol
+ * Sell all shares and remove a stock from user's holdings
+ * Route: DELETE /holdings/:stockSymbol
  */
 exports.deleteStock = async (req, res) => {
   const userId = req.user.id;
@@ -126,12 +126,12 @@ exports.deleteStock = async (req, res) => {
 
     const request = new sql.Request(transaction);
 
-    // Fetch current portfolio entry
+    // Fetch current holdings entry
     const result = await request
       .input('userId', sql.Int, userId)
       .input('stockSymbol', sql.NVarChar(100), stockSymbol)
       .query(`
-        SELECT shares, total_spent FROM portfolios
+        SELECT shares, total_spent FROM holdings
         WHERE user_id = @userId AND stock_symbol = @stockSymbol
       `);
 
@@ -151,13 +151,13 @@ exports.deleteStock = async (req, res) => {
       await sell(userId, stockSymbol, sharesToSell, price);
     }
 
-    // Delete portfolio entry
+    // Delete holdings entry
     request.parameters = {};
     await request
       .input('userId', sql.Int, userId)
       .input('stockSymbol', sql.NVarChar(100), stockSymbol)
       .query(`
-        DELETE FROM portfolios WHERE user_id = @userId AND stock_symbol = @stockSymbol
+        DELETE FROM holdings WHERE user_id = @userId AND stock_symbol = @stockSymbol
       `);
 
     await transaction.commit();

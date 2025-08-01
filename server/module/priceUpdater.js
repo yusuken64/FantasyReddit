@@ -22,7 +22,7 @@ async function updateAllTrackedStockPrices() {
   const startTime = Date.now();
   console.log('Price update job started at', new Date(startTime).toISOString());
 
-  const users = await getAllUsersWithPortfolios();
+  const users = await getAllUsersWithHoldings();
 
   for (const user of users) {
     try {
@@ -37,18 +37,18 @@ async function updateAllTrackedStockPrices() {
       const posts = await fetchPostsFromReddit(postFullnames, user.access_token);
       if (posts.length === 0) continue;
 
-      await insertStockPriceHistories(user.id, posts);
+      await insertStockPriceHistories(posts);
 
-      const portfolio = await getPortfolioForUser(user.id);
+      const holdings = await getHoldingsForUser(user.id);
       let totalValue = 0;
-      for (const item of portfolio) {
+      for (const item of holdings) {
         const post = posts.find(p => p.id === item.stockId);
         if (post) {
           totalValue += item.shares * post.score; // shares * latest price
         }
       }
 
-      await updateUserPortfolioValue(user.id, totalValue);
+      await updateUserTotalValue(user.id, totalValue);
     } catch (err) {
       console.error(`Error updating prices for user ${user.id}:`, err);
     }
@@ -61,12 +61,12 @@ async function updateAllTrackedStockPrices() {
   console.log(`Price update job took ${elapsedSeconds} seconds.`);
 }
 
-// 1. Get all users who own portfolios and their tokens
-async function getAllUsersWithPortfolios() {
+// 1. Get all users who own holdings and their tokens
+async function getAllUsersWithHoldings() {
   const query = `
     SELECT DISTINCT u.id, u.access_token
     FROM users u
-    JOIN portfolios p ON u.id = p.user_id
+    JOIN holdings p ON u.id = p.user_id
     WHERE u.access_token IS NOT NULL
   `;
   await poolConnect;
@@ -78,17 +78,16 @@ async function getAllUsersWithPortfolios() {
 async function getStalePostIdsForUser(userId) {
   const query = `
     SELECT p.stock_symbol
-FROM portfolios p
-LEFT JOIN (
-  SELECT stock_symbol, user_id, MAX(timestamp) AS last_updated
-  FROM stock_price_history
-  GROUP BY stock_symbol, user_id
-) sph
-  ON p.stock_symbol = sph.stock_symbol AND sph.user_id = p.user_id
-WHERE p.user_id = @userId
-  AND (sph.last_updated IS NULL OR sph.last_updated < DATEADD(minute, -${COOLDOWN_MINUTES}, SYSUTCDATETIME()))
-
+    FROM holdings p
+    LEFT JOIN (
+      SELECT stock_symbol, MAX(timestamp) AS last_updated
+      FROM stock_price_history
+      GROUP BY stock_symbol
+    ) sph ON p.stock_symbol = sph.stock_symbol
+    WHERE p.user_id = @userId
+      AND (sph.last_updated IS NULL OR sph.last_updated < DATEADD(minute, -${COOLDOWN_MINUTES}, SYSUTCDATETIME()))
   `;
+
   const request = pool.request();
   request.input('userId', sql.Int, userId);
   const result = await request.query(query);
@@ -123,8 +122,8 @@ async function fetchPostsFromReddit(postIds, accessToken) {
   }
 }
 
-// 4. Insert multiple price history rows for a user in batch
-async function insertStockPriceHistories(userId, posts) {
+// 4. Insert multiple price history rows in batch
+async function insertStockPriceHistories(posts) {
   if (posts.length === 0) return;
 
   // Using a single INSERT with multiple VALUES
@@ -132,29 +131,27 @@ async function insertStockPriceHistories(userId, posts) {
   const input = {};
 
   posts.forEach((post, i) => {
-    values.push(`(@userId, @stock_symbol${i}, @score${i}, SYSUTCDATETIME())`);
+    values.push(`(@stock_symbol${i}, @score${i}, SYSUTCDATETIME())`);
     input[`stock_symbol${i}`] = { type: sql.NVarChar(10), value: post.id };
     input[`score${i}`] = { type: sql.Int, value: post.score };
   });
 
   const query = `
-    INSERT INTO stock_price_history (user_id, stock_symbol, score, timestamp)
+    INSERT INTO stock_price_history (stock_symbol, score, timestamp)
     VALUES ${values.join(', ')}
   `;
 
   const request = pool.request();
-  request.input('userId', sql.Int, userId);
   for (const key in input) {
     request.input(key, input[key].type, input[key].value);
   }
-
   await request.query(query);
 }
 
-async function getPortfolioForUser(userId) {
+async function getHoldingsForUser(userId) {
   const query = `
     SELECT stock_symbol AS stockId, shares
-    FROM portfolios
+    FROM holdings
     WHERE user_id = @userId
   `;
   await poolConnect;
@@ -164,7 +161,7 @@ async function getPortfolioForUser(userId) {
   return result.recordset; // [{ stockId, shares }, ...]
 }
 
-async function updateUserPortfolioValue(userId, totalValue) {
+async function updateUserTotalValue(userId, totalValue) {
   const query = `
     UPDATE users
     SET totalScore = @totalValue
@@ -179,5 +176,6 @@ async function updateUserPortfolioValue(userId, totalValue) {
 
 module.exports = {
   updateAllTrackedStockPrices,
-  startPriceUpdateCron
+  startPriceUpdateCron,
+  COOLDOWN_MINUTES
 };

@@ -65,21 +65,21 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
     if (cooldown) return;
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/portfolio/${post.id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/holdings/${post.id}`, {
         credentials: "include",
       });
-      if (!res.ok) throw new Error("Failed to fetch portfolio item");
-      const portfolioItem = await res.json();
+      if (!res.ok) throw new Error("Failed to fetch holding item");
+      const holdingItem = await res.json();
 
       if (
-        portfolioItem &&
-        portfolioItem.shares !== undefined &&
-        portfolioItem.total_spent !== undefined
+        holdingItem &&
+        holdingItem.shares !== undefined &&
+        holdingItem.total_spent !== undefined
       ) {
-        setSharesState(portfolioItem.shares);
+        setSharesState(holdingItem.shares);
         setAvgCostState(
-          portfolioItem.shares > 0
-            ? portfolioItem.total_spent / portfolioItem.shares
+          holdingItem.shares > 0
+            ? holdingItem.total_spent / holdingItem.shares
             : 0
         );
       } else {
@@ -117,12 +117,12 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
     if (!confirmed) return;
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/portfolio/${post.id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/holdings/${post.id}`, {
         method: "DELETE",
         credentials: "include",
       });
 
-      if (!res.ok) throw new Error("Failed to delete portfolio item");
+      if (!res.ok) throw new Error("Failed to delete holding item");
 
       const data = await res.json();
       alert(`Sold ${data.sold} share${data.sold !== 1 ? 's' : ''} of ${post.id} at price ${data.price} with Delete`);
@@ -197,7 +197,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
         Last refreshed: {new Date(lastRefreshed).toLocaleTimeString()}
       </Typography>
 
-      {/* Portfolio Info */}
+      {/* Holding Info */}
       {owned && (
         <Stack direction="row" spacing={2} mb={2}>
           <Chip
@@ -241,6 +241,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
           stockSymbol={post.id}
           start={new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString()} // 7 days ago
           end={new Date().toISOString()}  // now
+          latestPrice={{ timestamp: new Date().toISOString(), score: post.score }}
         />
       )}
 

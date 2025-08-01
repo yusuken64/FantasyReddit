@@ -3,7 +3,7 @@ import { AuthContext } from './context/AuthContext'
 import { BrowserRouter, Routes, Route, NavLink, useNavigate } from 'react-router-dom'
 import Login from './components/LoginWithReddit'
 import { RedditStocks } from './components/RedditStocks'
-import Portfolio from './components/Portfolio'
+import Holdings from './components/Holdings'
 import Leaderboard from './components/Leaderboard';
 import Debug from './components/Debug';
 import Transactions from './components/Transactions';
@@ -22,7 +22,7 @@ function Navigation() {
   const navLinks = [
     { to: '/', label: 'Home', end: true },
     { to: '/redditStocks', label: 'Stocks' },
-    { to: '/portfolio', label: 'Portfolio' },
+    { to: '/holdings', label: 'Holdings' },
     { to: '/leaderboard', label: 'Leaderboard' },
     { to: '/debug', label: 'Debug' },
     { to: '/transactions', label: 'Log' },
@@ -95,10 +95,10 @@ function HomePage() {
         The hotness rises and falls based on how much engagement the thread gets — like upvotes, comments, and shares.
       </p>
       <p className="text-secondary mb-4">
-        Buy shares in threads you think will get popular, track your portfolio, and watch how your investments change as the conversation evolves.
+        Buy shares in threads you think will get popular, track your holdings, and watch how your investments change as the conversation evolves.
       </p>
       <p className="text-secondary mb-4">
-        Use the navigation links above to explore posts, manage your portfolio, and dive into the social media-driven stock market!
+        Use the navigation links above to explore posts, manage your holdings, and dive into the social media-driven stock market!
       </p>
 
       <p className="text-warning fst-italic">
@@ -146,7 +146,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/redditStocks" element={<RedditStocks />} />
-            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/holdings" element={<Holdings />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/debug" element={<Debug />} /> 
             <Route path="/transactions" element={<Transactions />} /> 

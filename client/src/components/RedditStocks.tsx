@@ -95,7 +95,7 @@ export function RedditStocks() {
 
         setPosts(mappedPosts)
       } catch (err) {
-        console.error('Failed to load stocks or portfolio', err)
+        console.error('Failed to load stocks or holdings', err)
       } finally {
         setLoading(false)
       }
