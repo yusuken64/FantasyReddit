@@ -8,7 +8,6 @@ async function buy(userId, symbol, quantity, price) {
   try {
     await transaction.begin();
 
-    // Use a new request per query
     let request = new sql.Request(transaction);
 
     // Check user credits
@@ -61,6 +60,20 @@ async function buy(userId, symbol, quantity, price) {
                 WHERE user_id = @userId AND stock_symbol = @symbol`);
     }
 
+    // Insert transaction log
+    request = new sql.Request(transaction);
+    await request
+      .input('userId', sql.Int, userId)
+      .input('symbol', sql.NVarChar(10), symbol)
+      .input('action', sql.NVarChar(4), 'BUY')
+      .input('shares', sql.Int, quantity)
+      .input('pricePerShare', sql.Decimal(18, 2), price)
+      .input('totalCost', sql.Decimal(18, 2), totalCost)
+      .query(`
+        INSERT INTO transactions (user_id, stock_symbol, action, shares, price_per_share, total_cost)
+        VALUES (@userId, @symbol, @action, @shares, @pricePerShare, @totalCost)
+      `)
+
     await transaction.commit();
   } catch (err) {
     await transaction.rollback();
@@ -108,6 +121,20 @@ async function sell(userId, symbol, quantity, price) {
       .input('totalProceeds', sql.Int, totalProceeds)
       .input('userId', sql.Int, userId)
       .query('UPDATE users SET credits = credits + @totalProceeds WHERE id = @userId');
+
+    // Insert transaction log
+    request = new sql.Request(transaction);
+    await request
+      .input('userId', sql.Int, userId)
+      .input('symbol', sql.NVarChar(10), symbol)
+      .input('action', sql.NVarChar(4), 'SELL')
+      .input('shares', sql.Int, quantity)
+      .input('pricePerShare', sql.Decimal(18, 2), price)
+      .input('totalCost', sql.Decimal(18, 2), totalProceeds)
+      .query(`
+        INSERT INTO transactions (user_id, stock_symbol, action, shares, price_per_share, total_cost)
+        VALUES (@userId, @symbol, @action, @shares, @pricePerShare, @totalCost)
+      `)
 
     await transaction.commit();
   } catch (err) {

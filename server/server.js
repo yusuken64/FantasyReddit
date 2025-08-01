@@ -10,6 +10,7 @@ const tradeRoutes = require('./routes/trades');
 const userRoutes = require('./routes/user');
 const redditRoutes = require('./routes/reddit');
 const debugRoutes = require('./routes/debug');
+const transactionRoutes = require('./routes/transactions');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -38,6 +39,7 @@ app.use('/', userRoutes);
 app.use('/api/', redditRoutes);
 app.use('/', tradeRoutes);
 app.use('/debug/', debugRoutes);
+app.use('/', transactionRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);

@@ -7,6 +7,10 @@ async function resetAccount(userId) {
 
   await pool.request()
     .input('userId', sql.Int, userId)
+    .query(`DELETE FROM transactions WHERE user_id = @userId`)
+
+  await pool.request()
+    .input('userId', sql.Int, userId)
     .query(`DELETE FROM portfolios WHERE user_id = @userId`)
 
   await pool.request()
@@ -17,10 +21,7 @@ async function resetAccount(userId) {
 async function deleteAccount(userId) {
   await poolConnect
 
-  await pool.request()
-    .input('userId', sql.Int, userId)
-    .query(`DELETE FROM portfolios WHERE user_id = @userId`)
-
+  // Casecade will delete related entities
   await pool.request()
     .input('userId', sql.Int, userId)
     .query(`DELETE FROM users WHERE id = @userId`)
