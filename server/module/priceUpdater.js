@@ -38,6 +38,17 @@ async function updateAllTrackedStockPrices() {
       if (posts.length === 0) continue;
 
       await insertStockPriceHistories(user.id, posts);
+
+      const portfolio = await getPortfolioForUser(user.id);
+      let totalValue = 0;
+      for (const item of portfolio) {
+        const post = posts.find(p => p.id === item.stockId);
+        if (post) {
+          totalValue += item.shares * post.score; // shares * latest price
+        }
+      }
+
+      await updateUserPortfolioValue(user.id, totalValue);
     } catch (err) {
       console.error(`Error updating prices for user ${user.id}:`, err);
     }
@@ -140,7 +151,33 @@ async function insertStockPriceHistories(userId, posts) {
   await request.query(query);
 }
 
-module.exports = { 
+async function getPortfolioForUser(userId) {
+  const query = `
+    SELECT stock_symbol AS stockId, shares
+    FROM portfolios
+    WHERE user_id = @userId
+  `;
+  await poolConnect;
+  const request = pool.request();
+  request.input('userId', sql.Int, userId);
+  const result = await request.query(query);
+  return result.recordset; // [{ stockId, shares }, ...]
+}
+
+async function updateUserPortfolioValue(userId, totalValue) {
+  const query = `
+    UPDATE users
+    SET totalScore = @totalValue
+    WHERE id = @userId
+  `;
+  await poolConnect;
+  const request = pool.request();
+  request.input('totalValue', sql.Float, totalValue); // or sql.Decimal if you prefer
+  request.input('userId', sql.Int, userId);
+  await request.query(query);
+}
+
+module.exports = {
   updateAllTrackedStockPrices,
   startPriceUpdateCron
 };

@@ -17,6 +17,7 @@ import {
 type LeaderboardEntry = {
   username: string;
   credits: number;
+  totalScore: number;
 };
 
 type LeaderboardResponse = {
@@ -77,6 +78,7 @@ const Leaderboard: React.FC = () => {
                   <TableCell>#</TableCell>
                   <TableCell>Username</TableCell>
                   <TableCell>Credits</TableCell>
+                  <TableCell>TotalValue</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -85,6 +87,7 @@ const Leaderboard: React.FC = () => {
                     <TableCell>{offset + index + 1}</TableCell>
                     <TableCell>{entry.username}</TableCell>
                     <TableCell>{entry.credits}</TableCell>
+                    <TableCell>{entry.totalScore}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -18,7 +18,7 @@ exports.getLeaderboard = async (req, res) => {
       .input('limit', limit)
       .input('offset', offset)
       .query(`
-        SELECT username, credits
+        SELECT username, credits, totalScore
         FROM users
         ORDER BY credits DESC
         OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
