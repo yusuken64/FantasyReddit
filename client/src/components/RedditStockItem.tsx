@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useStockActions } from "../hooks/useStockActions";
 import { QuantityModal } from "./QuantityModal";
 import {
@@ -133,6 +133,14 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
     }
   };
 
+  const { start, end } = useMemo(() => {
+    const now = new Date();
+    now.setSeconds(0, 0);
+    const end = now.toISOString();
+    const start = new Date(now.getTime() - 7 * 24 * 3600 * 1000).toISOString();
+    return { start, end };
+  }, []);
+
   return (
     <Paper
       elevation={3}
@@ -239,9 +247,9 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
         <PriceHistoryGraph
           userId={userId}
           stockSymbol={post.id}
-          start={new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString()} // 7 days ago
-          end={new Date().toISOString()}  // now
-          latestPrice={{ timestamp: new Date().toISOString(), score: post.score }}
+          start={start}
+          end={end}
+          latestPrice={{ timestamp: end, score: post.score }}
         />
       )}
 
