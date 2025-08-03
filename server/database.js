@@ -1,9 +1,8 @@
 const sql = require('mssql');
 
-console.log(`TEST DEBUG POINT`);
-console.log(`Running in ${process.env.NODE_ENV}`);
+console.log(`Running in ${process.env.NODE_ENV || 'unknown'} mode`);
+const isLocal = process.env.NODE_ENV !== 'production';
 
-const isLocal = false;
 const config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,

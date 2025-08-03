@@ -1,5 +1,23 @@
-//require('dotenv').config()
-require('dotenv').config({ path: '.env.cloud' });
+console.log('--- Environment Initialization ---');
+
+const nodeEnv = process.env.NODE_ENV;
+console.log(`Current NODE_ENV value: ${nodeEnv ? `"${nodeEnv}"` : 'undefined (not set)'}`);
+
+if (nodeEnv !== 'production') {
+  console.log('NODE_ENV is not "production". Loading environment variables from .env.local file...');
+  const result = require('dotenv').config({ path: '.env.local' });
+  if (result.error) {
+    console.error('Failed to load .env.local:', result.error);
+  } else {
+    console.log('.env.local loaded successfully. Variables:');
+    //console.log(process.env);
+  }
+} else {
+  console.log('NODE_ENV is "production". Skipping .env.local loading and relying on Azure App Service environment variables.');
+  //console.log(process.env);
+}
+
+console.log('--- End of Environment Initialization ---\n');
 
 const express = require('express');
 const cookieParser = require('cookie-parser');

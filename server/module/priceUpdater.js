@@ -34,7 +34,7 @@ async function updateAllTrackedStockPrices() {
         id.startsWith('t3_') ? id : `t3_${id}`
       );
 
-      const posts = await fetchPostsFromReddit(postFullnames, user.access_token);
+      const posts = await fetchPostsFromReddit(postFullnames, user.username, user.access_token);
       if (posts.length === 0) continue;
 
       await insertStockPriceHistories(posts);
@@ -64,7 +64,7 @@ async function updateAllTrackedStockPrices() {
 // 1. Get all users who own holdings and their tokens
 async function getAllUsersWithHoldings() {
   const query = `
-    SELECT DISTINCT u.id, u.access_token
+    SELECT DISTINCT u.id, u.username, u.access_token
     FROM users u
     JOIN holdings p ON u.id = p.user_id
     WHERE u.access_token IS NOT NULL
@@ -96,7 +96,7 @@ async function getStalePostIdsForUser(userId) {
 
 // 3. Fetch posts info from Reddit API by post IDs
 // postIds: array of post fullnames like ['t3_abc', 't3_xyz']
-async function fetchPostsFromReddit(postIds, accessToken) {
+async function fetchPostsFromReddit(postIds, username, accessToken) {
   if (postIds.length === 0) return [];
 
   // Reddit API info endpoint allows up to 100 IDs at once
@@ -106,8 +106,8 @@ async function fetchPostsFromReddit(postIds, accessToken) {
   try {
     const response = await axios.get(url, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'User-Agent': 'FantasyStocks/1.0'
+        Authorization: `Bearer ${accessToken}`,        
+        'User-Agent': `FantasyStocks/1.0 (by u/${username})`
       }
     });
 
@@ -117,7 +117,7 @@ async function fetchPostsFromReddit(postIds, accessToken) {
       score: c.data.score
     }));
   } catch (err) {
-    console.error('Reddit API fetch error:', err.response?.data || err.message);
+    console.error(`Reddit API fetch error for ${username}:`, err.message);
     return [];
   }
 }

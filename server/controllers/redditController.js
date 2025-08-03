@@ -2,14 +2,15 @@ const fetch = global.fetch;
 const { pool } = require('../database');
 const { getValidAccessToken } = require('./authController');
 
-function getPublicHeaders() {
+function getPublicHeaders(user) { 
+  const username = user?.name ?? 'anonymous';
   return {
-    'User-Agent': 'fantasy-reddit-app/0.1 (by u/Low-Foot-3660)',
+    'User-Agent': `fantasy-reddit-app/0.1 (by u/${username})`, 
   };
 }
 
-async function getJson(url, user = null, useAuth = false) {
-  const headers = getPublicHeaders();
+async function getJson(url, user, useAuth = false) {
+  const headers = getPublicHeaders(user);
 
   if (useAuth) {
     if (!user) throw new Error('Authenticated user required for authorized Reddit API call');
