@@ -14,6 +14,10 @@ function Navigation() {
   const { username, credits, logout } = useContext(AuthContext)
   const navigate = useNavigate()
 
+  React.useEffect(() => {
+    console.log('API URL from env:', import.meta.env.VITE_API_URL);
+  }, []);
+
   function handleLogout() {
     logout()
     navigate('/')
@@ -81,6 +85,7 @@ function Navigation() {
 }
 
 import { FaTwitter, FaDiscord } from 'react-icons/fa'
+import React from 'react'
 
 function HomePage() {
   return (
