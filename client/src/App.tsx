@@ -1,6 +1,5 @@
-import { useContext } from 'react'
 import { AuthContext } from './context/AuthContext'
-import { BrowserRouter, Routes, Route, NavLink, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, NavLink, useNavigate, Outlet } from 'react-router-dom'
 import Login from './components/LoginWithReddit'
 import { RedditStocks } from './components/RedditStocks'
 import Holdings from './components/Holdings'
@@ -9,69 +8,77 @@ import Debug from './components/Debug';
 import Transactions from './components/Transactions';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { AppBar, Toolbar, Button, Typography } from '@mui/material'
+import { FaTwitter, FaDiscord } from 'react-icons/fa'
+import React, { useContext } from 'react';
+import { Navigate } from 'react-router-dom';
 
 function Navigation() {
-  const { username, credits, logout } = useContext(AuthContext)
-  const navigate = useNavigate()
+  const { username, credits, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     console.log('API URL from env:', import.meta.env.VITE_API_URL);
   }, []);
 
   function handleLogout() {
-    logout()
-    navigate('/')
+    logout();
+    navigate('/');
   }
 
-  const navLinks = [
+  function navLinkStyle({ isActive }: { isActive: boolean }) {
+    return {
+      textDecoration: 'none',
+      color: isActive ? '#1976d2' : '#555',
+      borderBottom: isActive ? '2px solid #1976d2' : 'none',
+      paddingBottom: 4,
+      fontWeight: isActive ? '600' : '400',
+    };
+  }
+
+  type NavLinkItem = {
+    to: string;
+    label: string;
+    end?: boolean;
+  };
+
+  const publicLinks: NavLinkItem[] = [
     { to: '/', label: 'Home', end: true },
+  ];
+
+  const privateLinks: NavLinkItem[] = [
     { to: '/redditStocks', label: 'Stocks' },
     { to: '/holdings', label: 'Holdings' },
     { to: '/leaderboard', label: 'Leaderboard' },
     { to: '/debug', label: 'Debug' },
     { to: '/transactions', label: 'Log' },
-  ]
+  ];
 
+  const linksToShow = [
+    ...(!username ? publicLinks : []),
+    ...(username ? privateLinks : []),
+  ];
   return (
     <AppBar position="static" color="default" elevation={1}>
       <Toolbar sx={{ justifyContent: 'center', gap: 3 }}>
-        {navLinks.map(({ to, label, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            style={({ isActive }) => ({
-              textDecoration: 'none',
-              color: isActive ? '#1976d2' : '#555',
-              borderBottom: isActive ? '2px solid #1976d2' : 'none',
-              paddingBottom: 4,
-              fontWeight: isActive ? '600' : '400',
-            })}
-          >
+        {linksToShow.map(({ to, label, end }) => (
+          <NavLink key={to} to={to} end={end} style={navLinkStyle}>
             {label}
           </NavLink>
         ))}
 
         {!username && (
-          <>
-            <NavLink
-              to="/login"
-              style={({ isActive }) => ({
-                textDecoration: 'none',
-                color: isActive ? '#1976d2' : '#555',
-                borderBottom: isActive ? '2px solid #1976d2' : 'none',
-                paddingBottom: 4,
-                fontWeight: isActive ? '600' : '400',
-              })}
-            >
-              Login
-            </NavLink>
-          </>
+          <NavLink to="/login" style={navLinkStyle}>
+            Login
+          </NavLink>
         )}
 
         {username && (
           <>
-            <Typography variant="body2" color="textSecondary" sx={{ ml: 2, mr: 1, alignSelf: 'center' }}>
+            <Typography
+              variant="body2"
+              color="textSecondary"
+              sx={{ ml: 2, mr: 1, alignSelf: 'center' }}
+            >
               Hello, <strong>{username}</strong> ({credits ?? 0} credits)
             </Typography>
             <Button variant="text" color="error" onClick={handleLogout} aria-label="Logout">
@@ -81,11 +88,8 @@ function Navigation() {
         )}
       </Toolbar>
     </AppBar>
-  )
+  );
 }
-
-import { FaTwitter, FaDiscord } from 'react-icons/fa'
-import React from 'react'
 
 function HomePage() {
   return (
@@ -138,6 +142,11 @@ function HomePage() {
   )
 }
 
+function PrivateRoute() {
+  const { username } = useContext(AuthContext);
+  return username ? <Outlet /> : <Navigate to="/login" />;
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -150,11 +159,13 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/redditStocks" element={<RedditStocks />} />
-            <Route path="/holdings" element={<Holdings />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/debug" element={<Debug />} /> 
-            <Route path="/transactions" element={<Transactions />} /> 
+            <Route element={<PrivateRoute />}>
+              <Route path="/redditStocks" element={<RedditStocks />} />
+              <Route path="/holdings" element={<Holdings />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/debug" element={<Debug />} />
+              <Route path="/transactions" element={<Transactions />} />
+            </Route>
           </Routes>
         </main>
       </div>
