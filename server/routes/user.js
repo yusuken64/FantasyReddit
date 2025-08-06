@@ -4,7 +4,8 @@ const {
   getMe,
   getHoldings,
   getStock,
-  deleteStock
+  deleteStock,
+  getPortfolio 
 } = require('../controllers/userController');
 const {
   getLeaderboard
@@ -17,5 +18,6 @@ router.get('/holdings', auth, getHoldings);
 router.get('/holdings/:stockSymbol', auth, getStock);
 router.delete('/holdings/:stockSymbol', auth, deleteStock);
 router.get('/leaderboard', auth, getLeaderboard);
+router.get('/portfolio', auth, getPortfolio);
 
 module.exports = router;

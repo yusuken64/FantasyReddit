@@ -171,3 +171,58 @@ exports.deleteStock = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+/**
+ * Get authenticated user's portfolio summary
+ * Route: GET /portfolio
+ */
+exports.getPortfolio = async (req, res) => {
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({ error: 'Unauthorized: no user info' });
+  }
+
+  try {
+    await poolConnect;
+
+    const result = await pool.request()
+      .input('userId', userId)
+      .query(`
+        SELECT 
+          u.username,
+          u.credits,
+          u.totalScore,
+          ISNULL(SUM(h.shares * sph.score), 0) AS totalValue,
+          COUNT(DISTINCT h.stock_symbol) AS stocksOwned,
+          ISNULL(SUM(h.shares), 0) AS totalShares
+        FROM users u
+        LEFT JOIN holdings h ON h.user_id = u.id
+        LEFT JOIN (
+          SELECT stock_symbol, MAX(score) AS score
+          FROM stock_price_history
+          GROUP BY stock_symbol
+        ) sph ON sph.stock_symbol = h.stock_symbol
+        WHERE u.id = @userId
+        GROUP BY u.username, u.credits, u.totalScore
+      `);
+
+    const portfolio = result.recordset[0];
+
+    if (!portfolio) {
+      return res.status(404).json({ error: 'Portfolio not found' });
+    }
+
+    res.json({
+      username: portfolio.username,
+      credits: portfolio.credits,
+      totalScore: portfolio.totalScore,
+      totalValue: Number(portfolio.totalValue),
+      stocksOwned: portfolio.stocksOwned,
+      totalShares: Number(portfolio.totalShares),
+    });
+  } catch (err) {
+    console.error('Error fetching portfolio:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

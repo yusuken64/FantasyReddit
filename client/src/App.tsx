@@ -11,6 +11,7 @@ import { AppBar, Toolbar, Button, Typography } from '@mui/material'
 import { FaTwitter, FaDiscord } from 'react-icons/fa'
 import React, { useContext } from 'react';
 import { Navigate } from 'react-router-dom';
+import Portfolio from './components/Portfolio'
 
 function Navigation() {
   const { username, credits, logout } = useContext(AuthContext);
@@ -48,8 +49,8 @@ function Navigation() {
   const privateLinks: NavLinkItem[] = [
     { to: '/redditStocks', label: 'Stocks' },
     { to: '/holdings', label: 'Holdings' },
-    { to: '/leaderboard', label: 'Leaderboard' },
-    { to: '/debug', label: 'Debug' },
+    //{ to: '/leaderboard', label: 'Leaderboard' },
+    //{ to: '/debug', label: 'Debug' },
     { to: '/transactions', label: 'Log' },
   ];
 
@@ -77,7 +78,14 @@ function Navigation() {
             <Typography
               variant="body2"
               color="textSecondary"
-              sx={{ ml: 2, mr: 1, alignSelf: 'center' }}
+              sx={{ ml: 2, mr: 1, alignSelf: 'center', cursor: 'pointer', textDecoration: 'underline' }}
+              onClick={() => navigate('/portfolio')}
+              aria-label={`Go to ${username}'s portfolio`}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') navigate('/portfolio');
+              }}
             >
               Hello, <strong>{username}</strong> ({credits ?? 0} credits)
             </Typography>
@@ -165,6 +173,7 @@ function App() {
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/debug" element={<Debug />} />
               <Route path="/transactions" element={<Transactions />} />
+              <Route path="/portfolio" element={<Portfolio />} />
             </Route>
           </Routes>
         </main>
