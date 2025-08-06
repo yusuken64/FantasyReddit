@@ -1,3 +1,4 @@
+const { Int } = require('mssql');
 const { pool, poolConnect, sql } = require('./database')
 const { COOLDOWN_MINUTES } = require('./module/priceUpdater');
 
@@ -23,13 +24,13 @@ async function canBuy(userId, symbol) {
   return holdingCount < 20 || alreadyOwned === 1;
 }
 
-async function buy(userId, symbol, quantity, price) {
+async function buy(userId, symbol, quantity, price, scores) {
   const totalCost = price * quantity;
   await poolConnect;
 
   const transaction = new sql.Transaction(pool);
   try {
-    await transaction.begin();fv
+    await transaction.begin();
 
     let request = new sql.Request(transaction);
 
@@ -93,9 +94,10 @@ async function buy(userId, symbol, quantity, price) {
           .input('symbol', sql.NVarChar(10), symbol)
           .input('timestamp', sql.DateTime2, now)
           .input('score', sql.BigInt, price)
+          .input('price', sql.BigInt, price)
           .query(`
-            INSERT INTO stock_price_history (stock_symbol, timestamp, score)
-            VALUES (@symbol, @timestamp, @score)
+            INSERT INTO stock_price_history (stock_symbol, timestamp, score, price)
+            VALUES (@symbol, @timestamp, @score, @price)
           `);
       }
 

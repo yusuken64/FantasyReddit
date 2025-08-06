@@ -86,8 +86,6 @@ const Holdings: React.FC = () => {
 
   return (
     <div className="p-4 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Your Holdings</h1>
-
       <div className="mb-6 flex items-center space-x-4">
         <label>
           Sort By:&nbsp;

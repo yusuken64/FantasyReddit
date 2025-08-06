@@ -1,6 +1,7 @@
 const fetch = global.fetch;
-const { buy, sell } = require('../trades');
-const { getJson, getAuthenticatedUser } = require('./redditController');
+const { buy, sell, canBuy } = require('../trades');
+const { fetchPostWithPrice, getAuthenticatedUser } = require('./redditController');
+const { calculatePrice } = require('../module/priceCalculator');
 
 exports.buyStock = async (req, res) => {
   const userId = req.user.id;
@@ -14,12 +15,12 @@ exports.buyStock = async (req, res) => {
 
     const user = await getAuthenticatedUser(req);
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
-    const data = await getJson(`https://oauth.reddit.com/by_id/t3_${symbol}.json`, user, true);
+    const data = await fetchPostWithPrice(`https://oauth.reddit.com/by_id/t3_${symbol}.json`, user, true);
     const post = (await data)?.data?.children?.[0]?.data;
     if (!post) return res.status(404).json({ error: 'Post not found' });
 
-    const price = post.score;
-    buy(userId, symbol, quantity, price);
+    const price = await calculatePrice(post);
+    await buy(userId, symbol, quantity, price, post.score);
     res.json({ success: true, price });
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to complete purchase' });
@@ -33,12 +34,12 @@ exports.sellStock = async (req, res) => {
   try {    
     const user = await getAuthenticatedUser(req);
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
-    const data = await getJson(`https://oauth.reddit.com/by_id/t3_${symbol}.json`, user, true);
+    const data = await fetchPostWithPrice(`https://oauth.reddit.com/by_id/t3_${symbol}.json`, user, true);
     const post = (await data)?.data?.children?.[0]?.data;
     if (!post) return res.status(404).json({ error: 'Post not found' });
 
-    const price = post.score;
-    sell(userId, symbol, quantity, price);
+    const price = await calculatePrice(post);
+    await sell(userId, symbol, quantity, price);
     res.json({ success: true, price });
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to complete sale' });

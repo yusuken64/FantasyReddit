@@ -18,6 +18,7 @@ interface RedditPost {
   id: string;
   title: string;
   score: number;
+  price: number;
   permalink: string;
   subreddit: string;
   author: string;
@@ -158,7 +159,8 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
         title={modalType === "buy" ? "Buy Shares" : "Sell Shares"}
         onConfirm={handleConfirm}
         symbol={post.id}
-        cost={post.score}
+        score={post.score}
+        price={post.price}
         type={modalType}
         maxMoney={modalType === "buy" ? credits || 0 : undefined}
       />
@@ -198,7 +200,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
       </Stack>
 
       <Typography variant="body2" color="text.secondary" mb={0.5}>
-        <strong>r/{post.subreddit}</strong> • u/{post.author} • Score: {post.score}
+        <strong>r/{post.subreddit}</strong> • u/{post.author} • Score: {post.score} • Price: {post.price !== undefined ? `$${post.price.toFixed(2)}` : 'N/A'}
       </Typography>
 
       <Typography variant="caption" color="text.disabled" mb={2}>
@@ -219,7 +221,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
             color="default"
           />
           {(() => {
-            const pl = (post.score - avgCostState) * sharesState;
+            const pl = (post.price - avgCostState) * sharesState;
             const sign = pl > 0 ? '+' : pl < 0 ? '−' : '';
             const emoji = pl > 0 ? '📈' : pl < 0 ? '📉' : '⚖️';
             return (

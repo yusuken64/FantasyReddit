@@ -87,6 +87,7 @@ export function RedditStocks() {
             id: item.data.id,
             title: item.data.title,
             score: item.data.score,
+            price: item.data.price,
             permalink: item.data.permalink,
             subreddit: item.data.subreddit,
             author: item.data.author,

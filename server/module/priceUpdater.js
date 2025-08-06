@@ -1,8 +1,8 @@
 // priceUpdater.js
 const { pool, sql, poolConnect } = require('../database');
 const axios = require('axios');
-
 const cron = require('node-cron');
+const { calculatePrice } = require('./priceCalculator');
 
 const COOLDOWN_MINUTES = 5;
 let isRunning = false;
@@ -107,7 +107,7 @@ async function fetchPostsFromReddit(postIds, username, accessToken) {
   try {
     const response = await axios.get(url, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,        
+        Authorization: `Bearer ${accessToken}`,
         'User-Agent': `FantasyStocks/1.0 (by u/${username})`
       }
     });
@@ -130,15 +130,18 @@ async function insertStockPriceHistories(posts) {
   // Using a single INSERT with multiple VALUES
   const values = [];
   const input = {};
+  
+  const prices = await Promise.all(posts.map((post) => calculatePrice(post)));
 
   posts.forEach((post, i) => {
-    values.push(`(@stock_symbol${i}, @score${i}, SYSUTCDATETIME())`);
+    values.push(`(@stock_symbol${i}, @score${i}, @price${i}, SYSUTCDATETIME())`);
     input[`stock_symbol${i}`] = { type: sql.NVarChar(10), value: post.id };
-    input[`score${i}`] = { type: sql.Int, value: post.score };
+    input[`score${i}`] = { type: sql.BigInt, value: post.score };
+    input[`price${i}`] = { type: sql.BigInt, value: prices[i] };
   });
 
   const query = `
-    INSERT INTO stock_price_history (stock_symbol, score, timestamp)
+    INSERT INTO stock_price_history (stock_symbol, score, price, timestamp)
     VALUES ${values.join(', ')}
   `;
 
@@ -157,7 +160,7 @@ async function updatePortfolioValues() {
 
   for (const user of users) {
     try {
-      const holdings =  await getHoldingsForUser(user.id);
+      const holdings = await getHoldingsForUser(user.id);
       const stockIds = holdings.map(h => h.stockId);
 
       const prices = await getLatestPricesForSymbols(stockIds);
@@ -167,13 +170,13 @@ async function updatePortfolioValues() {
         const score = prices[h.stockId] ?? 0;
         return sum + (score * h.shares);
       }, 0);
-      
+
       await updateUserTotalValue(user.id, totalValue);
     } catch (err) {
       console.error(`Error updating prices for user ${user.id}:`, err);
     }
   }
-  
+
   const endTime = Date.now();
   console.log('Portfolio update job finished at', new Date(endTime).toISOString());
 

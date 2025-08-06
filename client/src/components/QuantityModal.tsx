@@ -22,7 +22,8 @@ interface QuantityModalProps {
   initialAmount?: number;
   title?: string;
   symbol: string;
-  cost: number;
+  score: number;
+  price: number;
   type: "buy" | "sell";
   maxMoney?: number;
 }
@@ -36,11 +37,12 @@ export const QuantityModal: React.FC<QuantityModalProps> = ({
   initialAmount = 1,
   title,
   symbol,
-  cost,
+  score,
+  price,
   type,
   maxMoney,
 }) => {
-  const maxSharesByMoney = maxMoney !== undefined ? Math.floor(maxMoney / cost) : max;
+  const maxSharesByMoney = maxMoney !== undefined ? Math.floor(maxMoney / price) : max;
   const effectiveMax = Math.min(max, maxSharesByMoney);
 
   const [amount, setAmount] = useState(initialAmount);
@@ -89,13 +91,13 @@ export const QuantityModal: React.FC<QuantityModalProps> = ({
       >
         {/* Title and total cost */}
         <Typography id="quantity-modal-title" variant="h6" fontWeight="bold" gutterBottom>
-          {title} {symbol} @ ${cost} per share
+          {title} {symbol} @ ${price} per share
         </Typography>
 
         <Typography variant="subtitle1" mb={3}>
-          {amount} share{amount !== 1 ? "s" : ""} × {cost} ={" "}
+          {amount} share{amount !== 1 ? "s" : ""} × {price} ={" "}
           <Box component="span" color={theme.palette.primary.main} fontWeight="bold">
-            ${(amount * cost).toFixed(2)}
+            ${(amount * price).toFixed(2)}
           </Box>
         </Typography>
 

@@ -80,6 +80,7 @@ async function createTables() {
       id BIGINT IDENTITY(1,1) PRIMARY KEY,
       stock_symbol NVARCHAR(10) NOT NULL,
       score BIGINT NOT NULL,
+      price BIGINT NULL,
       timestamp DATETIME2 DEFAULT SYSUTCDATETIME()
     )
   `);
