@@ -5,14 +5,25 @@ const axios = require('axios');
 const cron = require('node-cron');
 
 const COOLDOWN_MINUTES = 5;
+let isRunning = false;
 
 function startPriceUpdateCron() {
   cron.schedule('*/5 * * * *', async () => {
+    if (isRunning) {
+      console.warn('Skipping cron job: previous job still running');
+      return;
+    }
+
+    isRunning = true;
     console.log('Running price update cron job...');
+
     try {
       await updateAllTrackedStockPrices();
+      await updatePortfolioValues();
     } catch (err) {
       console.error('Price update cron job failed:', err);
+    } finally {
+      isRunning = false;
     }
   });
 }
@@ -39,16 +50,6 @@ async function updateAllTrackedStockPrices() {
 
       await insertStockPriceHistories(posts);
 
-      const holdings = await getHoldingsForUser(user.id);
-      let totalValue = 0;
-      for (const item of holdings) {
-        const post = posts.find(p => p.id === item.stockId);
-        if (post) {
-          totalValue += item.shares * post.score; // shares * latest price
-        }
-      }
-
-      await updateUserTotalValue(user.id, totalValue);
     } catch (err) {
       console.error(`Error updating prices for user ${user.id}:`, err);
     }
@@ -148,6 +149,38 @@ async function insertStockPriceHistories(posts) {
   await request.query(query);
 }
 
+async function updatePortfolioValues() {
+  const startTime = Date.now();
+  console.log('Portfolio update job started at', new Date(startTime).toISOString());
+
+  const users = await getAllUsersWithHoldings();
+
+  for (const user of users) {
+    try {
+      const holdings =  await getHoldingsForUser(user.id);
+      const stockIds = holdings.map(h => h.stockId);
+
+      const prices = await getLatestPricesForSymbols(stockIds);
+      if (Object.keys(prices).length === 0) continue;
+
+      const totalValue = holdings.reduce((sum, h) => {
+        const score = prices[h.stockId] ?? 0;
+        return sum + (score * h.shares);
+      }, 0);
+      
+      await updateUserTotalValue(user.id, totalValue);
+    } catch (err) {
+      console.error(`Error updating prices for user ${user.id}:`, err);
+    }
+  }
+  
+  const endTime = Date.now();
+  console.log('Portfolio update job finished at', new Date(endTime).toISOString());
+
+  const elapsedSeconds = ((endTime - startTime) / 1000).toFixed(2);
+  console.log(`Portfolio update job took ${elapsedSeconds} seconds.`);
+}
+
 async function getHoldingsForUser(userId) {
   const query = `
     SELECT stock_symbol AS stockId, shares
@@ -174,8 +207,48 @@ async function updateUserTotalValue(userId, totalValue) {
   await request.query(query);
 }
 
+async function getLatestPricesForSymbols(symbols) {
+  if (!Array.isArray(symbols) || symbols.length === 0) return {};
+
+  await poolConnect;
+  const request = pool.request();
+
+  symbols.forEach((s, i) => {
+    if (typeof s !== 'string') throw new Error(`Invalid symbol at index ${i}`);
+    request.input(`s${i}`, sql.NVarChar(10), s);
+  });
+
+  const symbolList = symbols.map((_, i) => `@s${i}`).join(',');
+
+  const query = `
+    WITH RankedPrices AS (
+      SELECT
+        stock_symbol,
+        score,
+        ROW_NUMBER() OVER (PARTITION BY stock_symbol ORDER BY timestamp DESC) AS rn
+      FROM stock_price_history
+      WHERE stock_symbol IN (${symbolList})
+    )
+    SELECT stock_symbol, score
+    FROM RankedPrices
+    WHERE rn = 1
+  `;
+
+  try {
+    const result = await request.query(query);
+    return result.recordset.reduce((map, row) => {
+      map[row.stock_symbol] = row.score;
+      return map;
+    }, {});
+  } catch (err) {
+    console.error('Error fetching latest prices:', err);
+    throw err;
+  }
+}
+
 module.exports = {
   updateAllTrackedStockPrices,
+  updatePortfolioValues,
   startPriceUpdateCron,
   COOLDOWN_MINUTES
 };

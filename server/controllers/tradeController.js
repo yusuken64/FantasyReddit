@@ -7,6 +7,11 @@ exports.buyStock = async (req, res) => {
   const { symbol, quantity = 1 } = req.body;
 
   try {
+    const canProceed = await canBuy(userId, symbol);
+    if (!canProceed) {
+      return res.status(400).json({ error: 'Holding limit reached. Sell or delete a holding to proceed.' });
+    }
+
     const user = await getAuthenticatedUser(req);
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
     const data = await getJson(`https://oauth.reddit.com/by_id/t3_${symbol}.json`, user, true);

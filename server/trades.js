@@ -1,13 +1,35 @@
 const { pool, poolConnect, sql } = require('./database')
 const { COOLDOWN_MINUTES } = require('./module/priceUpdater');
 
+async function canBuy(userId, symbol) {
+  await poolConnect;
+
+  const request = new sql.Request(pool);
+  request.input('userId', sql.Int, userId);
+  request.input('symbol', sql.NVarChar(10), symbol);
+
+  const query = `
+    SELECT 
+      COUNT(*) AS holdingCount,
+      MAX(CASE WHEN stock_symbol = @symbol THEN 1 ELSE 0 END) AS alreadyOwned
+    FROM holdings
+    WHERE user_id = @userId
+  `;
+
+  const result = await request.query(query);
+  const { holdingCount, alreadyOwned } = result.recordset[0];
+
+  // User can buy if they own < 20 holdings OR already own the symbol
+  return holdingCount < 20 || alreadyOwned === 1;
+}
+
 async function buy(userId, symbol, quantity, price) {
   const totalCost = price * quantity;
   await poolConnect;
 
   const transaction = new sql.Transaction(pool);
   try {
-    await transaction.begin();
+    await transaction.begin();fv
 
     let request = new sql.Request(transaction);
 
@@ -175,4 +197,4 @@ async function sell(userId, symbol, quantity, price) {
   }
 }
 
-module.exports = { buy, sell }
+module.exports = { buy, sell, canBuy }

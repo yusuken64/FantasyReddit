@@ -31,7 +31,7 @@ const debugRoutes = require('./routes/debug');
 const transactionRoutes = require('./routes/transactions');
 const priceHistoryRoutes = require('./routes/priceHistory');
 
-const { startPriceUpdateCron, updateAllTrackedStockPrices } = require('./module/priceUpdater');
+const { startPriceUpdateCron, updateAllTrackedStockPrices, updatePortfolioValues } = require('./module/priceUpdater');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -72,6 +72,7 @@ app.listen(PORT, () => {
 (async () => {
   try {
     await updateAllTrackedStockPrices();
+    await updatePortfolioValues();
     console.log('Price update test run completed.');
   } catch (err) {
     console.error('Error during price update run:', err);
