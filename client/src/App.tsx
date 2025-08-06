@@ -1,23 +1,33 @@
-import { AuthContext } from './context/AuthContext'
-import { BrowserRouter, Routes, Route, NavLink, useNavigate, Outlet } from 'react-router-dom'
-import Login from './components/LoginWithReddit'
-import { RedditStocks } from './components/RedditStocks'
-import Holdings from './components/Holdings'
+import React, { useContext, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, NavLink, useNavigate, Outlet, Navigate } from 'react-router-dom';
+import { AuthContext } from './context/AuthContext';
+import Login from './components/LoginWithReddit';
+import { RedditStocks } from './components/RedditStocks';
+import Holdings from './components/Holdings';
 import Leaderboard from './components/Leaderboard';
 import Debug from './components/Debug';
 import Transactions from './components/Transactions';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { AppBar, Toolbar, Button, Typography } from '@mui/material'
-import { FaTwitter, FaDiscord } from 'react-icons/fa'
-import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
-import Portfolio from './components/Portfolio'
+import Portfolio from './components/Portfolio';
+
+import {
+  AppBar,
+  Toolbar,
+  Button,
+  Typography,
+  Box,
+  Paper,
+  Stack,
+  Container,
+  IconButton,
+} from '@mui/material';
+
+import { FaTwitter, FaDiscord } from 'react-icons/fa';
 
 function Navigation() {
   const { username, credits, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  React.useEffect(() => {
+  useEffect(() => {
     console.log('API URL from env:', import.meta.env.VITE_API_URL);
   }, []);
 
@@ -42,22 +52,18 @@ function Navigation() {
     end?: boolean;
   };
 
-  const publicLinks: NavLinkItem[] = [
-    { to: '/', label: 'Home', end: true },
-  ];
+  const publicLinks: NavLinkItem[] = [{ to: '/', label: 'Home', end: true }];
 
   const privateLinks: NavLinkItem[] = [
     { to: '/redditStocks', label: 'Stocks' },
     { to: '/holdings', label: 'Holdings' },
-    //{ to: '/leaderboard', label: 'Leaderboard' },
-    //{ to: '/debug', label: 'Debug' },
+    // { to: '/leaderboard', label: 'Leaderboard' },
+    // { to: '/debug', label: 'Debug' },
     { to: '/transactions', label: 'Log' },
   ];
 
-  const linksToShow = [
-    ...(!username ? publicLinks : []),
-    ...(username ? privateLinks : []),
-  ];
+  const linksToShow = [...(!username ? publicLinks : []), ...(username ? privateLinks : [])];
+
   return (
     <AppBar position="static" color="default" elevation={1}>
       <Toolbar sx={{ justifyContent: 'center', gap: 3 }}>
@@ -77,12 +83,18 @@ function Navigation() {
           <>
             <Typography
               variant="body2"
-              color="textSecondary"
-              sx={{ ml: 2, mr: 1, alignSelf: 'center', cursor: 'pointer', textDecoration: 'underline' }}
+              color="text.secondary"
+              sx={{
+                ml: 2,
+                mr: 1,
+                alignSelf: 'center',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+              }}
               onClick={() => navigate('/portfolio')}
-              aria-label={`Go to ${username}'s portfolio`}
               role="button"
               tabIndex={0}
+              aria-label={`Go to ${username}'s portfolio`}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') navigate('/portfolio');
               }}
@@ -101,53 +113,59 @@ function Navigation() {
 
 function HomePage() {
   return (
-    <div
-      role="main"
-      className="container my-5 p-4 bg-white rounded shadow-sm"
-      style={{ maxWidth: '600px' }}
-    >
-      <h1 className="display-4 mb-4">Welcome to Fantasy Reddit Stocks</h1>
-      <p className="lead text-secondary mb-4">
-        This is a fantasy stock market where the value of “stocks” depends on how hot a Reddit thread is.
-        The hotness rises and falls based on how much engagement the thread gets — like upvotes, comments, and shares.
-      </p>
-      <p className="text-secondary mb-4">
-        Buy shares in threads you think will get popular, track your holdings, and watch how your investments change as the conversation evolves.
-      </p>
-      <p className="text-secondary mb-4">
-        Use the navigation links above to explore posts, manage your holdings, and dive into the social media-driven stock market!
-      </p>
+    <Box display="flex" justifyContent="center" mt={5}>
+      <Paper elevation={3} sx={{ p: 4, maxWidth: 600, width: '100%' }}>
+        <Typography variant="h3" gutterBottom>
+          Welcome to Fantasy Reddit Stocks
+        </Typography>
 
-      <p className="text-warning fst-italic">
-        Note: This app is under construction. Things may break or change — please leave feedback on our social channels!
-      </p>
+        <Typography variant="h6" color="text.secondary" gutterBottom>
+          This is a fantasy stock market where the value of “stocks” depends on how hot a Reddit thread is.
+          The hotness rises and falls based on how much engagement the thread gets — like upvotes, comments, and shares.
+        </Typography>
 
-      {/* Social media links with icons */}
-      <div className="mt-3">
-        <h5>Follow us on social media:</h5>
-        <div className="d-flex gap-4 fs-3">
-          {/* Replace '#' with actual URLs */}
-          <a
-            href="https://x.com/JuicyChickenDev"
-            aria-label="Twitter"
-            className="text-primary"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <FaTwitter />
-          </a>
-          <a
-            href="https://discord.gg/nJ84kqbbzV"
-            aria-label="Discord"
-            className="text-primary"
-            target="_blank"
-            rel="noopener noreferrer">
-            <FaDiscord />
-          </a>
-        </div>
-      </div>
-    </div>
-  )
+        <Typography color="text.secondary" paragraph>
+          Buy shares in threads you think will get popular, track your holdings, and watch how your investments change as the conversation evolves.
+        </Typography>
+
+        <Typography color="text.secondary" paragraph>
+          Use the navigation links above to explore posts, manage your holdings, and dive into the social media-driven stock market!
+        </Typography>
+
+        <Typography variant="body1" color="warning.main" fontStyle="italic">
+          Note: This app is under construction. Things may break or change — please leave feedback on our social channels!
+        </Typography>
+
+        <Box mt={4}>
+          <Typography variant="h6" gutterBottom>
+            Follow us on social media:
+          </Typography>
+          <Stack direction="row" spacing={3}>
+            <IconButton
+              component="a"
+              href="https://x.com/JuicyChickenDev"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Twitter"
+              color="primary"
+            >
+              <FaTwitter />
+            </IconButton>
+            <IconButton
+              component="a"
+              href="https://discord.gg/nJ84kqbbzV"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Discord"
+              color="primary"
+            >
+              <FaDiscord />
+            </IconButton>
+          </Stack>
+        </Box>
+      </Paper>
+    </Box>
+  );
 }
 
 function PrivateRoute() {
@@ -158,12 +176,12 @@ function PrivateRoute() {
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-white shadow p-4 mb-6">
+      <Box minHeight="100vh" bgcolor="grey.50">
+        <Box component="header" bgcolor="white" boxShadow={1} p={2} mb={6}>
           <Navigation />
-        </header>
+        </Box>
 
-        <main className="max-w-xl mx-auto p-4">
+        <Container component="main" maxWidth="sm">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
@@ -176,10 +194,10 @@ function App() {
               <Route path="/portfolio" element={<Portfolio />} />
             </Route>
           </Routes>
-        </main>
-      </div>
+        </Container>
+      </Box>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;
