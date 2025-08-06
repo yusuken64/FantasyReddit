@@ -13,6 +13,7 @@ type RedditPost = {
   id: string
   title: string
   score: number
+  price: number
   permalink: string
   subreddit: string
   author: string
