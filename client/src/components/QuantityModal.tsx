@@ -37,7 +37,6 @@ export const QuantityModal: React.FC<QuantityModalProps> = ({
   initialAmount = 1,
   title,
   symbol,
-  score,
   price,
   type,
   maxMoney,

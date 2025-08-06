@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, NavLink, useNavigate, Outlet, Navigate } from 'react-router-dom';
 import { AuthContext } from './context/AuthContext';
 import Login from './components/LoginWithReddit';

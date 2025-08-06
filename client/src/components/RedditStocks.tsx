@@ -5,6 +5,7 @@ interface RedditPost {
   id: string
   title: string
   score: number
+  price: number
   permalink: string
   subreddit: string
   author: string
@@ -62,6 +63,7 @@ export function RedditStocks() {
             id: postData.id,
             title: postData.title,
             score: postData.score,
+            price: postData.price,
             permalink: postData.permalink,
             subreddit: postData.subreddit,
             author: postData.author
