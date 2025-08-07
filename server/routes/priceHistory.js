@@ -27,14 +27,14 @@ router.get('/price-history', async (req, res) => {
 WITH Ranked AS (
   SELECT 
     timestamp, 
-    score,
+    price,
     ROW_NUMBER() OVER (ORDER BY timestamp ASC) AS rn,
     COUNT(*) OVER () AS total
   FROM stock_price_history
   WHERE stock_symbol = @stockSymbol
     AND timestamp BETWEEN @startTime AND @endTime
 )
-SELECT timestamp, score
+SELECT timestamp, price
 FROM Ranked
 WHERE total <= 50
    OR rn % CAST(CEILING(CAST(total AS float) / 50) AS INT) = 1

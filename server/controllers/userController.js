@@ -137,13 +137,13 @@ exports.deleteStock = async (req, res) => {
 
     const entry = result.recordset[0];
     let price = 0;
-    
+
     if (entry) {
       const user = await getAuthenticatedUser(req);
       if (!user) return res.status(401).json({ error: 'Unauthorized' });
       const redditData = await fetchPostWithPrice(`https://oauth.reddit.com/by_id/t3_${stockSymbol}.json`, user, true);
       const post = redditData?.data?.children?.[0]?.data;
-      price = post?.score ?? 0;
+      price = post?.price ?? 0;
     }
 
     const sharesToSell = entry?.shares ?? 0;
@@ -187,39 +187,41 @@ exports.getPortfolio = async (req, res) => {
     await poolConnect;
 
     const result = await pool.request()
-      .input('userId', userId)
+      .input('userId', sql.Int, userId)
       .query(`
-        SELECT 
-          u.username,
-          u.credits,
-          u.totalScore,
-          ISNULL(SUM(h.shares * sph.score), 0) AS totalValue,
-          COUNT(DISTINCT h.stock_symbol) AS stocksOwned,
-          ISNULL(SUM(h.shares), 0) AS totalShares
-        FROM users u
-        LEFT JOIN holdings h ON h.user_id = u.id
-        LEFT JOIN (
-          SELECT stock_symbol, MAX(score) AS score
-          FROM stock_price_history
-          GROUP BY stock_symbol
-        ) sph ON sph.stock_symbol = h.stock_symbol
-        WHERE u.id = @userId
-        GROUP BY u.username, u.credits, u.totalScore
-      `);
+    SELECT 
+      u.username,
+      u.credits,
+      u.totalScore,
+      COUNT(DISTINCT h.stock_symbol) AS stocksOwned,
+      ISNULL(SUM(h.shares), 0) AS totalShares,
+      ISNULL(SUM(h.total_spent), 0) AS totalSpent,
+      ISNULL(SUM(h.shares * latest_price.price), 0) AS totalValue
+    FROM users u
+    LEFT JOIN holdings h ON h.user_id = u.id
+    LEFT JOIN (
+      SELECT sph1.stock_symbol, sph1.price
+      FROM stock_price_history sph1
+      INNER JOIN (
+        SELECT stock_symbol, MAX(timestamp) AS latest_timestamp
+        FROM stock_price_history
+        GROUP BY stock_symbol
+      ) sph2 ON sph1.stock_symbol = sph2.stock_symbol AND sph1.timestamp = sph2.latest_timestamp
+    ) latest_price ON latest_price.stock_symbol = h.stock_symbol
+    WHERE u.id = @userId
+    GROUP BY u.username, u.credits, u.totalScore
+  `);
 
     const portfolio = result.recordset[0];
 
-    if (!portfolio) {
-      return res.status(404).json({ error: 'Portfolio not found' });
-    }
-
     res.json({
       username: portfolio.username,
-      credits: portfolio.credits,
-      totalScore: portfolio.totalScore,
-      totalValue: Number(portfolio.totalValue),
-      stocksOwned: portfolio.stocksOwned,
+      credits: Number(portfolio.credits),
+      totalScore: Number(portfolio.totalScore),
+      stocksOwned: Number(portfolio.stocksOwned),
       totalShares: Number(portfolio.totalShares),
+      totalSpent: Number(portfolio.totalSpent),
+      totalValue: Number(portfolio.totalValue),
     });
   } catch (err) {
     console.error('Error fetching portfolio:', err);

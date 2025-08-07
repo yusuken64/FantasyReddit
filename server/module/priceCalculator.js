@@ -17,22 +17,24 @@ async function calculatePrice(post) {
 
   const now = new Date();
 
-  let previous = null;
+  let previous;
+  let isNew = false;
+
   if (result.recordset.length > 0) {
     previous = result.recordset[0];
   } else {
-    // First-time snapshot: seed the score to avoid a jump next time
-    const seedRequest = pool.request();
-    seedRequest.input('stock_symbol', sql.NVarChar(10), post.id);
-    seedRequest.input('score', sql.Int, post.score);
-    seedRequest.input('price', sql.Money, basePrice);
+    // Simulate a previous record at post creation time
+    const postCreatedTime = post.created_utc
+      ? new Date(post.created_utc * 1000)
+      : now;
 
-    await seedRequest.query(`
-      INSERT INTO stock_price_history (stock_symbol, score, timestamp, price)
-      VALUES (@stock_symbol, @score, GETUTCDATE(), @price)
-    `);
+    previous = {
+      score: 1,
+      timestamp: postCreatedTime.toISOString(),
+      price: basePrice
+    };
 
-    return basePrice;
+    isNew = true;
   }
 
   const prevScore = previous.score;
@@ -53,6 +55,19 @@ async function calculatePrice(post) {
 
   const rawPrice = basePrice + (scoreRate * scoreWeight * ageDecay);
   const finalPrice = Math.max(basePrice, Math.round(rawPrice));
+
+  // Insert into DB if it's a new post
+  if (isNew) {
+    const insertRequest = pool.request();
+    insertRequest.input('stock_symbol', sql.NVarChar(10), post.id);
+    insertRequest.input('score', sql.Int, post.score);
+    insertRequest.input('price', sql.Money, finalPrice);
+
+    await insertRequest.query(`
+      INSERT INTO stock_price_history (stock_symbol, score, timestamp, price)
+      VALUES (@stock_symbol, @score, GETUTCDATE(), @price)
+    `);
+  }
 
   return finalPrice;
 }

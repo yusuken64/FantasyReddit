@@ -5,7 +5,7 @@ import {
 
 interface PricePoint {
   timestamp: string; // ISO string
-  score: number;
+  price: number;
 }
 
 interface PriceHistoryGraphProps {
@@ -104,7 +104,7 @@ const PriceHistoryGraph: React.FC<PriceHistoryGraphProps> = ({ userId, stockSymb
         />
         <Line
           type="monotone"
-          dataKey="score"
+          dataKey="price"
           stroke="#2e86de"
           strokeWidth={3}
           dot={{ r: 3, strokeWidth: 2, fill: '#fff' }}

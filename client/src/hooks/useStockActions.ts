@@ -13,7 +13,8 @@ export function useStockActions() {
         body: JSON.stringify({ symbol, quantity: quantity }),
       })
       if (res.ok) {
-        alert(`Bought ${quantity} share of ${symbol}`)
+        const data = await res.json();
+        alert(`Bought ${quantity} share of ${symbol} at ${data.price}`)
         await updateCredits()
       } else {
         const err = await res.json()
@@ -34,7 +35,8 @@ export function useStockActions() {
         body: JSON.stringify({ symbol, quantity: quantity }),
       })
       if (res.ok) {
-        alert(`Sold ${quantity} share of ${symbol}`)
+        const data = await res.json();
+        alert(`Sold ${quantity} share of ${symbol} as ${data.price}`)
         await updateCredits()
       } else {
         const err = await res.json()

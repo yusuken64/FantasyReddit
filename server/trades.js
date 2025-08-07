@@ -24,7 +24,7 @@ async function canBuy(userId, symbol) {
   return holdingCount < 20 || alreadyOwned === 1;
 }
 
-async function buy(userId, symbol, quantity, price, scores) {
+async function buy(userId, symbol, quantity, price, score) {
   const totalCost = price * quantity;
   await poolConnect;
 
@@ -93,7 +93,7 @@ async function buy(userId, symbol, quantity, price, scores) {
         await request
           .input('symbol', sql.NVarChar(10), symbol)
           .input('timestamp', sql.DateTime2, now)
-          .input('score', sql.BigInt, price)
+          .input('score', sql.BigInt, score)
           .input('price', sql.BigInt, price)
           .query(`
             INSERT INTO stock_price_history (stock_symbol, timestamp, score, price)

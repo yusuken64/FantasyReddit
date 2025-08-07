@@ -1,14 +1,16 @@
 import { useContext, useEffect, useState } from 'react';
 import Debug from './Debug';
 import { AuthContext } from '../context/AuthContext';
+import { PortfolioCharts } from './PortfolioCharts';
 
 type PortfolioStats = {
     username: string;
     credits: number;
     totalScore: number;
-    totalValue: number;
     stocksOwned: number;
     totalShares: number;
+    totalSpent: number;
+    totalValue: number;
 };
 
 export default function Portfolio() {
@@ -33,6 +35,7 @@ export default function Portfolio() {
                 );
                 if (!res.ok) throw new Error('Failed to fetch portfolio stats');
                 const data = await res.json();
+                console.log(data);
                 setStats(data);
             } catch (e: any) {
                 setError(e.message);
@@ -54,23 +57,29 @@ export default function Portfolio() {
                 style={{
                     fontSize: '2rem',
                     fontWeight: 'bold',
-                    marginBottom: '1.5rem',
-                    padding: '1rem',
+                    // marginBottom: '1.5rem',
+                    // padding: '1rem',
                     background: '#f5f5f5',
                     borderRadius: '8px',
                     textAlign: 'center',
                 }}
             >
-                Total Portfolio Value: ${stats.totalValue.toLocaleString()}
+                Total Portfolio Value: ${(stats.credits + stats.totalValue).toLocaleString()}
             </div>
+
+            <PortfolioCharts
+                credits={stats.credits}
+                totalValue={stats.totalValue + stats.credits}
+                totalSpent={stats.totalSpent}
+            />
             <section>
                 <h2>User Summary</h2>
                 <p><strong>Username:</strong> {stats.username}</p>
                 <p><strong>Credits:</strong> {stats.credits.toLocaleString()}</p>
-                {/* <p><strong>Total Score:</strong> {stats.totalScore.toLocaleString()}</p> */}
-                <p><strong>Total Portfolio Value:</strong> {stats.totalValue.toLocaleString()}</p>
+                <p><strong>Total Portfolio Value:</strong> {(stats.credits + stats.totalValue).toLocaleString()}</p>
                 <p><strong>Stocks Owned:</strong> {stats.stocksOwned}</p>
                 <p><strong>Total Shares:</strong> {stats.totalShares}</p>
+                <p><strong>Total Spent:</strong> {stats.totalSpent}</p>
             </section>
 
             {/* <section style={{ marginBottom: 40 }}>

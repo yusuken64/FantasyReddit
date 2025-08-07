@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useContext } from "react";
 import { useStockActions } from "../hooks/useStockActions";
 import { QuantityModal } from "./QuantityModal";
 import {
@@ -10,9 +10,9 @@ import {
   Stack,
   Chip,
 } from "@mui/material";
-import { useContext } from 'react'
 import { AuthContext } from '../context/AuthContext'
 import PriceHistoryGraph from './PriceHistoryGraph';
+import { formatDistanceToNow } from 'date-fns';
 
 interface RedditPost {
   id: string;
@@ -22,6 +22,7 @@ interface RedditPost {
   permalink: string;
   subreddit: string;
   author: string;
+  created_utc: number;
 }
 
 interface RedditStockItemProps {
@@ -56,9 +57,14 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
     setModalOpen(true);
   };
 
-  const handleConfirm = (amount: number) => {
-    modalType === "buy" ? buy(post.id, amount) : sell(post.id, amount);
-    handleRefresh();
+  const handleConfirm = async (amount: number) => {
+    if (modalType === "buy") {
+      await buy(post.id, amount);
+    } else {
+      await sell(post.id, amount);
+    }
+
+    await handleRefresh(); // ensure latest shares info
     setModalOpen(false);
   };
 
@@ -142,6 +148,13 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
     return { start, end };
   }, []);
 
+  function getPostAge(utcSeconds: number | undefined): string {
+    if (!utcSeconds || isNaN(utcSeconds) || utcSeconds <= 0) {
+      return 'unknown time';
+    }
+    return formatDistanceToNow(new Date(utcSeconds * 1000), { addSuffix: true });
+  }
+
   return (
     <Paper
       elevation={3}
@@ -200,11 +213,29 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
       </Stack>
 
       <Typography variant="body2" color="text.secondary" mb={0.5}>
-        <strong>r/{post.subreddit}</strong> • u/{post.author} • Score: {post.score} • Price: {post.price !== undefined ? `$${post.price.toFixed(2)}` : 'N/A'}
+        <strong>r/{post.subreddit}</strong> • u/{post.author} • Score: {post.score}
       </Typography>
 
-      <Typography variant="caption" color="text.disabled" mb={2}>
-        Last refreshed: {new Date(lastRefreshed).toLocaleTimeString()}
+      <Stack direction="row" justifyContent="space-between" mb={2}>
+        <Typography variant="caption" color="text.disabled">
+          Posted {getPostAge(post.created_utc)}
+        </Typography>
+        <Typography variant="caption" color="text.disabled">
+          Last refreshed: {new Date(lastRefreshed).toLocaleTimeString()}
+        </Typography>
+      </Stack>
+      {/* Price */}
+      <Typography
+        variant="subtitle2"
+        color="text.secondary"
+        sx={{
+          width: '100px',
+          textAlign: 'left',
+          fontWeight: 700,
+          fontVariantNumeric: 'tabular-nums',
+        }}
+      >
+        ${post.price?.toFixed(2) ?? 'N/A'}
       </Typography>
 
       {/* Holding Info */}
@@ -232,16 +263,14 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
               />
             );
           })()}
-          {owned && (
-            <Button
-              size="small"
-              variant="outlined"
-              color="warning"
-              onClick={handleDelete}
-            >
-              Delete
-            </Button>
-          )}
+          <Button
+            size="small"
+            variant="outlined"
+            color="warning"
+            onClick={handleDelete}
+          >
+            Delete
+          </Button>
         </Stack>
       )}
 
@@ -251,29 +280,32 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
           stockSymbol={post.id}
           start={start}
           end={end}
-          latestPrice={{ timestamp: end, score: post.score }}
+          latestPrice={{ timestamp: end, price: post.price }}
         />
       )}
 
       {/* Action Buttons */}
-      <Stack direction="row" spacing={2}>
-        <Button
-          fullWidth
-          variant="contained"
-          color="success"
-          onClick={() => openModal(true)}
-        >
-          Buy
-        </Button>
-        <Button
-          fullWidth
-          variant="contained"
-          color="error"
-          onClick={() => openModal(false)}
-          disabled={sharesState === 0}
-        >
-          Sell
-        </Button>
+      <Stack direction="row" alignItems="center" spacing={2}>
+        {/* Buttons */}
+        <Stack direction="row" spacing={1} flexGrow={1}>
+          <Button
+            fullWidth
+            variant="contained"
+            color="success"
+            onClick={() => openModal(true)}
+          >
+            Buy
+          </Button>
+          <Button
+            fullWidth
+            variant="contained"
+            color="error"
+            onClick={() => openModal(false)}
+            disabled={sharesState === 0}
+          >
+            Sell
+          </Button>
+        </Stack>
       </Stack>
     </Paper>
   );

@@ -101,65 +101,65 @@ export const QuantityModal: React.FC<QuantityModalProps> = ({
         </Typography>
 
         {/* Buttons for increments */}
-<Stack direction="row" spacing={2} flexWrap="wrap" mb={2} alignItems="center" justifyContent="space-between">
-  {/* Increment buttons */}
-  <Stack direction="row" spacing={1}>
-    {[1, 10, 100].map((n) => (
-      <Tooltip key={`plus-${n}`} title={`Add ${n}`}>
-        <Button
-          variant="outlined"
-          size="small"
-          color={type === "buy" ? "error" : "success"}
-          onClick={() => adjustAmount(n)}
-          startIcon={<AddIcon />}
-        >
-          {n}
-        </Button>
-      </Tooltip>
-    ))}
+        <Stack direction="row" spacing={2} flexWrap="wrap" mb={2} alignItems="center" justifyContent="space-between">
+          {/* Increment buttons */}
+          <Stack direction="row" spacing={1}>
+            {[1, 10, 100].map((n) => (
+              <Tooltip key={`plus-${n}`} title={`Add ${n}`}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color={type === "buy" ? "error" : "success"}
+                  onClick={() => adjustAmount(n)}
+                  startIcon={<AddIcon />}
+                >
+                  {n}
+                </Button>
+              </Tooltip>
+            ))}
 
-    <Tooltip title={`Set to max (${effectiveMax})`}>
-      <Button
-        variant="contained"
-        size="small"
-        color={type === "buy" ? "error" : "success"}
-        onClick={() => setAmount(effectiveMax)}
-      >
-        Max ({effectiveMax})
-      </Button>
-    </Tooltip>
-  </Stack>
+            <Tooltip title={`Set to max (${effectiveMax})`}>
+              <Button
+                variant="contained"
+                size="small"
+                color={type === "buy" ? "error" : "success"}
+                onClick={() => setAmount(effectiveMax)}
+              >
+                Max ({effectiveMax})
+              </Button>
+            </Tooltip>
+          </Stack>
 
-  {/* Decrement buttons */}
-  <Stack direction="row" spacing={1}>
-    {[1, 10, 100].map((n) => (
-      <Tooltip key={`minus-${n}`} title={`Subtract ${n}`}>
-        <Button
-          variant="outlined"
-          size="small"
-          color="inherit"
-          onClick={() => adjustAmount(-n)}
-          startIcon={<RemoveIcon />}
-        >
-          {n}
-        </Button>
-      </Tooltip>
-    ))}
+          {/* Decrement buttons */}
+          <Stack direction="row" spacing={1}>
+            {[1, 10, 100].map((n) => (
+              <Tooltip key={`minus-${n}`} title={`Subtract ${n}`}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="inherit"
+                  onClick={() => adjustAmount(-n)}
+                  startIcon={<RemoveIcon />}
+                >
+                  {n}
+                </Button>
+              </Tooltip>
+            ))}
 
-    {min === 0 && (
-      <Tooltip title="Set to zero">
-        <Button
-          variant="contained"
-          size="small"
-          color="inherit"
-          onClick={() => setAmount(0)}
-        >
-          Zero
-        </Button>
-      </Tooltip>
-    )}
-  </Stack>
-</Stack>
+            {min === 0 && (
+              <Tooltip title="Set to zero">
+                <Button
+                  variant="contained"
+                  size="small"
+                  color="inherit"
+                  onClick={() => setAmount(0)}
+                >
+                  Zero
+                </Button>
+              </Tooltip>
+            )}
+          </Stack>
+        </Stack>
 
         {/* Show max shares by money if relevant */}
         {maxMoney !== undefined && maxSharesByMoney < max && (

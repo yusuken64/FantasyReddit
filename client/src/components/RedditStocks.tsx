@@ -11,6 +11,7 @@ interface RedditPost {
   author: string
   shares?: number
   total_spent?: number
+  created_utc: number;
 }
 
 function extractPostId(input: string): string | null {
@@ -66,7 +67,8 @@ export function RedditStocks() {
             price: postData.price,
             permalink: postData.permalink,
             subreddit: postData.subreddit,
-            author: postData.author
+            author: postData.author,
+            created_utc: postData.created_utc,
           }]
         } else {
           let endpoint = `${import.meta.env.VITE_API_URL}/api/reddit-posts`
@@ -93,6 +95,7 @@ export function RedditStocks() {
             permalink: item.data.permalink,
             subreddit: item.data.subreddit,
             author: item.data.author,
+            created_utc: item.data.created_utc,
           }))
         }
 
