@@ -17,6 +17,7 @@ type RedditPost = {
   permalink: string
   subreddit: string
   author: string
+  created_utc: number
 }
 
 const Holdings: React.FC = () => {
