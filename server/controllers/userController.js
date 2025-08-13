@@ -228,3 +228,67 @@ exports.getPortfolio = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+/**
+ * Get authenticated user's portfolio value history
+ * Route: GET /portfolio/history
+ */
+exports.getPortfolioHistory = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: no user info' });
+    }
+
+    const { start, end } = req.query;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Not authenticated.' });
+    }
+    if (!start || !end) {
+      return res.status(400).json({ error: 'Missing required query parameters: start, end' });
+    }
+
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      return res.status(400).json({ error: 'Invalid date format.' });
+    }
+
+    await database.poolConnect;
+    const request = database.pool.request();
+    request.input('userId', database.sql.Int, userId);
+    request.input('startTime', database.sql.DateTime2, startDate);
+    request.input('endTime', database.sql.DateTime2, endDate);
+
+    const query = `
+WITH Ranked AS (
+  SELECT 
+    timestamp, 
+    credits,
+    portfolio_value,
+    ROW_NUMBER() OVER (ORDER BY timestamp ASC) AS rn,
+    COUNT(*) OVER () AS total
+  FROM portfolio_value_history
+  WHERE user_id = @userId
+    AND timestamp BETWEEN @startTime AND @endTime
+)
+SELECT timestamp, credits, portfolio_value
+FROM Ranked
+WHERE total <= 50
+   OR rn % CAST(CEILING(CAST(total AS float) / 50) AS INT) = 1
+ORDER BY timestamp ASC;
+    `;
+
+    const result = await request.query(query);
+
+    // Cache for 1 min
+    res.set('Cache-Control', 'public, max-age=60');
+    res.json(result.recordset);
+  } catch (err) {
+    console.error('Error fetching portfolio history:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

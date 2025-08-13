@@ -34,7 +34,7 @@ async function updateAllTrackedStockPrices() {
   const startTime = Date.now();
   console.log('Price update job started at', new Date(startTime).toISOString());
 
-  const users = await getAllUsersWithHoldings();
+  const users = await getAllUsers();
 
   for (const user of users) {
     try {
@@ -63,17 +63,21 @@ async function updateAllTrackedStockPrices() {
   console.log(`Price update job took ${elapsedSeconds} seconds.`);
 }
 
-// 1. Get all users who own holdings and their tokens
-async function getAllUsersWithHoldings() {
-  await database.poolConnect;
-  const query = `
-    SELECT DISTINCT u.id, u.username, u.access_token
-    FROM users u
-    JOIN holdings p ON u.id = p.user_id
-    WHERE u.access_token IS NOT NULL
-  `;
-  const result = await database.pool.request().query(query);
-  return result.recordset;
+// 1. Get all users
+async function getAllUsers() {
+  try {
+    await database.poolConnect;
+    const query = `
+      SELECT u.id, u.username, u.access_token, u.credits
+      FROM users u
+      WHERE u.access_token IS NOT NULL
+    `;
+    const result = await database.pool.request().query(query);
+    return result.recordset;
+  } catch (err) {
+    console.error('Error fetching all users:', err);
+    return [];
+  }
 }
 
 // 2. For a user, find post_ids needing update (last update older than cooldown)
@@ -131,7 +135,7 @@ async function insertStockPriceHistories(posts) {
   // Using a single INSERT with multiple VALUES
   const values = [];
   const input = {};
-  
+
   const prices = await Promise.all(posts.map((post) => calculatePrice(post)));
 
   posts.forEach((post, i) => {
@@ -157,7 +161,7 @@ async function updatePortfolioValues() {
   const startTime = Date.now();
   console.log('Portfolio update job started at', new Date(startTime).toISOString());
 
-  const users = await getAllUsersWithHoldings();
+  const users = await getAllUsers();
 
   for (const user of users) {
     try {
@@ -165,14 +169,17 @@ async function updatePortfolioValues() {
       const stockIds = holdings.map(h => h.stockId);
 
       const prices = await getLatestPricesForSymbols(stockIds);
-      if (Object.keys(prices).length === 0) continue;
 
       const totalValue = holdings.reduce((sum, h) => {
-        const score = prices[h.stockId] ?? 0;
-        return sum + (score * h.shares);
+        const score = Number(prices[h.stockId]) || 0; // zero if missing
+        const shares = Number(h.shares) || 0;
+        return sum + (score * shares);
       }, 0);
+      const credits = Number(user.credits) || 0;
+
 
       await updateUserTotalValue(user.id, totalValue);
+      await insertPortfolioSnapshot(user.id, totalValue, credits)
     } catch (err) {
       console.error(`Error updating prices for user ${user.id}:`, err);
     }
@@ -191,9 +198,9 @@ async function getHoldingsForUser(userId) {
     FROM holdings
     WHERE user_id = @userId
   `;
-  await poolConnect;
-  const request = pool.request();
-  request.input('userId', sql.Int, userId);
+  await database.poolConnect;
+  const request = database.pool.request();
+  request.input('userId', database.sql.Int, userId);
   const result = await request.query(query);
   return result.recordset; // [{ stockId, shares }, ...]
 }
@@ -204,22 +211,35 @@ async function updateUserTotalValue(userId, totalValue) {
     SET totalScore = @totalValue
     WHERE id = @userId
   `;
-  await poolConnect;
-  const request = pool.request();
-  request.input('totalValue', sql.Float, totalValue); // or sql.Decimal if you prefer
-  request.input('userId', sql.Int, userId);
+  await database.poolConnect;
+  const request = database.pool.request();
+  request.input('totalValue', database.sql.Float, totalValue); // or sql.Decimal if you prefer
+  request.input('userId', database.sql.Int, userId);
+  await request.query(query);
+}
+
+async function insertPortfolioSnapshot(userId, portfolioValue, credits) {
+  const query = `
+    INSERT INTO portfolio_value_history (user_id, portfolio_value, credits)
+    VALUES (@userId, @portfolioValue, @credits)
+  `;
+  await database.poolConnect;
+  const request = database.pool.request();
+  request.input('userId', database.sql.BigInt, userId);
+  request.input('portfolioValue', database.sql.BigInt, portfolioValue);
+  request.input('credits', database.sql.BigInt, credits);
   await request.query(query);
 }
 
 async function getLatestPricesForSymbols(symbols) {
   if (!Array.isArray(symbols) || symbols.length === 0) return {};
 
-  await poolConnect;
-  const request = pool.request();
+  await database.poolConnect;
+  const request = database.pool.request();
 
   symbols.forEach((s, i) => {
     if (typeof s !== 'string') throw new Error(`Invalid symbol at index ${i}`);
-    request.input(`s${i}`, sql.NVarChar(10), s);
+    request.input(`s${i}`, database.sql.NVarChar(10), s);
   });
 
   const symbolList = symbols.map((_, i) => `@s${i}`).join(',');

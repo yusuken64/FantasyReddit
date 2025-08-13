@@ -4,6 +4,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import { Navigation, Pagination } from 'swiper/modules';
+import { PortfolioValueOverTime } from './PortfolioValueOverTime';
 
 const COLORS = ['#00C49F', '#FFBB28'];
 
@@ -69,6 +70,10 @@ export function PortfolioCharts({ credits, totalValue: totalValue, totalSpent }:
               <Bar dataKey="value" fill="#8884d8" />
             </BarChart>
           </ResponsiveContainer>
+        </SwiperSlide>
+
+        <SwiperSlide>
+          <PortfolioValueOverTime/>
         </SwiperSlide>
       </Swiper>
     </section>

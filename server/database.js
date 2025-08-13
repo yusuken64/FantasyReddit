@@ -85,6 +85,20 @@ async function createTables(pool) {
         )
       `);
 
+    // PORTFOLIO VALUE HISTORY
+    await txRequest.query(`
+        IF OBJECT_ID('portfolio_value_history', 'U') IS NULL
+        CREATE TABLE portfolio_value_history (
+          id BIGINT IDENTITY(1,1) PRIMARY KEY,
+          user_id BIGINT NOT NULL,
+          portfolio_value BIGINT NOT NULL, -- total value of holdings
+          credits BIGINT NOT NULL,         -- user’s available credits at snapshot time
+          timestamp DATETIME2 DEFAULT SYSUTCDATETIME(),
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+      `);
+
+
     await transaction.commit();
   } catch (err) {
     await transaction.rollback();
@@ -111,6 +125,11 @@ async function createTables(pool) {
   await idxReq.query(`
       IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_stock_price_history_symbol_time')
       CREATE INDEX IX_stock_price_history_symbol_time ON stock_price_history(stock_symbol, timestamp DESC)
+    `);
+
+  await idxReq.query(`
+      IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_portfolio_value_history_user_time')
+      CREATE INDEX IX_portfolio_value_history_user_time ON portfolio_value_history(user_id, timestamp DESC);
     `);
 }
 
