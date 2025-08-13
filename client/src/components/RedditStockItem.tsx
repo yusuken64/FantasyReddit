@@ -281,6 +281,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
           start={start}
           end={end}
           latestPrice={{ timestamp: end, price: post.price }}
+          buyInPrice={avgCost}
         />
       )}
 

@@ -1,5 +1,5 @@
 const fetch = global.fetch;
-const { pool } = require('../database');
+const database = require('../database');
 const { getValidAccessToken } = require('./authController');
 const { calculatePrice } = require('../module/priceCalculator');
 
@@ -41,7 +41,7 @@ async function fetchPostWithPrice(url, user, useAuth = false) {
 }
 
 async function getAuthenticatedUser(req) {
-  const result = await pool
+  const result = await database.pool
     .request()
     .input('id', req.user.id)
     .query('SELECT * FROM users WHERE id = @id');

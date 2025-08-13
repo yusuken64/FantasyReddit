@@ -1,4 +1,4 @@
-const { pool, poolConnect } = require('../database');
+const database = require('../database');
 
 /**
  * Get leaderboard of users sorted by credits
@@ -11,10 +11,10 @@ exports.getLeaderboard = async (req, res) => {
   offset = parseInt(offset);
 
   try {
-    await poolConnect;
+    await database.poolConnect;
 
     // Query users ordered by credits descending
-    const result = await pool.request()
+    const result = await database.pool.request()
       .input('limit', limit)
       .input('offset', offset)
       .query(`
@@ -25,7 +25,7 @@ exports.getLeaderboard = async (req, res) => {
       `);
 
     // Also get total count for pagination
-    const countResult = await pool.request()
+    const countResult = await database.pool.request()
       .query('SELECT COUNT(*) AS total FROM users');
 
     const total = countResult.recordset[0]?.total || 0;

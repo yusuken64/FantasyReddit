@@ -1,29 +1,29 @@
 const sql = require('mssql')
-const { pool, poolConnect } = require('../database')
+const database = require('../database')
 
 // Database helper functions
 async function resetAccount(userId) {
-  await poolConnect
+  await database.poolConnect
 
-  await pool.request()
-    .input('userId', sql.Int, userId)
+  await database.pool.request()
+    .input('userId', database.sql.Int, userId)
     .query(`DELETE FROM transactions WHERE user_id = @userId`)
 
-  await pool.request()
-    .input('userId', sql.Int, userId)
+  await database.pool.request()
+    .input('userId', database.sql.Int, userId)
     .query(`DELETE FROM holdings WHERE user_id = @userId`)
 
-  await pool.request()
-    .input('userId', sql.Int, userId)
+  await database.pool.request()
+    .input('userId', database.sql.Int, userId)
     .query(`UPDATE users SET credits = 10000, totalScore = 0 WHERE id = @userId`)
 }
 
 async function deleteAccount(userId) {
-  await poolConnect
+  await database.poolConnect
 
   // Casecade will delete related entities
-  await pool.request()
-    .input('userId', sql.Int, userId)
+  await database.pool.request()
+    .input('userId', database.sql.Int, userId)
     .query(`DELETE FROM users WHERE id = @userId`)
 }
 

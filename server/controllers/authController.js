@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
-const { pool, poolConnect } = require('../database')
 const JWT_SECRET = process.env.JWT_SECRET || 'your-very-secure-secret2'
 const crypto = require('crypto')
+const database = require('../database')
 
 exports.redditLogin = (req, res) => {
   const state = crypto.randomBytes(16).toString('hex') // Optional: store this in session
@@ -52,10 +52,10 @@ exports.redditCallback = async (req, res) => {
     const redditUsername = meRes.data.name
     const redditId = meRes.data.id
 
-    await poolConnect
+    await database.poolConnect
 
     // Check if Reddit user exists in your DB
-    let userResult = await pool
+    let userResult = await database.pool
       .request()
       .input('username', redditUsername)
       .query('SELECT * FROM users WHERE username = @username')
@@ -64,7 +64,7 @@ exports.redditCallback = async (req, res) => {
 
     if (!user) {
       // Create user if new with tokens
-      await pool
+      await database.pool
         .request()
         .input('username', redditUsername)
         .input('reddit_id', redditId)
@@ -76,7 +76,7 @@ exports.redditCallback = async (req, res) => {
           VALUES (@username, @reddit_id, @access_token, @refresh_token, @token_expiry)
         `)
 
-      userResult = await pool
+      userResult = await database.pool
         .request()
         .input('username', redditUsername)
         .query('SELECT * FROM users WHERE username = @username')
@@ -84,7 +84,7 @@ exports.redditCallback = async (req, res) => {
       user = userResult.recordset[0]
     } else {
       // Update tokens for existing user
-      await pool
+      await database.pool
         .request()
         .input('username', redditUsername)
         .input('access_token', access_token)
@@ -126,10 +126,10 @@ exports.redditLogout = async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const username = decoded.username;
 
-    await poolConnect;
+    await database.poolConnect;
 
     // Get refresh token for revocation
-    const result = await pool
+    const result = await database.pool
       .request()
       .input('username', username)
       .query(`
@@ -165,7 +165,7 @@ exports.redditLogout = async (req, res) => {
     }
 
     // Clear Reddit token data in DB
-    await pool
+    await database.pool
       .request()
       .input('username', username)
       .query(`
@@ -213,7 +213,7 @@ async function refreshRedditToken(user) {
     const newExpiry = new Date(Date.now() + expires_in * 1000)
 
     // Update user's access token and expiry in your DB
-    await pool
+    await database.pool
       .request()
       .input('access_token', access_token)
       .input('token_expiry', newExpiry)

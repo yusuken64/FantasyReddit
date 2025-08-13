@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { pool, sql, poolConnect } = require('../database');
+const database = require('../database');
 
 router.get('/price-history', async (req, res) => {
   try {
@@ -16,12 +16,12 @@ router.get('/price-history', async (req, res) => {
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
       return res.status(400).json({ error: 'Invalid date format.' });
     }
-    await poolConnect; // ensure connection
+    await database.poolConnect;
 
-    const request = pool.request();
-    request.input('stockSymbol', sql.NVarChar(10), stockSymbol);
-    request.input('startTime', sql.DateTime2, startDate);
-    request.input('endTime', sql.DateTime2, endDate);
+    const request = database.pool.request();
+    request.input('stockSymbol', database.sql.NVarChar(10), stockSymbol);
+    request.input('startTime', database.sql.DateTime2, startDate);
+    request.input('endTime', database.sql.DateTime2, endDate);
 
     const query = `
 WITH Ranked AS (

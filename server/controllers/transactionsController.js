@@ -1,4 +1,4 @@
-const { pool, poolConnect, sql } = require('../database')
+const database = require('../database')
 
 // Get all transactions for the authenticated user, optionally with pagination, filtering, and sorting
 async function getTransactions(req, res) {
@@ -26,15 +26,15 @@ async function getTransactions(req, res) {
       sortDir = 'DESC'
     }
 
-    await poolConnect
-    const request = pool.request()
-      .input('userId', sql.Int, userId)
-      .input('offset', sql.Int, offset)
-      .input('pageSize', sql.Int, pageSize)
+    await database.poolConnect
+    const request = database.pool.request()
+      .input('userId', database.sql.Int, userId)
+      .input('offset', database.sql.Int, offset)
+      .input('pageSize', database.sql.Int, pageSize)
 
     let filterClause = ''
     if (actionFilter && allowedActions.includes(actionFilter)) {
-      request.input('actionFilter', sql.NVarChar(4), actionFilter)
+      request.input('actionFilter', database.sql.NVarChar(4), actionFilter)
       filterClause = 'AND action = @actionFilter'
     }
 

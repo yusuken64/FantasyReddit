@@ -1,5 +1,6 @@
 // priceUpdater.js
-const { pool, sql, poolConnect } = require('../database');
+//const { pool, sql, poolConnect, ready } = require('../database');
+const database = require('../database');
 const axios = require('axios');
 const cron = require('node-cron');
 const { calculatePrice } = require('./priceCalculator');
@@ -64,14 +65,14 @@ async function updateAllTrackedStockPrices() {
 
 // 1. Get all users who own holdings and their tokens
 async function getAllUsersWithHoldings() {
+  await database.poolConnect;
   const query = `
     SELECT DISTINCT u.id, u.username, u.access_token
     FROM users u
     JOIN holdings p ON u.id = p.user_id
     WHERE u.access_token IS NOT NULL
   `;
-  await poolConnect;
-  const result = await pool.request().query(query);
+  const result = await database.pool.request().query(query);
   return result.recordset;
 }
 
@@ -89,8 +90,8 @@ async function getStalePostIdsForUser(userId) {
       AND (sph.last_updated IS NULL OR sph.last_updated < DATEADD(minute, -${COOLDOWN_MINUTES}, SYSUTCDATETIME()))
   `;
 
-  const request = pool.request();
-  request.input('userId', sql.Int, userId);
+  const request = database.pool.request();
+  request.input('userId', database.sql.Int, userId);
   const result = await request.query(query);
   return result.recordset.map(row => row.stock_symbol);
 }
@@ -135,9 +136,9 @@ async function insertStockPriceHistories(posts) {
 
   posts.forEach((post, i) => {
     values.push(`(@stock_symbol${i}, @score${i}, @price${i}, SYSUTCDATETIME())`);
-    input[`stock_symbol${i}`] = { type: sql.NVarChar(10), value: post.id };
-    input[`score${i}`] = { type: sql.BigInt, value: post.score };
-    input[`price${i}`] = { type: sql.BigInt, value: prices[i] };
+    input[`stock_symbol${i}`] = { type: database.sql.NVarChar(10), value: post.id };
+    input[`score${i}`] = { type: database.sql.BigInt, value: post.score };
+    input[`price${i}`] = { type: database.sql.BigInt, value: prices[i] };
   });
 
   const query = `
@@ -145,7 +146,7 @@ async function insertStockPriceHistories(posts) {
     VALUES ${values.join(', ')}
   `;
 
-  const request = pool.request();
+  const request = database.pool.request();
   for (const key in input) {
     request.input(key, input[key].type, input[key].value);
   }

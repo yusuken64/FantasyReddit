@@ -1,12 +1,13 @@
-const { pool, sql, poolConnect } = require('../database');
+// const { pool, sql, poolConnect } = require('../database');
+const database = require('../database');
 
 async function calculatePrice(post) {
   const basePrice = 10;
   const scoreWeight = 5;
 
-  await poolConnect;
-  const request = pool.request();
-  request.input('stock_symbol', sql.NVarChar(10), post.id);
+  await database.poolConnect;
+  const request = database.pool.request();
+  request.input('stock_symbol', database.sql.NVarChar(10), post.id);
 
   const result = await request.query(`
     SELECT TOP 1 score, timestamp, price
@@ -58,10 +59,10 @@ async function calculatePrice(post) {
 
   // Insert into DB if it's a new post
   if (isNew) {
-    const insertRequest = pool.request();
-    insertRequest.input('stock_symbol', sql.NVarChar(10), post.id);
-    insertRequest.input('score', sql.Int, post.score);
-    insertRequest.input('price', sql.Money, finalPrice);
+    const insertRequest = database.pool.request();
+    insertRequest.input('stock_symbol', database.sql.NVarChar(10), post.id);
+    insertRequest.input('score', database.sql.Int, post.score);
+    insertRequest.input('price', database.sql.Money, finalPrice);
 
     await insertRequest.query(`
       INSERT INTO stock_price_history (stock_symbol, score, timestamp, price)

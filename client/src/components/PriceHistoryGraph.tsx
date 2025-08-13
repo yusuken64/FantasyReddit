@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea
 } from 'recharts';
 
 interface PricePoint {
@@ -14,9 +14,11 @@ interface PriceHistoryGraphProps {
   start: string;  // ISO date string
   end: string;    // ISO date string
   latestPrice?: PricePoint;
+  buyInPrice: number
 }
 
-const PriceHistoryGraph: React.FC<PriceHistoryGraphProps> = ({ userId, stockSymbol, start, end, latestPrice }) => {
+const PriceHistoryGraph: React.FC<PriceHistoryGraphProps> = (
+  { userId, stockSymbol, start, end, latestPrice, buyInPrice }) => {
   const [data, setData] = useState<PricePoint[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,16 +45,18 @@ const PriceHistoryGraph: React.FC<PriceHistoryGraphProps> = ({ userId, stockSymb
         const json: PricePoint[] = await res.json();
         const filtered = json.filter(p => p.timestamp && !isNaN(new Date(p.timestamp).getTime()));
 
+        let merged = [...filtered];
         if (latestPrice) {
           const latestTime = new Date(latestPrice.timestamp).getTime();
-          const maxFetchedTime = filtered.length > 0 ? Math.max(...filtered.map(p => new Date(p.timestamp).getTime())) : 0;
+          const maxFetchedTime = merged.length > 0
+            ? Math.max(...merged.map(p => new Date(p.timestamp).getTime()))
+            : 0;
           if (latestTime > maxFetchedTime) {
-            filtered.push(latestPrice);
-            filtered.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+            merged.push(latestPrice);
+            merged.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
           }
         }
-
-        setData(filtered);
+        setData(merged);
       } catch (err) {
         setError((err as Error).message);
       } finally {
@@ -107,11 +111,48 @@ const PriceHistoryGraph: React.FC<PriceHistoryGraphProps> = ({ userId, stockSymb
           dataKey="price"
           stroke="#2e86de"
           strokeWidth={3}
-          dot={{ r: 3, strokeWidth: 2, fill: '#fff' }}
+          dot={(props) => {
+            if (props.payload.timestamp === latestPrice?.timestamp) {
+              return <circle cx={props.cx} cy={props.cy} r={5} fill="red" />;
+            }
+            // if (props.payload.timestamp === buyInTimestamp) {
+            //   return <circle cx={props.cx} cy={props.cy} r={5} fill="green" />;
+            // }
+            return <circle cx={props.cx} cy={props.cy} r={3} fill="#fff" stroke="#2e86de" />;
+          }}
           activeDot={{ r: 6 }}
           fill="url(#colorScore)"
           fillOpacity={1}
         />
+        {buyInPrice != null && (
+          <>
+            <ReferenceLine
+              y={buyInPrice}
+              stroke="green"
+              strokeDasharray="4 4"
+              label={{
+                value: `Buy-in $${buyInPrice.toFixed(2)}`,
+                position: 'right',
+                fill: 'green',
+                fontSize: 12
+              }}
+            />
+            <ReferenceArea
+              y1={buyInPrice - 1}
+              y2={buyInPrice + 1}
+              fill="green"
+              fillOpacity={0.1}
+            />
+          </>
+        )}
+
+        <ReferenceArea
+          y1={buyInPrice - 1}
+          y2={buyInPrice + 1}
+          fill="green"
+          fillOpacity={0.1}
+        />
+
       </LineChart>
     </ResponsiveContainer>
   );

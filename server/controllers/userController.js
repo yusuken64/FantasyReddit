@@ -1,4 +1,4 @@
-const { pool, poolConnect } = require('../database')
+const database = require('../database')
 const { buy, sell } = require('../trades');
 const { fetchPostWithPrice, getAuthenticatedUser } = require('./redditController');
 const sql = require('mssql');
@@ -15,9 +15,9 @@ exports.getMe = async (req, res) => {
   }
 
   try {
-    await poolConnect
+    await database.poolConnect
 
-    const result = await pool.request()
+    const result = await database.pool.request()
       .input('id', userId)
       .query('SELECT id, username, credits FROM users WHERE id = @id')
 
@@ -52,7 +52,7 @@ exports.getHoldings = async (req, res) => {
   else sortDir = sortDir.toUpperCase()
 
   try {
-    await poolConnect
+    await database.poolConnect
 
     // SQL Server pagination syntax: OFFSET ... FETCH NEXT ... ROWS ONLY
     const holdingsQuery = `
@@ -62,13 +62,13 @@ exports.getHoldings = async (req, res) => {
       OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
     `
 
-    const dataResult = await pool.request()
+    const dataResult = await database.pool.request()
       .input('userId', userId)
       .input('offset', offset)
       .input('limit', limit)
       .query(holdingsQuery)
 
-    const countResult = await pool.request()
+    const countResult = await database.pool.request()
       .input('userId', userId)
       .query('SELECT COUNT(*) AS total FROM holdings WHERE user_id = @userId')
 
@@ -90,9 +90,9 @@ exports.getStock = async (req, res) => {
   const { stockSymbol } = req.params
 
   try {
-    await poolConnect
+    await database.poolConnect
 
-    const result = await pool.request()
+    const result = await database.pool.request()
       .input('userId', userId)
       .input('stockSymbol', stockSymbol)
       .query(`
@@ -119,17 +119,17 @@ exports.deleteStock = async (req, res) => {
   const { stockSymbol } = req.params;
 
   try {
-    await poolConnect;
+    await database.poolConnect;
 
-    const transaction = new sql.Transaction(pool);
+    const transaction = new database.sql.Transaction(database.pool);
     await transaction.begin();
 
-    const request = new sql.Request(transaction);
+    const request = new database.sql.Request(transaction);
 
     // Fetch current holdings entry
     const result = await request
-      .input('userId', sql.Int, userId)
-      .input('stockSymbol', sql.NVarChar(100), stockSymbol)
+      .input('userId', database.sql.Int, userId)
+      .input('stockSymbol', database.sql.NVarChar(100), stockSymbol)
       .query(`
         SELECT shares, total_spent FROM holdings
         WHERE user_id = @userId AND stock_symbol = @stockSymbol
@@ -154,8 +154,8 @@ exports.deleteStock = async (req, res) => {
     // Delete holdings entry
     request.parameters = {};
     await request
-      .input('userId', sql.Int, userId)
-      .input('stockSymbol', sql.NVarChar(100), stockSymbol)
+      .input('userId', database.sql.Int, userId)
+      .input('stockSymbol', database.sql.NVarChar(100), stockSymbol)
       .query(`
         DELETE FROM holdings WHERE user_id = @userId AND stock_symbol = @stockSymbol
       `);
@@ -184,10 +184,10 @@ exports.getPortfolio = async (req, res) => {
   }
 
   try {
-    await poolConnect;
+    await database.poolConnect;
 
-    const result = await pool.request()
-      .input('userId', sql.Int, userId)
+    const result = await database.pool.request()
+      .input('userId', database.sql.Int, userId)
       .query(`
     SELECT 
       u.username,
