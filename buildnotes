@@ -1,9 +1,1 @@
-node build-package.js
-
-node deploy-to-azure.js
-
-node build-package.js && node deploy-to-azure.js
-
-az webapp log tail --name FantasyReddit --resource-group FantasyReddit
-
 docker-compose up -d
