@@ -32,7 +32,7 @@ const debugRoutes = require('./routes/debug');
 const transactionRoutes = require('./routes/transactions');
 const priceHistoryRoutes = require('./routes/priceHistory');
 
-const { startPriceUpdateCron, updateAllTrackedStockPrices, updatePortfolioValues } = require('./module/priceUpdater');
+const { startPriceUpdateCron, updatePortfolioValuesBulk } = require('./module/priceUpdater');
 
 (async () => {
   try {
@@ -72,11 +72,10 @@ const { startPriceUpdateCron, updateAllTrackedStockPrices, updatePortfolioValues
       console.log(`Server running at http://localhost:${PORT}`);
       startPriceUpdateCron();
 
+      await updatePortfolioValuesBulk();
       console.log('Price update test run completed.');
     });
 
-    // await updateAllTrackedStockPrices();
-    // await updatePortfolioValues();
   } catch (err) {
     console.error('Initialization error:', err);
   }

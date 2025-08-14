@@ -20,7 +20,7 @@ function startPriceUpdateCron() {
 
     try {
       await updateAllTrackedStockPrices();
-      await updatePortfolioValues();
+      await updatePortfolioValuesBulk();
     } catch (err) {
       console.error('Price update cron job failed:', err);
     } finally {
@@ -248,12 +248,12 @@ async function getLatestPricesForSymbols(symbols) {
     WITH RankedPrices AS (
       SELECT
         stock_symbol,
-        score,
+        price,
         ROW_NUMBER() OVER (PARTITION BY stock_symbol ORDER BY timestamp DESC) AS rn
       FROM stock_price_history
       WHERE stock_symbol IN (${symbolList})
     )
-    SELECT stock_symbol, score
+    SELECT stock_symbol, price
     FROM RankedPrices
     WHERE rn = 1
   `;
@@ -261,7 +261,7 @@ async function getLatestPricesForSymbols(symbols) {
   try {
     const result = await request.query(query);
     return result.recordset.reduce((map, row) => {
-      map[row.stock_symbol] = row.score;
+      map[row.stock_symbol] = row.price;
       return map;
     }, {});
   } catch (err) {
@@ -270,9 +270,159 @@ async function getLatestPricesForSymbols(symbols) {
   }
 }
 
+async function updatePortfolioValuesBulk(batchSize = 5000) {
+  const startTime = Date.now();
+  console.log('Bulk Portfolio update job started at', new Date(startTime).toISOString());
+
+  let totalProcessed = 0;
+
+  for await (const users of getUsersInBatches(batchSize)) {
+    const userIds = users.map(u => u.id);
+
+    // Fetch holdings for this batch
+    const holdings = await getHoldingsForUsers(userIds);
+
+    // Pre-group holdings by userId
+    const holdingsMap = new Map();
+    for (const h of holdings) {
+      if (!holdingsMap.has(h.userId)) holdingsMap.set(h.userId, []);
+      holdingsMap.get(h.userId).push(h);
+    }
+
+    // Collect unique stock IDs
+    const stockIds = [...new Set(holdings.map(h => h.stockId))];
+
+    // Get latest prices
+    const prices = await getLatestPricesForSymbols(stockIds);
+
+    // Compute snapshots
+    const snapshots = users.map(user => {
+      const userHoldings = holdingsMap.get(user.id) || [];
+      let totalValue = 0n; // Use BigInt
+
+      for (const h of userHoldings) {
+        const price = BigInt(prices[h.stockId] ?? 0); // fallback to 0
+        const shares = BigInt(h.shares ?? 0);
+        totalValue += price * shares;
+      }
+
+      return {
+        userId: user.id,
+        portfolioValue: totalValue,
+        credits: BigInt(user.credits ?? 0)
+      };
+    });
+
+  // Bulk update and insert
+  await bulkUpdateUserTotalValues(snapshots);
+  await bulkInsertPortfolioSnapshots(snapshots);
+
+  totalProcessed += users.length;
+  console.log(`Processed ${totalProcessed} users so far...`);
+}
+
+const endTime = Date.now();
+console.log('Portfolio update job finished at', new Date(endTime).toISOString());
+console.log(`Portfolio update job took ${((endTime - startTime) / 1000).toFixed(2)} seconds.`);
+}
+
+async function getHoldingsForUsers(userIds) {
+  if (!userIds.length) return [];
+
+  await database.poolConnect;
+  const request = database.pool.request();
+
+  // Add each userId as a separate parameter
+  const params = userIds.map((id, i) => {
+    const paramName = `id${i}`;
+    request.input(paramName, database.sql.BigInt, id);
+    return `@${paramName}`;
+  });
+
+  const query = `
+    SELECT user_id AS userId, stock_symbol AS stockId, shares
+    FROM holdings
+    WHERE user_id IN (${params.join(',')});
+  `;
+
+  const result = await request.query(query);
+  return result.recordset;
+}
+
+async function getUsersBatch(limit, offset) {
+  const query = `
+    SELECT id, credits
+    FROM users
+    ORDER BY id
+    OFFSET @offset ROWS
+    FETCH NEXT @limit ROWS ONLY;
+  `;
+  await database.poolConnect;
+  const request = database.pool.request();
+  request.input('offset', database.sql.Int, offset);
+  request.input('limit', database.sql.Int, limit);
+  const result = await request.query(query);
+  return result.recordset;
+}
+
+async function* getUsersInBatches(batchSize) {
+  let offset = 0;
+  let users = [];
+
+  do {
+    users = await getUsersBatch(batchSize, offset);
+    if (users.length > 0) {
+      yield users;
+      offset += users.length;
+    }
+  } while (users.length > 0);
+}
+
+async function bulkUpdateUserTotalValues(snapshots) {
+  if (snapshots.length === 0) return;
+
+  // Build CASE expression for the update
+  const cases = snapshots.map(s => `WHEN ${s.userId} THEN ${s.portfolioValue}`).join(' ');
+  const userIds = snapshots.map(s => s.userId).join(',');
+
+  const query = `
+    UPDATE users
+    SET totalScore = CASE id
+      ${cases}
+    END
+    WHERE id IN (${userIds});
+  `;
+
+  await database.poolConnect;
+  await database.pool.request().query(query);
+}
+
+async function bulkInsertPortfolioSnapshots(snapshots) {
+  if (snapshots.length === 0) return;
+
+  const values = snapshots.map((s, i) =>
+    `(@userId${i}, @portfolioValue${i}, @credits${i})`
+  ).join(',');
+
+  const query = `
+    INSERT INTO portfolio_value_history (user_id, portfolio_value, credits)
+    VALUES ${values};
+  `;
+
+  await database.poolConnect;
+  const request = database.pool.request();
+
+  snapshots.forEach((s, i) => {
+    request.input(`userId${i}`, database.sql.BigInt, s.userId);
+    request.input(`portfolioValue${i}`, database.sql.BigInt, s.portfolioValue);
+    request.input(`credits${i}`, database.sql.BigInt, s.credits);
+  });
+
+  await request.query(query);
+}
+
 module.exports = {
-  updateAllTrackedStockPrices,
-  updatePortfolioValues,
+  updatePortfolioValuesBulk,
   startPriceUpdateCron,
   COOLDOWN_MINUTES
 };
