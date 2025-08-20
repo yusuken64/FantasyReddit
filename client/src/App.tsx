@@ -1,5 +1,5 @@
-import { useContext, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, NavLink, useNavigate, Outlet, Navigate } from 'react-router-dom';
+import { useContext, useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, NavLink, Outlet, Navigate, useNavigate } from 'react-router-dom';
 import { AuthContext } from './context/AuthContext';
 import Login from './components/LoginWithReddit';
 import { RedditStocks } from './components/RedditStocks';
@@ -19,32 +19,33 @@ import {
   Stack,
   Container,
   IconButton,
+  Menu,
+  MenuItem,
 } from '@mui/material';
 
 import { FaTwitter, FaDiscord } from 'react-icons/fa';
+import MenuIcon from '@mui/icons-material/Menu';
 
 function Navigation() {
   const { username, credits, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
 
-  useEffect(() => {
-    console.log('API URL from env:', import.meta.env.VITE_API_URL);
-  }, []);
-
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   function handleLogout() {
     logout();
     navigate('/');
   }
 
-  function navLinkStyle({ isActive }: { isActive: boolean }) {
-    return {
-      textDecoration: 'none',
-      color: isActive ? '#1976d2' : '#555',
-      borderBottom: isActive ? '2px solid #1976d2' : 'none',
-      paddingBottom: 4,
-      fontWeight: isActive ? '600' : '400',
-    };
-  }
+  useEffect(() => {
+    console.log('API URL from env:', import.meta.env.VITE_API_URL);
+  }, []);
 
   type NavLinkItem = {
     to: string;
@@ -59,53 +60,106 @@ function Navigation() {
     { to: '/holdings', label: 'Holdings' },
     // { to: '/leaderboard', label: 'Leaderboard' },
     // { to: '/debug', label: 'Debug' },
-    { to: '/transactions', label: 'Log' },
+    { to: '/transactions', label: 'History' },
   ];
 
-  const linksToShow = [...(!username ? publicLinks : []), ...(username ? privateLinks : [])];
+  const links = [...(!username ? publicLinks : []), ...(username ? privateLinks : [])];
 
   return (
     <AppBar position="static" color="default" elevation={1}>
-      <Toolbar sx={{ justifyContent: 'center', gap: 3 }}>
-        {linksToShow.map(({ to, label, end }) => (
-          <NavLink key={to} to={to} end={end} style={navLinkStyle}>
-            {label}
-          </NavLink>
-        ))}
+      <Toolbar sx={{ justifyContent: "space-between" }}>
+        {/* Logo / Title */}
+        <Typography
+          variant="h6"
+          component={NavLink}
+          to="/"
+          sx={{
+            flexGrow: 1,
+            textDecoration: "none",
+            color: "inherit",
+          }}
+        >
+          Reddit Stocks
+        </Typography>
 
-        {!username && (
-          <NavLink to="/login" style={navLinkStyle}>
-            Login
-          </NavLink>
-        )}
-
-        {username && (
-          <>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                ml: 2,
-                mr: 1,
-                alignSelf: 'center',
-                cursor: 'pointer',
-                textDecoration: 'underline',
-              }}
-              onClick={() => navigate('/portfolio')}
-              role="button"
-              tabIndex={0}
-              aria-label={`Go to ${username}'s portfolio`}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') navigate('/portfolio');
-              }}
-            >
-              Hello, <strong>{username}</strong> ({credits ?? 0} credits)
-            </Typography>
-            <Button variant="text" color="error" onClick={handleLogout} aria-label="Logout">
-              Logout
+        {/* Desktop links */}
+        <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2 }}>
+          {links.map(({ to, label }) => (
+            <Button key={to} component={NavLink} to={to}>
+              {label}
             </Button>
-          </>
-        )}
+          ))}
+          {!username && (
+            <Button component={NavLink} to="/login">
+              Login
+            </Button>
+          )}
+          {username && (
+            <>
+              <Button component={NavLink} to="/portfolio">
+                {username} ({credits ?? 0})
+              </Button>
+              <Button variant="text" color="error" onClick={handleLogout}>
+                Logout
+              </Button>
+            </>
+          )}
+        </Box>
+
+        {/* Mobile menu */}
+        <Box sx={{ display: { xs: "flex", md: "none" } }}>
+          <IconButton
+            size="large"
+            edge="end"
+            color="inherit"
+            onClick={handleMenu}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+          >
+            {links.map(({ to, label }) => (
+              <MenuItem
+                key={to}
+                component={NavLink}
+                to={to}
+                onClick={handleClose}
+              >
+                {label}
+              </MenuItem>
+            ))}
+            {username && (
+              <>
+                <MenuItem onClick={() => { handleClose(); handleLogout(); }}>
+                  Logout
+                </MenuItem>
+              </>
+            )}
+            {!username && (
+              <MenuItem component={NavLink} to="/login" onClick={handleClose}>
+                Login
+              </MenuItem>
+            )}
+          </Menu>
+          {username && (
+            <>
+              <MenuItem component={NavLink} to="/portfolio" onClick={handleClose}>
+                {username} ({credits ?? 0})
+              </MenuItem>
+            </>
+          )}
+        </Box>
       </Toolbar>
     </AppBar>
   );
