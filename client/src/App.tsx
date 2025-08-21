@@ -8,6 +8,7 @@ import Leaderboard from './components/Leaderboard';
 import Debug from './components/Debug';
 import Transactions from './components/Transactions';
 import Portfolio from './components/Portfolio';
+import Options from './components/Options';
 
 import {
   AppBar,
@@ -58,6 +59,7 @@ function Navigation() {
   const privateLinks: NavLinkItem[] = [
     { to: '/redditStocks', label: 'Stocks' },
     { to: '/holdings', label: 'Holdings' },
+    { to: '/options', label: 'Options' },
     // { to: '/leaderboard', label: 'Leaderboard' },
     // { to: '/debug', label: 'Debug' },
     { to: '/transactions', label: 'History' },
@@ -242,6 +244,7 @@ function App() {
             <Route element={<PrivateRoute />}>
               <Route path="/redditStocks" element={<RedditStocks />} />
               <Route path="/holdings" element={<Holdings />} />
+              <Route path="/options" element={<Options />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/debug" element={<Debug />} />
               <Route path="/transactions" element={<Transactions />} />

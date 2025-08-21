@@ -49,12 +49,19 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
   const [post, setPost] = useState(initialPost);
   const [loading, setLoading] = useState(false);
   const { credits, userId } = useContext(AuthContext)
+  const [optionModalOpen, setOptionModalOpen] = useState(false);
+  const [optionType, setOptionType] = useState<"CALL" | "PUT">("CALL");
 
   const { buy, sell } = useStockActions();
 
   const openModal = (buyMode: boolean) => {
     setModalType(buyMode ? "buy" : "sell");
     setModalOpen(true);
+  };
+
+  const openOptionModal = (type: "CALL" | "PUT") => {
+    setOptionType(type);
+    setOptionModalOpen(true);
   };
 
   const handleConfirm = async (amount: number) => {
@@ -178,6 +185,40 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
         maxMoney={modalType === "buy" ? credits || 0 : undefined}
       />
 
+      <QuantityModal
+        isOpen={optionModalOpen}
+        onClose={() => setOptionModalOpen(false)}
+        max={1000} // or max per your rules
+        min={1}
+        title={`Buy ${optionType} Option`}
+        symbol={post.id}
+        score={post.score}
+        price={post.price} // could calculate premium instead
+        type="buy"
+        onConfirm={async (amount) => {
+          try {
+            const strikePrice = post.price; // or let user pick
+            const premium = 10; // calculate premium somehow
+            await fetch(`${import.meta.env.VITE_API_URL}/options`, {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                stockSymbol: post.id,
+                optionType,
+                strikePrice,
+                premiumPaid: premium,
+                quantity: amount,
+                expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString() // 1 day expiry
+              })
+            });
+            alert(`${optionType} option bought!`);
+          } catch (err) {
+            console.error(err);
+          }
+        }}
+      />
+
       {/* Header */}
       <Stack
         direction="row"
@@ -286,28 +327,22 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
       )}
 
       {/* Action Buttons */}
-      <Stack direction="row" alignItems="center" spacing={2}>
-        {/* Buttons */}
-        <Stack direction="row" spacing={1} flexGrow={1}>
-          <Button
-            fullWidth
-            variant="contained"
-            color="success"
-            onClick={() => openModal(true)}
-          >
-            Buy
-          </Button>
-          <Button
-            fullWidth
-            variant="contained"
-            color="error"
-            onClick={() => openModal(false)}
-            disabled={sharesState === 0}
-          >
-            Sell
-          </Button>
+      {owned ? (
+        // Existing holding actions: Buy, Sell, Delete, P&L
+        <Stack direction="row" spacing={2}>
+          <Button onClick={() => openModal(true)}>Buy</Button>
+          <Button onClick={() => openModal(false)} disabled={sharesState === 0}>Sell</Button>
+          <Button onClick={handleDelete}>Delete</Button>
         </Stack>
-      </Stack>
+      ) : (
+        // Options actions: Buy Call / Put
+        <Stack direction="row" spacing={2}>
+          <Button onClick={() => openModal(true)}>Buy</Button>
+          <Button onClick={() => openModal(false)} disabled={sharesState === 0}>Sell</Button>
+          <Button onClick={() => openOptionModal("CALL")}>Buy Call</Button>
+          <Button onClick={() => openOptionModal("PUT")}>Buy Put</Button>
+        </Stack>
+      )}
     </Paper>
   );
 };

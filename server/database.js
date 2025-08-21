@@ -98,6 +98,41 @@ async function createTables(pool) {
         )
       `);
 
+    //Options
+    await txRequest.query(`
+        IF OBJECT_ID('options', 'U') IS NULL
+        CREATE TABLE options (
+          id BIGINT IDENTITY(1,1) PRIMARY KEY,
+          user_id BIGINT NOT NULL,
+          stock_symbol NVARCHAR(10) NOT NULL,
+          option_type NVARCHAR(4) NOT NULL CHECK (option_type IN ('CALL','PUT')),
+          strike_price BIGINT NOT NULL,
+          premium_paid BIGINT NOT NULL,
+          quantity BIGINT NOT NULL DEFAULT 1,
+          expires_at DATETIME2 NOT NULL,
+          created_at DATETIME2 DEFAULT SYSUTCDATETIME(),
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+      `);
+
+    // OPTION TRANSACTIONS / HISTORY
+    await txRequest.query(`
+        IF OBJECT_ID('option_transactions', 'U') IS NULL
+        CREATE TABLE option_transactions (
+          id BIGINT IDENTITY(1,1) PRIMARY KEY,
+          user_id BIGINT NOT NULL,
+          stock_symbol NVARCHAR(10) NOT NULL,
+          option_type NVARCHAR(4) NOT NULL CHECK (option_type IN ('CALL','PUT')),
+          strike_price BIGINT NOT NULL,
+          premium_paid BIGINT NOT NULL,
+          quantity BIGINT NOT NULL DEFAULT 1,
+          payout BIGINT NOT NULL DEFAULT 0,       -- 0 if expired worthless
+          action NVARCHAR(10) NOT NULL CHECK (action IN ('BUY','EXERCISE','EXPIRE')),
+          timestamp DATETIME2 DEFAULT SYSUTCDATETIME(),
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+      `);
+
 
     await transaction.commit();
   } catch (err) {
@@ -131,6 +166,22 @@ async function createTables(pool) {
       IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_portfolio_value_history_user_time')
       CREATE INDEX IX_portfolio_value_history_user_time ON portfolio_value_history(user_id, timestamp DESC);
     `);
+    
+  await idxReq.query(`
+      IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_options_expires')
+      CREATE INDEX IX_options_expires ON options(expires_at);
+    `);
+
+  await idxReq.query(`
+      IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_options_user')
+      CREATE INDEX IX_options_user ON options(user_id);
+    `);
+
+  await idxReq.query(`
+      IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_option_transactions_user_time')
+      CREATE INDEX IX_option_transactions_user_time ON option_transactions(user_id, timestamp DESC);
+    `);
+
 }
 
 async function init() {
