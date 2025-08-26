@@ -5,7 +5,8 @@ const {
   getOptionById,
   buyOption,
   exerciseOption,
-  getOptionHistory
+  getOptionHistory,
+  getOptionChain
 } = require('../controllers/optionController');
 
 const router = express.Router();
@@ -24,5 +25,8 @@ router.post('/options/:optionId/exercise', auth, exerciseOption);
 
 // Get option transaction history for the user
 router.get('/options/history', auth, getOptionHistory);
+
+// Get option chain for symbol
+router.get('/options/chain/:symbol', auth, getOptionChain);
 
 module.exports = router;

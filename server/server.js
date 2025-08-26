@@ -31,6 +31,7 @@ const redditRoutes = require('./routes/reddit');
 const debugRoutes = require('./routes/debug');
 const transactionRoutes = require('./routes/transactions');
 const priceHistoryRoutes = require('./routes/priceHistory');
+const optionRoutes = require('./routes/option');
 
 const { startPriceUpdateCron, updatePortfolioValuesBulk } = require('./module/priceUpdater');
 
@@ -67,6 +68,7 @@ const { startPriceUpdateCron, updatePortfolioValuesBulk } = require('./module/pr
     app.use('/debug/', debugRoutes);
     app.use('/', transactionRoutes);
     app.use('/api', priceHistoryRoutes);
+    app.use('/', optionRoutes);
 
     app.listen(PORT, async () => {
       console.log(`Server running at http://localhost:${PORT}`);

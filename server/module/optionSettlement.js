@@ -1,4 +1,6 @@
 const database = require('../database');
+const { fetchPostWithPrice, getAuthenticatedUserById } = require('../controllers/redditController');
+const { calculatePrice } = require('./priceCalculator');
 
 let nextExpiry = null;
 let currentTimer = null;
@@ -47,17 +49,36 @@ async function processOptions({ onlyExpired = false, optionIds = [] } = {}) {
     const result = await request.query(query);
 
     for (const option of result.recordset) {
-      // Get latest stock price
-      const priceResult = await pool.request()
-        .input('stock_symbol', database.sql.NVarChar(10), option.stock_symbol)
-        .query(`
-          SELECT TOP 1 price
-          FROM stock_price_history
-          WHERE stock_symbol = @stock_symbol
-          ORDER BY timestamp DESC
-        `);
+      // get user for Reddit auth
+      const user = await getAuthenticatedUserById(option.user_id);
+      if (!user) continue;
 
-      const currentPrice = priceResult.recordset[0]?.price ?? option.strike_price;
+      // fetch latest post price from Reddit
+      let currentPrice = option.strike_price;
+      try {
+        const data = await fetchPostWithPrice(
+          `https://oauth.reddit.com/by_id/t3_${option.stock_symbol}.json`,
+          user, // pass user with tokens
+          true
+        );
+
+        const children = data?.data?.children ?? [];
+        if (children.length === 0) {
+          console.warn(`No Reddit post returned for ${option.stock_symbol}, using strike_price`);
+          currentPrice = option.strike_price;
+        } else {
+          const post = children[0].data;
+          try {
+            currentPrice = await calculatePrice(post); // make sure this does not throw
+          } catch (err) {
+            console.warn(`Failed calculating price for ${option.stock_symbol}, fallback`, err);
+            currentPrice = option.strike_price;
+          }
+        }
+      } catch (e) {
+        console.warn(`Failed fetching Reddit price for ${option.stock_symbol}, fallback to strike_price`, e);
+        currentPrice = option.strike_price;
+      }
 
       // Calculate payout
       let payout = 0;
@@ -67,33 +88,36 @@ async function processOptions({ onlyExpired = false, optionIds = [] } = {}) {
         payout = Math.max(0, option.strike_price - currentPrice) * option.quantity;
       }
 
-      // Update user credits
-      await request.query(`
-        UPDATE users
-        SET credits = credits + @payout
-        WHERE id = @userId
-      `)
-      .input('payout', database.sql.BigInt, payout)
-      .input('userId', database.sql.BigInt, option.user_id);
+      // Update credits
+      await tx.request()
+        .input('payout', database.sql.BigInt, payout)
+        .input('userId', database.sql.BigInt, option.user_id)
+        .query(`
+          UPDATE users
+          SET credits = credits + @payout
+          WHERE id = @userId
+        `);
 
-      // Insert into option_transactions
-      await request.query(`
-        INSERT INTO option_transactions
-          (user_id, stock_symbol, option_type, strike_price, premium_paid, quantity, payout, action)
-        VALUES (@userId, @symbol, @type, @strike, @premium, @quantity, @payout, @action)
-      `)
-      .input('userId', database.sql.BigInt, option.user_id)
-      .input('symbol', database.sql.NVarChar(10), option.stock_symbol)
-      .input('type', database.sql.NVarChar(4), option.option_type)
-      .input('strike', database.sql.BigInt, option.strike_price)
-      .input('premium', database.sql.BigInt, option.premium_paid)
-      .input('quantity', database.sql.BigInt, option.quantity)
-      .input('payout', database.sql.BigInt, payout)
-      .input('action', database.sql.NVarChar(10), onlyExpired ? 'EXPIRE' : 'EXERCISE');
+      // Log transaction
+      await tx.request()
+        .input('userId', database.sql.BigInt, option.user_id)
+        .input('symbol', database.sql.NVarChar(10), option.stock_symbol)
+        .input('type', database.sql.NVarChar(4), option.option_type)
+        .input('strike', database.sql.BigInt, option.strike_price)
+        .input('premium', database.sql.BigInt, option.premium_paid)
+        .input('quantity', database.sql.BigInt, option.quantity)
+        .input('payout', database.sql.BigInt, payout)
+        .input('action', database.sql.NVarChar(10), onlyExpired ? 'EXPIRE' : 'EXERCISE')
+        .query(`
+          INSERT INTO option_transactions
+            (user_id, stock_symbol, option_type, strike_price, premium_paid, quantity, payout, action)
+          VALUES (@userId, @symbol, @type, @strike, @premium, @quantity, @payout, @action)
+        `);
 
-      // Delete the processed option
-      await request.query(`DELETE FROM options WHERE id = @id`)
-        .input('id', database.sql.BigInt, option.id);
+      // Delete option
+      await tx.request()
+        .input('id', database.sql.BigInt, option.id)
+        .query(`DELETE FROM options WHERE id = @id`);
     }
 
     await tx.commit();

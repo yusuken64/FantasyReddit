@@ -19,10 +19,6 @@ async function fetchPostWithPrice(url, user, useAuth = false) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  // console.log('Calling Reddit API:', url);
-  // console.log('Using token:', headers.Authorization?.slice(0, 30) + '...');
-  // console.log('User trying to fetch:', user.username, user.id, user.token_expiry);
-
   const response = await fetch(url, { headers });
 
   if (!response.ok) {
@@ -48,6 +44,15 @@ async function getAuthenticatedUser(req) {
   return result.recordset[0] || null;
 }
 
+async function getAuthenticatedUserById(userId) {
+  const result = await database.pool
+    .request()
+    .input('id', userId)
+    .query('SELECT * FROM users WHERE id = @id');
+  return result.recordset[0] || null;
+}
+
+exports.getAuthenticatedUserById = getAuthenticatedUserById;
 exports.getAuthenticatedUser = getAuthenticatedUser;
 exports.fetchPostWithPrice = fetchPostWithPrice;
 

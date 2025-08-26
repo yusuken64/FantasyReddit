@@ -13,6 +13,7 @@ import {
 import { AuthContext } from '../context/AuthContext'
 import PriceHistoryGraph from './PriceHistoryGraph';
 import { formatDistanceToNow } from 'date-fns';
+import { OptionsModal } from "./OptionsModal";
 
 interface RedditPost {
   id: string;
@@ -50,7 +51,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
   const [loading, setLoading] = useState(false);
   const { credits, userId } = useContext(AuthContext)
   const [optionModalOpen, setOptionModalOpen] = useState(false);
-  const [optionType, setOptionType] = useState<"CALL" | "PUT">("CALL");
+  //const [optionType, setOptionType] = useState<"CALL" | "PUT">("CALL");
 
   const { buy, sell } = useStockActions();
 
@@ -59,8 +60,8 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
     setModalOpen(true);
   };
 
-  const openOptionModal = (type: "CALL" | "PUT") => {
-    setOptionType(type);
+  const openOptionModal = () => {
+    //setOptionType(type);
     setOptionModalOpen(true);
   };
 
@@ -73,6 +74,19 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
 
     await handleRefresh(); // ensure latest shares info
     setModalOpen(false);
+  };
+
+  const handleOptionConfirm = async (order: {
+    symbol: string;
+    type: "call" | "put";
+    expiration: string;
+    strike: number;
+    premium: number;
+    contracts: number;
+    totalCost: number;
+  }) => {
+    console.log("Option order:", order);
+    setOptionModalOpen(false)
   };
 
   const handleRefresh = async () => {
@@ -185,7 +199,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
         maxMoney={modalType === "buy" ? credits || 0 : undefined}
       />
 
-      <QuantityModal
+      {/* <QuantityModal
         isOpen={optionModalOpen}
         onClose={() => setOptionModalOpen(false)}
         max={1000} // or max per your rules
@@ -217,7 +231,15 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
             console.error(err);
           }
         }}
-      />
+      /> */}
+
+      <OptionsModal
+        isOpen={optionModalOpen}
+        onClose={() => setOptionModalOpen(false)}
+        onConfirm={handleOptionConfirm}
+        symbol={post.id}
+        maxMoney={credits ?? 0}>
+      </OptionsModal>
 
       {/* Header */}
       <Stack
@@ -339,8 +361,8 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
         <Stack direction="row" spacing={2}>
           <Button onClick={() => openModal(true)}>Buy</Button>
           <Button onClick={() => openModal(false)} disabled={sharesState === 0}>Sell</Button>
-          <Button onClick={() => openOptionModal("CALL")}>Buy Call</Button>
-          <Button onClick={() => openOptionModal("PUT")}>Buy Put</Button>
+          <Button onClick={() => openOptionModal()}>Buy Call</Button>
+          <Button onClick={() => openOptionModal()}>Buy Put</Button>
         </Stack>
       )}
     </Paper>

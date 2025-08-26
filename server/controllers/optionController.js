@@ -1,18 +1,32 @@
 const database = require('../database');
-const optionSettlement = require('../workers/optionSettlement');
+const optionSettlement = require('../module/optionSettlement');
+const { fetchPostWithPrice, getAuthenticatedUser } = require('./redditController');
 
 /**
  * Get all active options for the logged-in user
  */
 async function getMyOptions(req, res) {
   try {
+    const { sortBy = 'expires_at', sortDir = 'ASC', limit = 10, offset = 0 } = req.query;
+
+    // validate inputs (important to avoid SQL injection)
+    const validSortFields = ['expires_at', 'created_at', 'id']; 
+    const validSortDir = ['ASC', 'DESC'];
+
+    const safeSortBy = validSortFields.includes(sortBy) ? sortBy : 'expires_at';
+    const safeSortDir = validSortDir.includes(sortDir.toUpperCase()) ? sortDir.toUpperCase() : 'ASC';
+
     const result = await database.pool.request()
       .input('userId', database.sql.BigInt, req.user.id)
+      .input('limit', database.sql.Int, limit)
+      .input('offset', database.sql.Int, offset)
       .query(`
         SELECT *
         FROM options
         WHERE user_id = @userId
-        ORDER BY expires_at ASC
+        ORDER BY ${safeSortBy} ${safeSortDir}
+        OFFSET @offset ROWS
+        FETCH NEXT @limit ROWS ONLY
       `);
 
     res.json(result.recordset);
@@ -135,10 +149,75 @@ async function getOptionHistory(req, res) {
   }
 }
 
+function generateOptionChain(post) {
+  console.log(post);
+  const { id: postId, price, age, score } = post;
+
+  const expirations = [1, 3, 7, 30].map(days => {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return d;
+  });
+
+  const strikeSteps = [0.9, 0.95, 1, 1.05, 1.1];
+
+  const baseVolatility = Math.min(0.5, 0.1 + score / 100); // 10%-50%
+
+  const contracts = [];
+
+  expirations.forEach(exp => {
+    strikeSteps.forEach(mult => {
+      const strike = Math.round(price * mult);
+      const timeToExpiry = (exp - new Date()) / (1000 * 60 * 60 * 24 * 365);
+      
+      // Premium = intrinsic + extrinsic
+      const callIntrinsic = Math.max(0, price - strike);
+      const putIntrinsic = Math.max(0, strike - price);
+      const callPremium = callIntrinsic + baseVolatility * Math.sqrt(timeToExpiry) * price;
+      const putPremium = putIntrinsic + baseVolatility * Math.sqrt(timeToExpiry) * price;
+
+      contracts.push({ type: "call", strike, expiration: exp, premium: callPremium, postId });
+      contracts.push({ type: "put", strike, expiration: exp, premium: putPremium, postId });
+    });
+  });
+
+  return contracts;
+}
+
+/**
+ * GET /options/chain/:postId
+ */
+async function getOptionChain(req, res) {
+  try {
+    console.log(req.params);
+    const { symbol } = req.params;
+    if (!symbol) return res.status(400).json({ error: "Invalid post ID" });
+
+    // Fetch current post info
+    const user = await getAuthenticatedUser(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+    const data = await fetchPostWithPrice(`https://oauth.reddit.com/by_id/t3_${symbol}.json`, user, true);
+    const post = (await data)?.data?.children?.[0]?.data;
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+
+    const contracts = generateOptionChain(post);
+
+    res.json({
+      postId: post.id,
+      price: post.price,
+      contracts
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to generate option chain" });
+  }
+}
+
 module.exports = {
   getMyOptions,
   getOptionById,
   buyOption,
   exerciseOption,
-  getOptionHistory
+  getOptionHistory,
+  getOptionChain
 };

@@ -44,14 +44,14 @@ const Options: React.FC = () => {
         { credentials: "include" }
       );
       if (!res.ok) throw new Error("Failed to fetch options");
+
       const json = await res.json();
-      const optionData: OptionItem[] = json.data;
-      setOptions(optionData);
+      setOptions(json)
 
       // Fetch posts for each stock_symbol
       const postsFetched: Record<string, RedditPost> = {};
       await Promise.all(
-        optionData.map(async (opt) => {
+        options.map(async (opt) => {
           const postRes = await fetch(
             `${import.meta.env.VITE_API_URL}/api/reddit-post/${opt.stock_symbol}`,
             { credentials: "include" }
