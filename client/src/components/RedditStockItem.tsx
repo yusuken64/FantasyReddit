@@ -85,8 +85,40 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
     contracts: number;
     totalCost: number;
   }) => {
-    console.log("Option order:", order);
-    setOptionModalOpen(false)
+    try {
+      // POST to your backend
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/options`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // if using cookies/session
+        body: JSON.stringify({
+          stockSymbol: order.symbol,
+          optionType: order.type,
+          strikePrice: order.strike,
+          premiumPaid: order.premium,
+          quantity: order.contracts,
+          expiresAt: order.expiration,
+        }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text);
+      }
+
+      const data = await res.json();
+      alert(`Bought ${order.contracts} contract(s) of ${order.symbol} ${order.type} at ${data.price}`);
+
+      // Close modal
+      setOptionModalOpen(false);
+
+      // Optional: update frontend state for owned options
+    } catch (err: any) {
+      console.error("Error buying option:", err.message || err);
+      alert(`Failed to buy option: ${err.message || err}`);
+    }
   };
 
   const handleRefresh = async () => {
@@ -233,13 +265,15 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
         }}
       /> */}
 
-      <OptionsModal
-        isOpen={optionModalOpen}
-        onClose={() => setOptionModalOpen(false)}
-        onConfirm={handleOptionConfirm}
-        symbol={post.id}
-        maxMoney={credits ?? 0}>
-      </OptionsModal>
+      {optionModalOpen && (
+        <OptionsModal
+          isOpen={optionModalOpen}
+          onClose={() => setOptionModalOpen(false)}
+          onConfirm={handleOptionConfirm}
+          symbol={post.id}
+          maxMoney={credits ?? 0}
+        />
+      )}
 
       {/* Header */}
       <Stack
@@ -361,8 +395,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
         <Stack direction="row" spacing={2}>
           <Button onClick={() => openModal(true)}>Buy</Button>
           <Button onClick={() => openModal(false)} disabled={sharesState === 0}>Sell</Button>
-          <Button onClick={() => openOptionModal()}>Buy Call</Button>
-          <Button onClick={() => openOptionModal()}>Buy Put</Button>
+          <Button onClick={() => openOptionModal()}>Options</Button>
         </Stack>
       )}
     </Paper>

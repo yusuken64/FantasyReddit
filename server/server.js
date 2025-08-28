@@ -34,6 +34,8 @@ const priceHistoryRoutes = require('./routes/priceHistory');
 const optionRoutes = require('./routes/option');
 
 const { startPriceUpdateCron, updatePortfolioValuesBulk } = require('./module/priceUpdater');
+const { maybeReschedule } = require('./module/optionSettlement');
+
 
 (async () => {
   try {
@@ -76,6 +78,8 @@ const { startPriceUpdateCron, updatePortfolioValuesBulk } = require('./module/pr
 
       await updatePortfolioValuesBulk();
       console.log('Price update test run completed.');
+
+      maybeReschedule();
     });
 
   } catch (err) {

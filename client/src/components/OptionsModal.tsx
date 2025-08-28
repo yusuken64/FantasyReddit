@@ -28,6 +28,7 @@ interface OptionContract {
 interface OptionChain {
     symbol: string;
     expirations: string[];
+    price: number;
     contracts: OptionContract[];
 }
 
@@ -64,6 +65,25 @@ export const OptionsModal: React.FC<OptionsModalProps> = ({
     const [expiration, setExpiration] = useState<string>("");
     const [strike, setStrike] = useState<number | null>(null);
     const [contracts, setContracts] = useState(1);
+    const [expirations, setExpirations] = useState<string[]>([]);
+
+    function formatExpirationLabel(expiration: string): string {
+        const now = new Date();
+        const expDate = new Date(expiration);
+        const diffMs = expDate.getTime() - now.getTime();
+
+        const diffMinutes = Math.round(diffMs / (1000 * 60));
+        const diffHours = Math.round(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffMinutes < 60) {
+            return `${diffMinutes}m`;
+        } else if (diffHours < 24) {
+            return `${diffHours}h`;
+        } else {
+            return `${diffDays}d`;
+        }
+    }
 
     // Reset when modal opens
     useEffect(() => {
@@ -80,6 +100,7 @@ export const OptionsModal: React.FC<OptionsModalProps> = ({
                 const expirations = Array.from(
                     new Set(data.contracts.map(c => c.expiration))
                 ).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+                setExpirations(expirations);
                 if (expirations.length > 0) setExpiration(expirations[0]);
             })
             .catch(err => setError(err.message))
@@ -137,13 +158,18 @@ export const OptionsModal: React.FC<OptionsModalProps> = ({
                     borderRadius: 2,
                     minWidth: 400,
                     maxWidth: "90vw",
+                    maxHeight: "90vh",
+                    overflowY: "auto",
                     boxShadow: 24,
                 }}
             >
                 <Typography id="options-modal-title" variant="h6" fontWeight="bold" gutterBottom>
                     Buy Option for {symbol}
                 </Typography>
-
+            {/* Current price shown under title */}
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+                Current Price: ${optionChain?.price.toFixed(2)}
+            </Typography>
                 {/* Loading & error states */}
                 {loading && (
                     <Stack alignItems="center" justifyContent="center" p={2}>
@@ -178,11 +204,11 @@ export const OptionsModal: React.FC<OptionsModalProps> = ({
                                     setStrike(null);
                                 }}
                             >
-                                {/* {optionChain.expirations.map((exp) => (
+                                {expirations.map((exp) => (
                                     <MenuItem key={exp} value={exp}>
-                                        {exp}
+                                        {formatExpirationLabel(exp)}
                                     </MenuItem>
-                                ))} */}
+                                ))}
                             </Select>
                         </FormControl>
 
@@ -202,7 +228,6 @@ export const OptionsModal: React.FC<OptionsModalProps> = ({
                             </Select>
                         </FormControl>
 
-                        {/* Contracts input */}
                         {selectedContract && (
                             <>
                                 <TextField
@@ -225,34 +250,7 @@ export const OptionsModal: React.FC<OptionsModalProps> = ({
                                 </Typography>
 
                                 <Typography variant="caption" color="text.secondary">
-                                    Max contracts by balance ${maxMoney.toFixed(2)}: {maxContracts}
-                                </Typography>
-                            </>
-                        )}
-
-                        {selectedContract && (
-                            <>
-                                <TextField
-                                    type="number"
-                                    label="Contracts"
-                                    value={contracts}
-                                    inputProps={{ min: 1, max: maxContracts, step: 1 }}
-                                    onChange={(e) =>
-                                        setContracts(Math.max(1, Math.min(maxContracts, Number(e.target.value))))
-                                    }
-                                    fullWidth
-                                />
-
-                                {/* Summary */}
-                                <Typography>
-                                    {contracts} contract{contracts !== 1 ? "s" : ""} × ${selectedContract.premium.toFixed(2)} × 100 ={" "}
-                                    <Box component="span" color={theme.palette.primary.main} fontWeight="bold">
-                                        ${totalCost.toFixed(2)}
-                                    </Box>
-                                </Typography>
-
-                                <Typography variant="caption" color="text.secondary">
-                                    Max contracts by balance ${maxMoney.toFixed(2)}: {maxContracts}
+                                    Max contracts by balance ${maxMoney}: {maxContracts}
                                 </Typography>
 
                                 {/* 🔎 Extra trade info */}
@@ -260,7 +258,9 @@ export const OptionsModal: React.FC<OptionsModalProps> = ({
                                     <Typography variant="subtitle2" gutterBottom>
                                         Trade Details
                                     </Typography>
-
+                                    <Typography variant="body2">
+                                        Current Price: ${optionChain?.price.toFixed(2)}
+                                    </Typography>
                                     {/* Break-even */}
                                     <Typography variant="body2">
                                         Break-even:{" "}

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Paper, Stack, Typography, Button } from "@mui/material";
 
 type OptionItem = {
   id: number;
@@ -51,7 +52,7 @@ const Options: React.FC = () => {
       // Fetch posts for each stock_symbol
       const postsFetched: Record<string, RedditPost> = {};
       await Promise.all(
-        options.map(async (opt) => {
+        json.map(async (opt: OptionItem) => {
           const postRes = await fetch(
             `${import.meta.env.VITE_API_URL}/api/reddit-post/${opt.stock_symbol}`,
             { credentials: "include" }
@@ -88,64 +89,81 @@ const Options: React.FC = () => {
 
   return (
     <div className="p-4 max-w-2xl mx-auto">
-      <div className="mb-6 flex items-center space-x-4">
-        <label>
-          Sort By:&nbsp;
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="border rounded px-2 py-1"
-          >
-            <option value="expires_at">Expiry</option>
-            <option value="premium_paid">Premium Paid</option>
-          </select>
-        </label>
-        <button
+      <Stack direction="row" spacing={2} mb={2}>
+        <Typography>Sort By:</Typography>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+          className="border rounded px-2 py-1"
+        >
+          <option value="expires_at">Expiry</option>
+          <option value="premium_paid">Premium Paid</option>
+        </select>
+        <Button
+          variant="outlined"
           onClick={() => setSortDir(sortDir === "ASC" ? "DESC" : "ASC")}
-          className="border rounded px-3 py-1"
         >
           {sortDir === "ASC" ? "Ascending ↑" : "Descending ↓"}
-        </button>
-      </div>
+        </Button>
+      </Stack>
 
       {options.map((opt) => {
         const post = postsMap[opt.stock_symbol];
         if (!post) return null;
 
         return (
-          <div key={opt.id} className="border p-3 rounded mb-3">
-            <h3 className="font-semibold">{post.title}</h3>
-            <p>
-              Symbol: {opt.stock_symbol} | Type: {opt.option_type} | Strike: {opt.strike_price} | Premium Paid: {opt.premium_paid} | Quantity: {opt.quantity} | Expires: {new Date(opt.expires_at).toLocaleString()}
-            </p>
-            <button
-              onClick={() => handleExercise(opt.id)}
-              className="mt-2 px-3 py-1 border rounded bg-green-100 hover:bg-green-200"
-            >
-              Exercise
-            </button>
-          </div>
+          <Paper
+            key={opt.id}
+            elevation={3}
+            sx={{ p: 2, mb: 2, borderRadius: 2, border: "1px solid #ccc" }}
+          >
+            <Stack spacing={1}>
+              <Typography variant="h6">{post.title}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Symbol: {opt.stock_symbol} | Type: {opt.option_type} | Strike: {opt.strike_price} | Premium Paid: {opt.premium_paid} | Quantity: {opt.quantity} | Expires:{" "}
+                {new Date(opt.expires_at).toLocaleString()}
+              </Typography>
+
+              <Stack direction="row" spacing={2}>
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={() => handleExercise(opt.id)}
+                >
+                  Exercise
+                </Button>
+                <Button
+                  variant="outlined"
+                  component="a"
+                  href={`https://reddit.com${post.permalink}`}
+                  target="_blank"
+                >
+                  View Post
+                </Button>
+              </Stack>
+            </Stack>
+          </Paper>
         );
       })}
 
-      <div className="flex justify-between mt-6">
-        <button
+      <Stack direction="row" justifyContent="space-between" mt={2}>
+        <Button
           disabled={page === 1}
           onClick={() => setPage(page - 1)}
-          className="px-3 py-1 border rounded disabled:opacity-50"
+          variant="outlined"
         >
           Previous
-        </button>
-        <button
+        </Button>
+        <Button
           disabled={options.length < limit}
           onClick={() => setPage(page + 1)}
-          className="px-3 py-1 border rounded disabled:opacity-50"
+          variant="outlined"
         >
           Next
-        </button>
-      </div>
+        </Button>
+      </Stack>
     </div>
   );
-};
+}
 
 export default Options;

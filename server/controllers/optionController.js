@@ -99,7 +99,7 @@ async function buyOption(req, res) {
       // Reschedule the option settlement timer if this expires earlier than current
       optionSettlement.maybeReschedule(new Date(expiresAt));
 
-      res.json({ success: true });
+      res.json({ success: true, price: strikePrice });
     } catch (err) {
       await tx.rollback();
       throw err;
@@ -150,7 +150,6 @@ async function getOptionHistory(req, res) {
 }
 
 function generateOptionChain(post) {
-  console.log(post);
   const { id: postId, price, age, score } = post;
 
   const expirations = [1, 3, 7, 30].map(days => {
@@ -173,8 +172,8 @@ function generateOptionChain(post) {
       // Premium = intrinsic + extrinsic
       const callIntrinsic = Math.max(0, price - strike);
       const putIntrinsic = Math.max(0, strike - price);
-      const callPremium = callIntrinsic + baseVolatility * Math.sqrt(timeToExpiry) * price;
-      const putPremium = putIntrinsic + baseVolatility * Math.sqrt(timeToExpiry) * price;
+      const callPremium = Math.ceil(callIntrinsic + baseVolatility * Math.sqrt(timeToExpiry) * price);
+      const putPremium = Math.ceil(putIntrinsic + baseVolatility * Math.sqrt(timeToExpiry) * price);
 
       contracts.push({ type: "call", strike, expiration: exp, premium: callPremium, postId });
       contracts.push({ type: "put", strike, expiration: exp, premium: putPremium, postId });
@@ -189,7 +188,6 @@ function generateOptionChain(post) {
  */
 async function getOptionChain(req, res) {
   try {
-    console.log(req.params);
     const { symbol } = req.params;
     if (!symbol) return res.status(400).json({ error: "Invalid post ID" });
 

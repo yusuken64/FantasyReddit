@@ -24,81 +24,64 @@ async function processExpiredOptions() {
  */
 async function processOptions({ onlyExpired = false, optionIds = [] } = {}) {
   const pool = database.pool;
-  const tx = new database.sql.Transaction(pool);
-  await tx.begin();
 
-  try {
-    const request = tx.request();
-    let query = '';
-    if (onlyExpired) {
-      query = `
-        SELECT *
-        FROM options
-        WHERE expires_at <= SYSUTCDATETIME()
-      `;
-    } else if (optionIds.length > 0) {
-      query = `
-        SELECT *
-        FROM options
-        WHERE id IN (${optionIds.join(',')})
-      `;
-    } else {
-      throw new Error('No options to process');
+  // Step 1: query options without transaction
+  let query = '';
+  if (onlyExpired) {
+    query = `SELECT * FROM options WHERE expires_at <= SYSUTCDATETIME()`;
+  } else if (optionIds.length > 0) {
+    query = `SELECT * FROM options WHERE id IN (${optionIds.join(',')})`;
+  } else {
+    throw new Error('No options to process');
+  }
+
+  const result = await pool.request().query(query);
+  const processed = [];
+
+  // Step 2: compute payouts (no DB writes yet)
+  for (const option of result.recordset) {
+    const user = await getAuthenticatedUserById(option.user_id);
+    if (!user) continue;
+
+    let currentPrice = option.strike_price;
+    try {
+      const data = await fetchPostWithPrice(
+        `https://oauth.reddit.com/by_id/t3_${option.stock_symbol}.json`,
+        user,
+        true
+      );
+      const post = data?.data?.children?.[0]?.data;
+      if (post) {
+        try {
+          currentPrice = await calculatePrice(post);
+        } catch {
+          currentPrice = option.strike_price;
+        }
+      }
+    } catch {
+      currentPrice = option.strike_price;
     }
 
-    const result = await request.query(query);
+    let payout = 0;
+    if (option.option_type === 'CALL') {
+      payout = Math.max(0, currentPrice - option.strike_price) * option.quantity;
+    } else if (option.option_type === 'PUT') {
+      payout = Math.max(0, option.strike_price - currentPrice) * option.quantity;
+    }
 
-    for (const option of result.recordset) {
-      // get user for Reddit auth
-      const user = await getAuthenticatedUserById(option.user_id);
-      if (!user) continue;
+    processed.push({ option, payout });
+  }
 
-      // fetch latest post price from Reddit
-      let currentPrice = option.strike_price;
-      try {
-        const data = await fetchPostWithPrice(
-          `https://oauth.reddit.com/by_id/t3_${option.stock_symbol}.json`,
-          user, // pass user with tokens
-          true
-        );
-
-        const children = data?.data?.children ?? [];
-        if (children.length === 0) {
-          console.warn(`No Reddit post returned for ${option.stock_symbol}, using strike_price`);
-          currentPrice = option.strike_price;
-        } else {
-          const post = children[0].data;
-          try {
-            currentPrice = await calculatePrice(post); // make sure this does not throw
-          } catch (err) {
-            console.warn(`Failed calculating price for ${option.stock_symbol}, fallback`, err);
-            currentPrice = option.strike_price;
-          }
-        }
-      } catch (e) {
-        console.warn(`Failed fetching Reddit price for ${option.stock_symbol}, fallback to strike_price`, e);
-        currentPrice = option.strike_price;
-      }
-
-      // Calculate payout
-      let payout = 0;
-      if (option.option_type === 'CALL') {
-        payout = Math.max(0, currentPrice - option.strike_price) * option.quantity;
-      } else if (option.option_type === 'PUT') {
-        payout = Math.max(0, option.strike_price - currentPrice) * option.quantity;
-      }
-
-      // Update credits
+  // Step 3: apply updates in one short transaction
+  const tx = new database.sql.Transaction(pool);
+  await tx.begin();
+  try {
+    for (const { option, payout } of processed) {
       await tx.request()
         .input('payout', database.sql.BigInt, payout)
         .input('userId', database.sql.BigInt, option.user_id)
-        .query(`
-          UPDATE users
-          SET credits = credits + @payout
-          WHERE id = @userId
-        `);
+        .query(`UPDATE users SET credits = credits + @payout WHERE id = @userId`);
 
-      // Log transaction
       await tx.request()
         .input('userId', database.sql.BigInt, option.user_id)
         .input('symbol', database.sql.NVarChar(10), option.stock_symbol)
@@ -114,16 +97,14 @@ async function processOptions({ onlyExpired = false, optionIds = [] } = {}) {
           VALUES (@userId, @symbol, @type, @strike, @premium, @quantity, @payout, @action)
         `);
 
-      // Delete option
       await tx.request()
         .input('id', database.sql.BigInt, option.id)
         .query(`DELETE FROM options WHERE id = @id`);
     }
-
     await tx.commit();
   } catch (err) {
     await tx.rollback();
-    console.error('Option processing failed:', err);
+    console.error('Option processing failed during commit:', err);
   }
 }
 
@@ -163,7 +144,9 @@ function scheduleNextExpiry(expiryTime) {
 
 // Call this after creating a new option to reschedule if it's earlier than current
 function maybeReschedule(newOptionExpiry) {
-  if (!nextExpiry || newOptionExpiry < nextExpiry) {
+  if (!newOptionExpiry) {
+    findAndScheduleNext()
+  } else if (!nextExpiry || newOptionExpiry < nextExpiry) {
     scheduleNextExpiry(newOptionExpiry);
   }
 }
