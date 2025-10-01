@@ -1,0 +1,701 @@
+*, ::before, ::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+}
+
+body {
+  color: hsl(278, 18%, 9%);
+  background: hsl(220, 7%, 92%);
+  display: grid;
+  grid: "header header" auto "sidebar main" 1fr/max-content 1fr;
+  height: 100vh;
+}
+body * {
+  font-weight: 500;
+  font-family: "Rubik";
+  color: inherit;
+}
+body > header {
+  grid-area: header;
+}
+body > aside {
+  grid-area: sidebar;
+}
+body > main {
+  grid-area: main;
+}
+@media screen and (max-width: 48rem) {
+  body {
+    grid: "header header" auto "main main" 1fr/max-content 1fr;
+  }
+}
+
+html {
+  scrollbar-color: hsl(from hsl(16, 99%, 46%) h s calc(l - 32)) transparent;
+}
+
+main {
+  height: 100%;
+  overflow: hidden;
+}
+
+.scrollable-container {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-color: hsl(from hsl(16, 99%, 46%) h s calc(l - 32)) transparent;
+  padding: 4rem 3rem;
+}
+
+h1 {
+  font-size: 2.25rem;
+  font-weight: 500;
+}
+
+a {
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+}
+
+*:not(svg) > svg.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  /* Warning: disables event emission for the svg */
+  pointer-events: none;
+}
+
+.sr-only {
+  position: absolute;
+  left: -300vw;
+}
+
+.text-orange {
+  color: hsl(16, 99%, 46%);
+}
+
+.underline-hover {
+  position: relative;
+}
+.underline-hover::after {
+  content: "";
+  position: absolute;
+  bottom: 0.1em;
+  left: 0;
+  background: hsl(278, 18%, 9%);
+  border-radius: 0.5rem;
+  transition: 0.2s width ease-out, 0.2s height ease-out;
+  height: 2px;
+  width: 0;
+}
+.underline-hover:hover::after {
+  width: 100%;
+}
+
+.underline-hover-minus-svg > *:not(svg) {
+  position: relative;
+}
+.underline-hover-minus-svg > *:not(svg)::after {
+  content: "";
+  position: absolute;
+  bottom: 0.1em;
+  left: 0;
+  background: hsl(278, 18%, 9%);
+  border-radius: 0.5rem;
+  transition: 0.2s width ease-out, 0.2s height ease-out;
+  height: 2px;
+  width: 0;
+}
+.underline-hover-minus-svg:hover > *:not(svg)::after {
+  width: 100%;
+}
+
+.underline-hover--orange::after {
+  background: hsl(16, 99%, 46%);
+}
+
+.pos-relative {
+  position: relative;
+}
+
+.h-100 {
+  height: 100%;
+}
+
+@media screen and (min-width: 66rem) {
+  .hide-when-gte-md {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 48rem) {
+  .hide-when-lte-xsm {
+    display: none;
+  }
+}
+
+/*===
+Navbar Header
+==== */
+body:has(.nav-list #btn--toggle-sidebar:checked) > #sidebar {
+  display: block;
+  animation: 0.6s ease-in-out animate-sidebar 1 forwards;
+}
+
+@keyframes animate-sidebar {
+  from {
+    left: -100%;
+  }
+  to {
+    left: 0;
+  }
+}
+.nav-list {
+  padding: 1.25rem 4rem;
+  position: relative;
+  --search-field-width: 28rem;
+  display: grid;
+  align-items: center;
+  grid: 1fr/max-content max-content max-content;
+  justify-content: space-between;
+}
+.nav-list::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(#E9EAEC 0%, rgba(189, 192, 198, 0.64) 8%, rgba(189, 192, 198, 0.64) 92%, #E9EAEC 100%);
+}
+.nav-list::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(90deg, rgba(156, 160, 170, 0.2) 0%, rgba(156, 160, 170, 0.2) 12%, rgba(222, 135, 104, 0.1) 13.82%, rgba(222, 135, 104, 0.1) 22.2%, rgba(156, 160, 170, 0.2) 24%, rgba(156, 160, 170, 0.2) 31%, rgba(222, 135, 104, 0.1) 33.14%, rgba(222, 135, 104, 0.1) 66.12%, rgba(156, 160, 170, 0.2) 68%, rgba(156, 160, 170, 0.2) 71.33%, rgba(222, 135, 104, 0.1) 73.11%, rgba(222, 135, 104, 0.1) 86.84%, rgba(156, 160, 170, 0.2) 89%);
+}
+.nav-list .nav-item {
+  list-style: none;
+}
+.nav-list .toggle-sidebar-form-item {
+  display: none;
+}
+@media screen and (max-width: 66rem) {
+  .nav-list .nav-item.search-item {
+    width: 100%;
+  }
+}
+@media screen and (max-width: 32rem) {
+  .nav-list .nav-item.search-item {
+    justify-self: center;
+    width: 82%;
+  }
+}
+.nav-list .nav-item.search-item #search-form .icon-field-wrapper {
+  position: relative;
+  height: 3rem;
+}
+.nav-list .nav-item.search-item #search-form .icon-field-wrapper .field-icon {
+  position: absolute;
+  width: 1.3rem;
+  height: 1.25rem;
+  left: 0.5rem;
+  top: 50%;
+  transform: translate(1rem, -50%);
+}
+.nav-list .nav-item.search-item #search-form .icon-field-wrapper .field-icon path {
+  fill: hsl(16, 99%, 51%);
+}
+.nav-list .nav-item.search-item #search-form .icon-field-wrapper #search-field {
+  height: 100%;
+  width: var(--search-field-width);
+  border-radius: 1rem;
+  color: hsl(16, 99%, 51%);
+  border: 1px solid rgba(163, 44, 1, 0.24);
+  background: linear-gradient(180deg, rgba(239, 217, 210, 0.72) 0%, rgba(234, 205, 195, 0.72) 100%);
+  box-shadow: inset 0px 4px 4px rgba(240, 67, 5, 0.24);
+  font-size: 1.25rem;
+  padding-left: 3.6875rem;
+  transition: 0.2s box-shadow, 0.4s border-color;
+}
+.nav-list .nav-item.search-item #search-form .icon-field-wrapper #search-field::placeholder {
+  color: hsl(16, 99%, 51%);
+}
+.nav-list .nav-item.search-item #search-form .icon-field-wrapper #search-field:focus {
+  border-color: hsl(from hsl(16, 99%, 46%) h s calc(l + 32));
+  outline: none;
+  box-shadow: inset 0px 4px 4px rgba(240, 67, 5, 0.24), 0 0 0 2px rgba(218, 151, 135, 0.24);
+}
+.nav-list .nav-item.search-item #search-form .icon-field-wrapper #search-field:hover {
+  border-color: hsl(from hsl(16, 99%, 46%) h s calc(l + 32));
+}
+@media screen and (max-width: 66rem) {
+  .nav-list {
+    --search-field-width: 24rem;
+  }
+}
+@media screen and (max-width: 54rem) {
+  .nav-list {
+    grid: "logo-item logo-item logo-item" 1fr ". search-item account-info-item" 1fr/max-content 1fr max-content;
+    gap: 2rem 1rem;
+    --search-field-width: 100%;
+  }
+  .nav-list .account-info-item {
+    grid-area: account-info-item;
+  }
+  .nav-list .search-item {
+    grid-area: search-item;
+  }
+  .nav-list .logo-item {
+    grid-area: logo-item;
+    text-align: center;
+  }
+}
+@media screen and (max-width: 48rem) {
+  .nav-list {
+    grid: "logo-item logo-item logo-item" 1fr "toggle-sidebar-form-item search-item btn--options" 1fr "credits credits credits" 1fr/max-content 1fr max-content;
+    row-gap: 0.5rem;
+  }
+  .nav-list .toggle-sidebar-form-item {
+    display: block;
+    grid-area: toggle-sidebar-form-item;
+  }
+}
+@media screen and (max-width: 32rem) {
+  .nav-list {
+    grid: "logo-item logo-item logo-item logo-item" 1fr "search-item search-item search-item search-item" 1fr "toggle-sidebar-form-item toggle-sidebar-form-item btn--options btn--options" 1fr "credits credits credits credits" 1fr/max-content max-content max-content max-content;
+    padding: 1.25rem 1rem;
+    gap: 1rem;
+  }
+}
+.nav-list .toggle-sidebar-form-item {
+  justify-self: right;
+}
+@media screen and (min-width: calc(48rem + 1px)) {
+  .nav-list #toggle-sidebar-form {
+    display: none;
+  }
+}
+.nav-list #toggle-sidebar-form #btn--toggle-sidebar {
+  appearance: none;
+  background: rgb(240, 240, 240);
+  border: 2px solid #C4BBBB;
+  box-shadow: 0 1px 0 rgba(156, 161, 170, 0.32);
+  border-radius: 1rem;
+  width: 3rem;
+  aspect-ratio: 1/1;
+  display: grid;
+  place-items: center;
+  transition: 0.2s background;
+}
+.nav-list #toggle-sidebar-form #btn--toggle-sidebar::after {
+  content: url("../../assets/svg/hamburger-icon.svg")/"An icon of three horizontal lines which represent a textured hamburger menu icon.";
+  display: block;
+  width: 52%;
+  height: 1.2rem;
+}
+.nav-list #toggle-sidebar-form #btn--toggle-sidebar:checked {
+  background: rgb(232, 227, 227);
+}
+.nav-list #toggle-sidebar-form #btn--toggle-sidebar:checked::after {
+  content: url("../../assets/svg/close-icon.svg")/"A letter X representing a close icon.";
+  width: 64%;
+  height: 1.7rem;
+}
+.nav-list #toggle-sidebar-form #btn--toggle-sidebar:hover {
+  cursor: pointer;
+}
+.nav-list .account-info-item {
+  display: grid;
+  grid: "username btn--options" auto "credits btn--options" auto/auto auto;
+  column-gap: 1rem;
+}
+@media screen and (max-width: 66rem) {
+  .nav-list .account-info-item {
+    column-gap: 0;
+  }
+}
+@media screen and (max-width: 48rem) {
+  .nav-list .account-info-item {
+    display: contents;
+  }
+}
+.nav-list .account-info-item .username {
+  grid-area: username;
+  align-self: end;
+}
+@media screen and (max-width: 66rem) {
+  .nav-list .account-info-item .username {
+    position: absolute;
+    left: -200vw;
+  }
+}
+.nav-list .account-info-item .credits {
+  position: relative;
+}
+@media screen and (max-width: 66rem) {
+  .nav-list .account-info-item .credits {
+    position: absolute;
+    left: -200vw;
+  }
+}
+@media screen and (max-width: 48rem) {
+  .nav-list .account-info-item .credits {
+    position: static;
+    width: fit-content;
+    justify-self: center;
+    grid-area: credits;
+    background: linear-gradient(45deg hsla(15.79, 100%, 78.54%, 0.25) 0%, rgba(255, 255, 255, 0.144) 100%);
+    border-radius: 0.5rem;
+  }
+  .nav-list .account-info-item .credits a {
+    display: inline-block;
+    width: fit-content;
+    color: hsla(15.79, 100%, 54.79%, 0.95);
+    font-size: 1.5rem;
+    padding: 0.25rem 1rem 0.25rem 1rem;
+    border: 2px solid rgba(246, 69, 0, 0.5098039216);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.15em 2px rgba(0, 0, 0, 0.075);
+  }
+  .nav-list .account-info-item .credits a:hover {
+    /* Disable .underline-hover effect */
+  }
+  .nav-list .account-info-item .credits a:hover::after {
+    display: none;
+  }
+}
+.nav-list .account-info-item .btn--options {
+  width: 3rem;
+  aspect-ratio: 1/1;
+  grid-area: btn--options;
+  background: hsl(278, 18%, 9%);
+  border-radius: 1rem;
+  padding: 0.875rem;
+  transition: 0.2s background, 0.4s outline;
+  outline: 2px solid transparent;
+  outline-offset: -4px;
+}
+.nav-list .account-info-item .btn--options svg {
+  width: 100%;
+  height: 100%;
+  fill: hsl(220, 7%, 92%);
+  /* Remove whitespace underneath replaced element */
+  vertical-align: bottom;
+}
+.nav-list .account-info-item .btn--options svg path {
+  fill: hsl(220, 7%, 92%);
+}
+.nav-list .account-info-item .btn--options:hover {
+  background: rgb(from hsl(278, 18%, 9%) r g b/98%);
+  outline: 2px solid hsl(220, 7%, 92%);
+}
+
+/*===
+Sidebar
+==== */
+#sidebar {
+  height: 100%;
+  width: min-content;
+  position: relative;
+  padding: 4rem;
+  padding-bottom: 2rem;
+}
+@media screen and (max-width: 54rem) {
+  #sidebar {
+    height: fit-content;
+    min-height: 100%;
+  }
+}
+@media screen and (max-width: 48rem) {
+  #sidebar {
+    display: none;
+    position: absolute;
+    z-index: 1;
+    top: 15.5rem;
+    width: 100%;
+    background: hsl(220, 7%, 92%);
+  }
+}
+@media screen and (max-width: 32rem) {
+  #sidebar {
+    top: 17.5rem;
+  }
+}
+#sidebar::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(156, 160, 170, 0.064) 0%, rgba(156, 160, 170, 0.128) 16%, rgba(156, 160, 170, 0.2) 32%, rgba(222, 135, 104, 0.128) 48%, rgba(222, 135, 104, 0.128) 64%, rgba(156, 160, 170, 0.064) 80%);
+}
+#sidebar .sidebar-navlist {
+  margin-bottom: 4.75rem;
+}
+#sidebar .sidebar-navlist .navlist-item {
+  width: fit-content;
+}
+#sidebar .sidebar-navlist .navlist-item::marker {
+  font-size: 0;
+}
+#sidebar .sidebar-navlist .navlist-item .item-link {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+#sidebar .sidebar-navlist .navlist-item:nth-child(n+2) {
+  margin-top: 2rem;
+}
+#sidebar .recent-thread-list {
+  margin-top: 0.75rem;
+  /* Not sure why body's max-content column track inline length squishes this. Explicitly give max-content width to the recently viewed subreddit: */
+  width: max-content;
+  height: 14.75rem;
+  scrollbar-gutter: auto;
+  overflow-y: auto;
+  scrollbar-color: hsl(278, 18%, 9%) transparent;
+  scrollbar-width: thin;
+}
+@media screen and (max-width: 54rem) {
+  #sidebar .recent-thread-list {
+    height: fit-content;
+  }
+}
+#sidebar .recent-thread-list .list__item::marker {
+  font-size: 0px;
+}
+#sidebar .recent-thread-list .list__item:nth-child(n+2) {
+  margin-top: 0.25rem;
+}
+#sidebar .recent-thread-list .item__link {
+  display: grid;
+  /*
+      all auto vs. all 1fr???
+      hmm.. what is fr based on here?
+      is it auto + any other available space?
+      why is there additional space when I use fr? maybe a glitch?
+  */
+  grid: "logo-img subreddit-title" auto "logo-img thread-title" auto/auto auto;
+  border: 1px solid transparent;
+  padding: 0.5rem;
+  transition: 0.4s border-color;
+  border-radius: 0.5rem;
+  gap: 0.25rem 0.5rem;
+}
+#sidebar .recent-thread-list .item__link:hover {
+  border-color: hsl(from hsl(220, 7%, 92%) h s calc(l - 32));
+}
+#sidebar .recent-thread-list .item__link .thread__icon {
+  width: 2rem;
+  aspect-ratio: 1/1;
+  grid-area: logo-img;
+  align-self: center;
+}
+#sidebar .recent-thread-list .item__link .thread__subreddit {
+  grid-area: subreddit-title;
+}
+#sidebar .recent-thread-list .item__link .thread__title {
+  grid-area: thread-title;
+  font-size: 0.75rem;
+}
+
+/*===
+Main components shared by many pages
+==== */
+.card-list {
+  display: flex;
+  align-items: flex-end;
+  gap: 2rem;
+}
+@media screen and (max-width: 78rem) {
+  .card-list {
+    flex-direction: column;
+    position: relative;
+  }
+}
+@media screen and (max-width: 59rem) {
+  .card-list {
+    align-items: center;
+  }
+}
+
+.card {
+  padding: 0.75rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(19, 20, 22, 0.32);
+  background: #E9EAEC;
+}
+
+.card--thread-card {
+  margin-left: 1rem;
+  margin-top: 2rem;
+  width: 40rem;
+}
+@media screen and (max-width: 78rem) {
+  .card--thread-card {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+.card--thread-card .card-publication-info {
+  display: grid;
+  grid: "icon-img subreddit-title date-published" 1fr "icon-img author-name ." 1fr/auto auto auto;
+  column-gap: 0.5rem;
+  row-gap: 0.25rem;
+  width: fit-content;
+}
+.card--thread-card .card-publication-info .icon-img {
+  grid-area: icon-img;
+}
+.card--thread-card .card-publication-info .subreddit-title {
+  grid-area: subreddit-title;
+}
+.card--thread-card .card-publication-info .date-published {
+  grid-area: date-published;
+  font-size: 0.75rem;
+  color: rgba(14, 17, 27, 0.56);
+  align-self: center;
+  /*
+     An inherited value takes effect for an element
+     only if no other style declaration has been
+     applied directly to the element.
+
+     A style exists in the base to color all element text nodes black ( * {color: ...} ).
+     Thus, we must override time's black color to make it inherit from published.
+  */
+}
+.card--thread-card .card-publication-info .date-published time {
+  color: inherit;
+}
+.card--thread-card .card-publication-info .author-name {
+  grid-area: author-name;
+  font-size: 0.75rem;
+}
+.card--thread-card .card-title {
+  font-size: 1.5rem;
+  margin-top: 0.5rem;
+}
+.card--thread-card .card-body {
+  margin-top: 0.5rem;
+}
+.card--thread-card .card-engagement-buttons {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  /*
+      An inherited value takes effect for an element
+      only if no other style declaration has been
+      applied directly to the element.
+
+      A style exists in the base to color all elements black.
+      If we want to change the p to say, grey (as per the design),
+      .. we must override the nested paragraph's black color to make it inherit from .card-engagement-buttons.
+  */
+}
+.card--thread-card .card-engagement-buttons p {
+  line-height: 1.5;
+}
+.card--thread-card .card-engagement-buttons .btn--like,
+.card--thread-card .card-engagement-buttons .btn--dislike {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.card--thread-options {
+  display: grid;
+  grid: "credits badge" 1fr "btn-share btn-share" 1fr "btn-buy btn-sell" 1fr/1fr 1fr;
+  place-items: center;
+  gap: 1.5rem 0.75rem;
+}
+@media screen and (max-width: 78rem) {
+  .card--thread-options {
+    position: absolute;
+    right: 1rem;
+    bottom: -8.5rem;
+  }
+}
+@media screen and (max-width: 59rem) {
+  .card--thread-options {
+    position: static;
+  }
+}
+.card--thread-options .credit-cost {
+  grid-area: credits;
+  font-size: 1.25rem;
+}
+.card--thread-options .badge--growth {
+  grid-area: badge;
+  position: relative;
+}
+.card--thread-options .badge--growth .icon-wrapper {
+  position: absolute;
+  width: 2rem;
+  height: 100%;
+  border-radius: 0.375rem;
+  background: #0B6F1A;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.card--thread-options .badge--growth .icon-wrapper .icon--growth {
+  fill: #2CC944;
+  width: 1rem;
+}
+.card--thread-options .badge--growth .growth-amount {
+  width: fit-content;
+  padding: 0 0.75rem 0 2.5rem;
+  background: #8DE29A;
+  color: #1D862D;
+  border-radius: 0.375rem;
+}
+.card--thread-options .btn--share {
+  grid-area: btn-share;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: 1.5rem;
+  padding: 0.25rem 0.75rem 0.25rem 1rem;
+  width: 100%;
+  border-radius: 0.75rem;
+  background: #E0E0E0;
+  border: 1px solid rgba(14, 17, 27, 0.16);
+  transition: 0.2s scale ease-out;
+}
+.card--thread-options .btn--share:hover {
+  scale: 1.05;
+}
+.card--thread-options .btn--buy {
+  grid-area: btn-buy;
+  color: #ECEDEE;
+  background: hsl(16, 99%, 46%);
+  border-radius: 1rem;
+  padding: 0.5rem 2.5rem;
+  transition: 0.2s background-color;
+}
+.card--thread-options .btn--buy:hover {
+  background: hsl(from hsl(16, 99%, 46%) h s calc(l - 4));
+}
+.card--thread-options .btn--sell {
+  grid-area: btn-sell;
+  --bg-color: hsl(8, 89%, 42%);
+  color: #ECEDEE;
+  background: var(--bg-color);
+  border-radius: 1rem;
+  padding: 0.5rem 2.5rem;
+  transition: 0.2s background-color;
+}
+.card--thread-options .btn--sell:hover {
+  background: hsl(from var(--bg-color) h s calc(l - 4));
+}
+
+/*# sourceMappingURL=base.css.map */

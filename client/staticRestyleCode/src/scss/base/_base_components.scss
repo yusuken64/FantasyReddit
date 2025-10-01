@@ -1,0 +1,787 @@
+@use "base_variables";
+
+/*===
+Navbar Header
+==== */
+
+// We have this complex selector since we need to check if the hamburger menu toggle button (a checkbox <input>)
+//  ... has been checked by the user. Then we need to display the sidebar if toggled.
+// These have a common ancestor of the <body>, so to access both we must structure it like so,
+//  ... as we can't traverse upwards from a node in CSS.
+body:has(.nav-list #btn--toggle-sidebar:checked) {
+    > #sidebar {
+        display: block;
+        
+        animation: .6s ease-in-out animate-sidebar 1 forwards;
+    }
+}
+
+// Le Animation
+@keyframes animate-sidebar {
+    from {
+        left: -100%;
+    }
+    to {
+        left: 0;
+    }
+}
+
+// Navbar's <ul> of <li>s:
+.nav-list {
+    padding: 1.25rem 4rem;
+    // Act as the container for absolutely positioned ::before and ::after fake linear-gradient borders
+    position: relative;
+
+    --search-field-width: 28rem;
+    
+    // TODO: sort out --search-field-width and list item descendant width craziness.
+
+    display: grid;
+    align-items: center; // block direction item alignment within its grid area if there is free space
+    // logo-item,    search-field,    account-info
+    grid: 1fr / max-content max-content max-content;
+    justify-content: space-between;  // inline direction container free space distribution among tracks
+    
+    // Fake borders with position absolute and psuedo-elements. We can't use two different gradients
+    // ... for a border-image, but this trick works.
+    &::before {
+        content: "";
+
+        position: absolute;
+        top: 0;
+        // [?] Unknown: research more into this:
+        // I guess by default, absolute elements account for relative parent's padding
+        left: 0;
+
+        height: 2px;
+        width: 100%;
+
+        background: linear-gradient(#E9EAEC 0%, rgb(189 192 198 / 64%) 8%, rgb(189 192 198 / 64%) 92%, #E9EAEC 100%);
+    }
+    &::after {
+        content: "";
+
+        position: absolute;
+        bottom: 0;
+        // [?] Unknown: research more into this:
+        // I guess by default, absolute elements account for relative parent's padding
+        left: 0;
+
+        height: 2px;
+        width: 100%; // I guess the default width: auto; does not provide width to psuedo elements.
+        // todo: read into width: auto; for psuedo elements
+
+        background: linear-gradient(90deg, rgb(156 160 170 / 0.2) 0%, rgb(156 160 170 / 0.2) 12%, rgb(222 135 104 / 0.1) 13.82%, rgb(222 135 104 / 0.1) 22.2%, rgb(156 160 170 / 0.2) 24%, rgb(156 160 170 / 0.2) 31%, rgb(222 135 104 / 0.1) 33.14%, rgb(222 135 104 / 0.1) 66.12%, rgb(156 160 170 / 0.2) 68%, rgb(156 160 170 / 0.2) 71.33%, rgb(222 135 104 / 0.1) 73.11%, rgb(222 135 104 / 0.1) 86.84%, rgb(156 160 170 / 0.2) 89%);
+    }
+    
+    .nav-item {
+        // Hide list item marker. Since the .nav-item (<li>) is a descendant of .nav-list (<ul>),
+        // ... this makes no difference to a11y when compared to list-style: none;
+        // [?] Unknown: read more about this and when we would ever want this:
+        // &::marker {
+        //     font-size: 0px;
+        // }
+        list-style: none;
+    }
+    
+    .toggle-sidebar-form-item {
+        display: none;
+    }
+    
+    // TODO: review
+    // .search-item <li>
+    .nav-item.search-item {
+        // LTE medium screen size
+        @media screen and (max-width: base_variables.$breakpoint-md) {
+            width: 100%;
+        }
+        
+        // LTE extra extra small screen size
+        @media screen and (max-width: base_variables.$breakpoint-xxsm) {
+            // Crazy explanation:
+            
+            // justify-items defaults to legacy.
+            // if justify-self is auto, then justify-items doesn't take effect for that descendant.
+            // justify-self defaults to auto.
+            // implicitly and hinted at by this relationship, auto means normal for justify-self
+            // justify-self: auto means stretch if the element has no aspect-ratio or no instrinsic size,
+            // otherwise auto means start. So if the item has content, justify-self: auto means start.
+            // Wacky.
+            
+            // Grid items pack to the start of the container along the inline access. override this and center
+            // ... the search list item in what is now (due to xxsm screen size's grid definition) a (semi) column-based block layout
+            justify-self: center;
+            width: 82%; // kind of hacky since we could update --search-field-width but meh
+        }
+        
+        #search-form {
+            .icon-field-wrapper {
+                position: relative;
+                height: 3rem;
+                
+                .field-icon {
+                    position: absolute;
+                    // 27px by 24px
+                    width: 1.3rem;
+                    height: 1.25rem;
+                    left: 0.5rem;
+                    top: 50%; // move top face by 50% from the top of the pos-relative div
+                    transform: translate(1rem, -50%); // translate 50% of width up such that the icon is positioned relative to the center of itself by 50% from the top of the pos-relative div
+
+                    path {
+                        fill: base_variables.$color-orange-light;
+                    }
+                }
+
+
+                #search-field {
+                    height: 100%;
+                    width: var(--search-field-width);
+                    border-radius: 1rem;
+                    // user text
+                    color: base_variables.$color-orange-light;
+
+                    border: 1px solid rgba(163, 44, 1, 0.24);
+                    background: linear-gradient(180deg, rgb(239 217 210 / 0.72) 0%, rgb(234 205 195 / 0.72) 100%);
+                    box-shadow: inset 0px 4px 4px rgb(240 67 5 / 0.24);
+                    
+                    font-size: 1.25rem;
+                    padding-left: 3.6875rem; // hold space for the icon
+
+                    &::placeholder {
+                        color: base_variables.$color-orange-light;
+                    }
+
+                    transition: .2s box-shadow, .4s border-color;
+
+                    &:focus {
+                        border-color: hsl(from base_variables.$color-orange h s calc(l + 32));
+                        outline: none; // override browser default
+                        box-shadow: inset 0px 4px 4px rgb(240 67 5 / 0.24),
+                                    0 0 0 2px rgba(218, 151, 135, 0.24);
+                    }
+                    
+                    &:hover {
+                        border-color: hsl(from base_variables.$color-orange h s calc(l + 32));
+                    }
+                }
+            }
+        }
+    }
+    
+    // LTE medium screen size
+    @media screen and (max-width: base_variables.$breakpoint-md) {
+        --search-field-width: 24rem;
+    }
+    
+    // LTE small screen size
+    @media screen and (max-width: base_variables.$breakpoint-sm) {
+        // [?] Unknown: how do ignored grid area names (.) work in greater depth, according to practice and their specification definition?
+        grid: "logo-item logo-item logo-item" 1fr
+              ". search-item account-info-item" 1fr
+        / max-content 1fr max-content; // why does (.) do nothing?
+        
+        // [?] Why do the tracks stretch such that the gap is bigger than what's defined here?:
+        gap: 2rem 1rem;
+        
+        --search-field-width: 100%;
+        
+        .account-info-item {
+            grid-area: account-info-item;
+        }
+        .search-item {
+            grid-area: search-item;
+        }
+        .logo-item {
+            grid-area: logo-item;
+            // [?] Unknown: I'm not sure why .logo doesn't default to justify-self: start instead of stretch...
+            // [!] Answer: .logo-item has a width of auto, which by default fills all available inline space.
+            //             justify-self makes an item's width fit to its contents (min or max?), and aligns it within its grid area too.
+            text-align: center; // text-align is left by default, so we must align-center
+        }
+    }
+    
+    // LTE extra small screen size
+    @media screen and (max-width: base_variables.$breakpoint-xsm) {
+        grid: "logo-item logo-item logo-item" 1fr
+              "toggle-sidebar-form-item search-item btn--options" 1fr
+              "credits credits credits" 1fr
+        / max-content 1fr max-content;
+        
+        // [?] Unknown: why does space-between justify-content increase the width of the container's content area?
+        // requires a dive back into grid!! and the spec!! :D
+        
+        row-gap: .5rem;
+    
+        .toggle-sidebar-form-item {
+            display: block;
+            grid-area: toggle-sidebar-form-item;
+        }
+    }
+    
+    // LTE extra extra small screen size
+    @media screen and (max-width: base_variables.$breakpoint-xxsm) {
+        grid: "logo-item logo-item logo-item logo-item" 1fr
+              "search-item search-item search-item search-item" 1fr
+              "toggle-sidebar-form-item toggle-sidebar-form-item btn--options btn--options" 1fr
+              "credits credits credits credits" 1fr
+        / max-content max-content max-content max-content;
+        
+        padding: 1.25rem 1rem; // reduced left/right padding
+        
+        gap: 1rem;
+    }
+    
+    .toggle-sidebar-form-item {
+        justify-self: right; // override default (in practice the default is `start` as explained somewhere in this file)
+    }
+    
+    #toggle-sidebar-form {
+        // The sidebar disappears at LTE $breakpoint-xsm.
+        // The #toggle-sidebar-form is hidden at GTE $breakpoint-xsm.
+        // At a screen size of exactly $breakpoint-xsm, the sidebar and toggler will be hidden, with no way to show it.
+        // Add 1px to the media query to ensure #toggle-sidebar-form displays when the sidebar disappears.
+        
+        // GT $breakpoint-xsm
+        @media screen and (min-width: calc(base_variables.$breakpoint-xsm + 1px)) {
+            display: none;
+        }
+        
+        // I could use a sr-only style to keep the sidebar in the accessibility tree,
+        // ... then show it for mobile users to save space.
+        #btn--toggle-sidebar {
+            appearance: none; // Override browser default styling for an input checkbox
+            
+            background: rgb(240 240 240);
+            border: 2px solid #C4BBBB;
+            box-shadow: 0 1px 0 rgb(156 161 170 / 32%);
+            
+            border-radius: 1rem;
+            width: 3rem;
+            aspect-ratio: 1 / 1;
+            
+            display: grid;
+            place-items: center; // Center the psuedo-element icon
+            
+            &::after {
+                content: url("../../assets/svg/hamburger-icon.svg")
+                        / "An icon of three horizontal lines which represent a textured hamburger menu icon.";
+                display: block;
+                width: 52%;
+                // [?] Todo: Learn more about SVG
+                height: 1.2rem; // magic number to make it look centered. fit-content leaves some space after for some reason (svg scaling/viewport issue).
+                
+            }
+            
+            &:checked {
+                &::after {
+                    content: url("../../assets/svg/close-icon.svg")
+                        / "A letter X representing a close icon.";
+                    width: 64%;
+                    height: 1.7rem; // magic number to make it look centered. fit-content leaves some space after for some reason (svg scaling/viewport issue).
+                }
+                background: rgb(232 227 227);
+            }
+            
+            transition: .2s background;
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
+
+    .account-info-item {
+        display: grid;
+        grid: "username btn--options" auto "credits btn--options" auto / auto auto;
+        column-gap: 1rem;
+
+        // LTE 
+        @media screen and (max-width: base_variables.$breakpoint-md) {
+            // Without a gap of 0, unwanted space appears even though username & credit count are hidden (absolutely positioned for a11y ux)
+            column-gap: 0;
+        }
+        
+        // LTE
+        @media screen and (max-width: base_variables.$breakpoint-xsm) {
+            // Pretend the div no longer exists so that we can place the consituent children (button; username & credit count are hidden at LTE $breakpoint-md) as a direct child of .nav-list
+            display: contents;
+        }
+        
+        .username {
+            grid-area: username;
+            align-self: end; // Place at the bottom of the grid area's block axis
+            
+            // Retain a11y ux but hide the username visually at LTE $breakpoint-md
+            @media screen and (max-width: base_variables.$breakpoint-md) {
+                position: absolute;
+                left: -200vw;
+            }
+        }
+
+        // Credit count
+        .credits {
+            position: relative;
+            
+            // Retain a11y ux but hide the header credits visually at LTE $breakpoint-md, since the sidebar displays them at this screen width
+            @media screen and (max-width: base_variables.$breakpoint-md) {
+                position: absolute;
+                left: -200vw;
+            }
+            
+            // Display credit count at LTE $breakpoint-xsm as per client user story.
+            // Give it some re-styling for better effect
+            @media screen and (max-width: base_variables.$breakpoint-xsm) {
+                position: static;
+                
+                width: fit-content;
+                
+                justify-self: center; // Override default (in practice, default value acts like `start`)
+                grid-area: credits; // Place in a .nav-list grid area since .account-info-item has destructured via `display: contents;` 
+                
+                background: linear-gradient(45deg hsl(15.79deg 100% 78.54% / 25%) 0%, rgba(255, 255, 255, 0.144) 100%);
+                border-radius: .5rem;
+                
+                a {    
+                    display: inline-block; // Permit width changes
+                    width: fit-content;            
+                    
+                    color: hsl(15.79deg 100% 54.79% / 95%);
+                    font-size: 1.5rem;
+                    
+                    padding: 0.25rem 1rem .25rem 1rem;
+                    
+                    border: 2px solid #f6450082;
+                    border-radius: .5rem;
+                    box-shadow: 0 .15em 2px rgba(0, 0, 0, 0.075);
+                    
+                                    
+                    &:hover {
+                        /* Disable .underline-hover effect */
+                        &::after {
+                            display: none;
+                        }
+                    }
+                    
+                    // use ::before to avoid underline-hover collisions
+                    // &::before {
+                    //     content: "[ $5.99 USD ]" / "credits are equal to $5.99 USD";
+                    //     position: absolute;
+                    //     width: fit-content;
+                    //     right: 1rem;
+                    //     top: 55%; // visual center
+                    //     transform: translateY(-50%);
+                    //     font-size: 1rem;
+                    // }
+                }
+            }
+        }
+
+        // [?] Unknown: Relationship between width, aspect-ratio, and child svg with 100% w/h?
+        // Why does width sometimes not respect aspect ratio? Maybe due to how svg scales weirdly, or an improper viewport definition.
+        .btn--options {
+            width: 3rem;
+            aspect-ratio: 1 / 1;
+
+            grid-area: btn--options;
+            background: base_variables.$color-black;
+            border-radius: 1rem;
+            padding: 0.875rem;
+
+            svg {
+                width: 100%;
+                height: 100%;
+                fill: base_variables.$color-white;
+                
+                // [?] Unknown: Forgot if it's the <use> or <svg> that is the replaced element (probably <use>)
+                /* Remove whitespace underneath replaced element */
+                vertical-align: bottom;
+
+                path {
+                    fill: base_variables.$color-white;
+                }
+            }
+
+            transition: .2s background, .4s outline;
+            outline: 2px solid transparent;
+            outline-offset: -4px;
+            
+            &:hover {
+                background: rgb(from base_variables.$color-black r g b / 98%);
+                outline: 2px solid base_variables.$color-white;
+            }
+        }
+    }
+}
+
+/*===
+Sidebar
+==== */
+
+#sidebar {
+    height: 100%;
+    width: min-content;
+    position: relative;
+    padding: 4rem;
+    padding-bottom: 2rem;
+
+    // LTE $breakpoint-xsm
+    @media screen and (max-width: base_variables.$breakpoint-sm) {
+        // 100% of the screen height might be too small and cause contents to overflow the content box, which makes it look like there's no padding
+        // fit the contents. if there aren't many recently viewed items, fill the screen height
+        height: fit-content;
+        min-height: 100%; // we could optimize this by putting it into the #sidebar with no media query, but this makes more sense to read
+    }
+              
+    // LTE $breakpoint-xsm
+    @media screen and (max-width: base_variables.$breakpoint-xsm) {
+        display: none;
+        
+        position: absolute;
+        z-index: 1; // draw stacking context over-top main content
+        
+        top: 15.5rem; // size of header box at this screen size
+        width: 100%; // fill screen width
+        
+        background: base_variables.$color-white;
+    }
+    
+    // LTE $breakpoint-xsm
+    @media screen and (max-width: base_variables.$breakpoint-xxsm) {
+        top: 17.5rem; // size of header box at this screen size
+    }
+    
+    // Make a fake border-right so that we can give it a linear gradient
+    &::after {
+        content: "";
+
+        position: absolute;
+        right: 0;
+        top: 0;
+
+        height: 100%;
+        width: 2px;
+
+        background: linear-gradient(180deg, rgba(156, 160, 170, 0.064) 0%, rgba(156, 160, 170, 0.128) 16%, rgba(156, 160, 170, 0.2) 32%, rgba(222, 135, 104, 0.128) 48%, rgba(222, 135, 104, 0.128) 64%, rgba(156, 160, 170, 0.064) 80%);
+    }
+
+    .sidebar-navlist {
+        margin-bottom: 4.75rem; // distance between "Recently Viewed" heading and nav link
+
+        .navlist-item {
+            width: fit-content;
+
+            &::marker {
+                font-size: 0;
+            }
+
+            .item-link {
+                display: flex;
+                // Don't cause items to stretch while text remains at the top left, which causes poor vertical alignment for text.
+                // This makes the item's height fit its contents, and aligns it in the center of its line along the cross axis. The line assumes a block length of its child with the longest block length in LTR writing mode w/ flex-direction: row.
+                align-items: center;
+                gap: 0.625rem;
+            }
+        }
+
+        .navlist-item:nth-child(n+2) {
+            margin-top: 2rem; // Spacing between nav links. We could opt for a flex <ul>, but that is too many nested flexboxes imo for a small feature like this.
+        }
+    }
+
+    .recent-thread-list {
+        margin-top: .75rem; // distance between list of threads and "Recently Viewed" heading
+        /* Not sure why body's max-content column track inline length squishes this. Explicitly give max-content width to the recently viewed subreddit: */
+        width: max-content; // make links take up size that they need, instead of 100%.
+        
+        // Fixed size to allow scrolling for overflow
+        height: 14.75rem;
+        
+        // Scrollbar properties
+        scrollbar-gutter: auto;
+        overflow-y: auto;
+        scrollbar-color: base_variables.$color-black transparent;
+        scrollbar-width: thin;    
+        
+        @media screen and (max-width: base_variables.$breakpoint-sm) {
+            // No more overflow; expand to infinity (not that we should show that much history)
+            height: fit-content;
+        }
+
+        .list__item {
+            &::marker {
+                font-size: 0px;
+            }
+        }
+        
+        .list__item:nth-child(n+2) {
+            margin-top: .25rem;
+        }
+
+        .item__link {
+            display: grid;
+            /*
+                all auto vs. all 1fr???
+                hmm.. what is fr based on here?
+                is it auto + any other available space?
+                why is there additional space when I use fr? maybe a glitch?
+            */
+            grid: "logo-img subreddit-title" auto
+                  "logo-img thread-title" auto
+                  / auto auto;
+            
+            border: 1px solid transparent;
+            padding: .5rem;
+            transition: .4s border-color;
+            border-radius: .5rem;
+            gap: .25rem .5rem;
+            
+            &:hover {
+                border-color: hsl(from base_variables.$color-white h s calc(l - 32));
+            }
+
+            .thread__icon {
+                width: 2rem;
+                aspect-ratio: 1/1;
+                grid-area: logo-img;
+                align-self: center;
+            }
+
+            .thread__subreddit {
+                grid-area: subreddit-title;
+            }
+
+            .thread__title {
+                grid-area: thread-title;
+                font-size: .75rem;
+            }
+        }
+    }
+}
+
+/*===
+Main components shared by many pages
+==== */
+
+// Card & card container (.card-list)
+
+.card-list {
+    display: flex;
+    // make items' block length fit-content instead of stretch if they have no height set
+    // we could also set height: fit-content for items but meh either way works
+    align-items: flex-end;
+    gap: 2rem;
+    
+    @media screen and (max-width: base_variables.$breakpoint-lg) {
+        flex-direction: column;
+        position: relative; // allow for item absolute positioning relative to this container
+    }
+    
+    @media screen and (max-width: base_variables.$breakpoint-md-sm) {
+        align-items: center;
+    }
+}
+
+.card {
+    padding: .75rem;
+    border-radius: 1rem;
+    border: 1px solid rgb(19 20 22 / 32%);
+    background: #E9EAEC;
+}
+
+.card--thread-card {
+    margin-left: 1rem;
+    margin-top: 2rem;
+    width: 40rem;
+    
+    @media screen and (max-width: base_variables.$breakpoint-lg) {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .card-publication-info {
+        display: grid;
+        grid: "icon-img subreddit-title date-published" 1fr "icon-img author-name ." 1fr / auto auto auto;
+        column-gap: .5rem;
+        row-gap: .25rem;
+        width: fit-content;
+
+        .icon-img {
+            grid-area: icon-img;
+        }
+
+        .subreddit-title {
+            grid-area: subreddit-title;
+        }
+
+        .date-published {
+            grid-area: date-published;
+            font-size: .75rem;
+            color: rgb(14 17 27 / 56%); // translucent grey
+            align-self: center;
+            
+            /*
+               An inherited value takes effect for an element
+               only if no other style declaration has been
+               applied directly to the element.
+               
+               A style exists in the base to color all element text nodes black ( * {color: ...} ).
+               Thus, we must override time's black color to make it inherit from published.
+            */
+            time {
+                color: inherit;
+            }
+        }
+
+        .author-name {
+            grid-area: author-name;
+            font-size: .75rem;
+        }
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        margin-top: .5rem;
+    }
+
+    .card-body {
+        margin-top: .5rem;
+    }
+    
+    .card-engagement-buttons {
+        margin-top: .75rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        
+        /*
+            An inherited value takes effect for an element
+            only if no other style declaration has been
+            applied directly to the element.
+            
+            A style exists in the base to color all elements black.
+            If we want to change the p to say, grey (as per the design),
+            .. we must override the nested paragraph's black color to make it inherit from .card-engagement-buttons.
+        */
+        p {
+            // color: inherit;
+            // [?] Unknown: I do not know why we need this to center the text within its content block...
+            line-height: 1.5;
+        }
+        
+        .btn--like,
+        .btn--dislike {
+            display: flex;
+            gap: .75rem;
+        }
+    }
+}
+
+.card--thread-options {
+    display: grid;
+    grid: "credits badge" 1fr
+          "btn-share btn-share" 1fr
+          "btn-buy btn-sell" 1fr
+          / 1fr 1fr;
+    place-items: center;
+    gap: 1.5rem .75rem;
+    
+    @media screen and (max-width: base_variables.$breakpoint-lg) {
+        position: absolute;
+        right: 1rem;
+        bottom: -8.5rem;
+    }
+    
+    @media screen and (max-width: base_variables.$breakpoint-md-sm) {
+        position: static;
+    }
+    
+    .credit-cost {
+        grid-area: credits;
+        font-size: 1.25rem;
+    }
+    
+    .badge--growth {
+        grid-area: badge;
+        position: relative; // position relative for nested absolute .icon-wrapper
+        
+        .icon-wrapper {
+            position: absolute; // automatically positioned in the top left
+            width: 2rem;
+            // [?] Unknown: interesting: removing place-items for the card causes the stretch value default to make height look to the card itself instead of the container?
+            height: 100%;
+            border-radius: 0.375rem;
+            background: #0B6F1A;
+            
+            // [?] Unknown: why does grid w/ place-items not work here?
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            .icon--growth {
+                fill: #2CC944;
+                width: 1rem;
+            }
+        }
+        
+        .growth-amount {
+            width: fit-content;
+            padding: 0 0.75rem 0 2.5rem;
+            background: #8DE29A;
+            color: #1D862D;
+            border-radius: 0.375rem;
+        }
+    }
+    
+    .btn--share {
+        grid-area: btn-share;
+        
+        // flex is less to think about compared to grid properties
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        
+        column-gap: 1.5rem;
+        padding: .25rem .75rem .25rem 1rem;
+        width: 100%;
+        border-radius: .75rem;
+        background: #E0E0E0;
+        border: 1px solid rgb(14 17 27 / 16%);
+        
+        transition: .2s scale ease-out;
+        &:hover {
+            scale: 1.05;
+        }
+    }
+    
+    .btn--buy {
+        grid-area: btn-buy;
+
+        color: #ECEDEE; // orangish white
+        background: base_variables.$color-orange;
+        
+        border-radius: 1rem;
+        padding: .5rem 2.5rem;
+        
+        transition: .2s background-color;
+        &:hover {
+            background: hsl(from base_variables.$color-orange h s calc(l - 4));
+        }
+    }
+    
+    .btn--sell {
+        grid-area: btn-sell;
+        
+        --bg-color: hsl(8, 89%, 42%);
+        
+        color: #ECEDEE; // red-ish white
+        background: var(--bg-color);
+        
+        border-radius: 1rem;
+        padding: .5rem 2.5rem;
+        
+        transition: .2s background-color;
+        &:hover {
+            background: hsl(from var(--bg-color) h s calc(l - 4));
+        }
+    }
+}

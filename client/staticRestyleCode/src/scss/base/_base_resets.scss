@@ -1,0 +1,112 @@
+@use "base_variables";
+
+*, ::before, ::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+}
+
+body {
+    // Elements will inherit their color from the body:
+    color: base_variables.$color-black;
+    background: base_variables.$color-white;
+    
+    // Certain elements like <input>s have a user-agent defined `font-family`.
+    // Elements like <h1-6> have a user-agent defined font-weight.
+    // Override these browser defaults, as well as the browser default color.
+    * {
+        font-weight: 500;
+        font-family: "Rubik";
+        color: inherit; // <a>nchors use purple by default. We would like the body's color property instead.
+    }
+
+    display: grid;
+    // I'm not sure why `grid: ... / max-content auto;` results in odd behavior if <main> has no children...
+    grid:
+        "header header" auto
+        "sidebar main" 1fr
+        / max-content 1fr;
+
+    // Allow <aside> sidebar & <main>'s grid tracks to fill the whole screen.
+    // We expect the page to be no larger than the viewport (unless the <aside> on small screen sizes is toggled)
+    // The tracks will stretch due to the default `place-contents` constituent values.
+    height: 100vh;
+        
+    > header {
+        grid-area: header;
+    }
+    > aside {
+        grid-area: sidebar;
+    }
+    > main {
+        grid-area: main;
+    }
+    
+    // At very small screen sizes, hide the sidebar in favor of a hamburger menu toggle button defined in base_components.
+    @media screen and (max-width: base_variables.$breakpoint-xsm) {
+        // The following code makes no visual difference since tracks that contain an absolute child
+        //  .. (the <aside> at small screen sizes which will toggle open to cover the screen) will have no length along the grid-auto-flow direction.
+        // (there is length along the block axis since tracks stretch, just not along the inline (row) axis).
+        // This makes it explicitly clear however what we are doing with the grid:
+        grid:
+            "header header" auto
+            "main main" 1fr
+            / max-content 1fr;
+    }
+}
+
+html {
+    // A scrollbar may appear at very small screen sizes which will scroll the absolute <aside> sidebar:
+    scrollbar-color: hsl(from base_variables.$color-orange h s calc(l - 32)) transparent;
+    
+    // [?] Unknown answer:
+    // Why does the HTML scroll instead of the body?
+    // thoughts:
+    // i guess the body fits to its contents so there's no overflow?
+    // the html is limited by the viewport size maybe?
+    // the aside overflows the body, which is 100% of the viewport height for some reason.
+}
+
+main {
+    height: 100%; // inherit <body>'s height
+    // [?] Unknown answer: I don't fully understand the relationship between a parent/child's overflow properties.
+    overflow: hidden; // Hide content that overflows the y axis in favor of a scrollbar shown by .scrollable-container
+}
+
+.scrollable-container {
+    height: 100%;// inherit <main>'s height
+    overflow-y: auto; // Show a scrollbar if the content overflows
+    scrollbar-color: hsl(from base_variables.$color-orange h s calc(l - 32)) transparent;
+    
+    padding: 4rem 3rem;
+}
+
+h1 {
+    font-size: 2.25rem;
+    font-weight: 500;
+}
+
+a {
+    text-decoration: none;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+}
+
+// Ideally, icons should each be specific in their dimensions according to the design
+// This selector ensures the rule won't match nested <svg>s included with <use>
+*:not(svg) > svg.icon {
+    // For now, just deviate from the design and keep icons uniform in size:
+    width: 1.5rem;
+    height: 1.5rem;
+    
+    // Not supported on Firefox unfortunately...
+    // width: attr(data-width px);
+    // height: attr(data-height px);
+    
+    /* Warning: disables event emission for the svg */
+    pointer-events: none; // don't display <svg> <title>s on hover
+}
