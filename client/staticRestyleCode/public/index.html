@@ -32,6 +32,8 @@
                         <label for="btn--toggle-sidebar" class="sr-only">Toggle side-bar</label>
                         <button id="btn--toggle-sidebar"
                                 type="button"
+                                popover="manual"
+                                popovertarget="sidebar"
                                 aria-controls="sidebar"
                                 aria-expanded="false">
                         </button>
@@ -96,6 +98,7 @@
                     <p class="username">
                         <a class="underline-hover underline-hover--orange text-orange" href="#">Yusuken64</a>
                     </p>
+                    <!-- This element is not displayed if the screen size is LTE an extra-small breakpoint value. -->
                     <p class="credits">
                         <a class="underline-hover" href="#">3000 credits</a>
                     </p>
@@ -225,6 +228,18 @@
                 </li>
         </ul>
     </aside>
+    
+    <!--
+        On mobile, we want a dialog for ultimate accessibility.
+        We get a lot of a11y functionality for free via a dialog:
+        
+        * "When closing the mobile menu, the user should still be in the header with their focus returned to the button that triggered it, not anywhere else on the page."
+        * "Allow the mobile nav to close with the escape key."
+        * "Once you have opened the menu with a keyboard, hitting the Tab key takes you to the first item in the menu, not the somewhere on the page behind the menu."
+        (https://theadminbar.com/accessibility-weekly/mobile-nav-and-hamburger-menus/)
+        
+        We can make a visually hidden "Close" button within the modal that appears when focused for a nice balance between aesthetics and a11y.
+    -->
     
     <!-- Main content -->
     <main>   

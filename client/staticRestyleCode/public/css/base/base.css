@@ -133,18 +133,6 @@ button {
   height: 100%;
 }
 
-@media screen and (min-width: 66rem) {
-  .hide-when-gte-md {
-    display: none;
-  }
-}
-
-@media screen and (max-width: 48rem) {
-  .hide-when-lte-xsm {
-    display: none;
-  }
-}
-
 /*===
 Navbar Header
 ==== */
