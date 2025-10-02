@@ -4,11 +4,11 @@
 Navbar Header
 ==== */
 
-// We have this complex selector since we need to check if the hamburger menu toggle button (a checkbox <input>)
-//  ... has been checked by the user. Then we need to display the sidebar if toggled.
+// We have this complex selector since we need to check if the hamburger menu toggle button
+//  ... has been pressed by the user. Then we need to toggle the sidebar accordingly.
 // These have a common ancestor of the <body>, so to access both we must structure it like so,
 //  ... as we can't traverse upwards from a node in CSS.
-body:has(.nav-list #btn--toggle-sidebar:checked) {
+body:has(.nav-list #btn--toggle-sidebar[aria-expanded="true"]) {
     > #sidebar {
         display: block;
         
@@ -263,6 +263,8 @@ body:has(.nav-list #btn--toggle-sidebar:checked) {
             display: grid;
             place-items: center; // Center the psuedo-element icon
             
+            // Warning: on initial appearance this will not appear until the client loads it.
+            // We can preload this by moving the icons to the HTML.
             &::after {
                 content: url("../../assets/svg/hamburger-icon.svg")
                         / "An icon of three horizontal lines which represent a textured hamburger menu icon.";
@@ -273,7 +275,7 @@ body:has(.nav-list #btn--toggle-sidebar:checked) {
                 
             }
             
-            &:checked {
+            &[aria-expanded="true"] {
                 &::after {
                     content: url("../../assets/svg/close-icon.svg")
                         / "A letter X representing a close icon.";
@@ -311,10 +313,9 @@ body:has(.nav-list #btn--toggle-sidebar:checked) {
             grid-area: username;
             align-self: end; // Place at the bottom of the grid area's block axis
             
-            // Retain a11y ux but hide the username visually at LTE $breakpoint-md
+            // LTE $breakpoint-md
             @media screen and (max-width: base_variables.$breakpoint-md) {
-                position: absolute;
-                left: -200vw;
+                display: none;
             }
         }
 
@@ -322,15 +323,15 @@ body:has(.nav-list #btn--toggle-sidebar:checked) {
         .credits {
             position: relative;
             
-            // Retain a11y ux but hide the header credits visually at LTE $breakpoint-md, since the sidebar displays them at this screen width
+            // LTE $breakpoint-md: hide credits in header since the sidebar displays them at this screen width
             @media screen and (max-width: base_variables.$breakpoint-md) {
-                position: absolute;
-                left: -200vw;
+                display: none;
             }
             
             // Display credit count at LTE $breakpoint-xsm as per client user story.
             // Give it some re-styling for better effect
             @media screen and (max-width: base_variables.$breakpoint-xsm) {
+                display: block;
                 position: static;
                 
                 width: fit-content;
@@ -485,6 +486,20 @@ Sidebar
 
         .navlist-item:nth-child(n+2) {
             margin-top: 2rem; // Spacing between nav links. We could opt for a flex <ul>, but that is too many nested flexboxes imo for a small feature like this.
+        }
+        
+        .account-info-item {
+            // GTE $breakpoint-md
+            @media screen and (min-width: base_variables.$breakpoint-md) {
+                display: none;
+            }
+            
+            // LTE $breakpoint-xsm
+            .credits {
+                @media screen and (max-width: base_variables.$breakpoint-xsm) {
+                    display: none;
+                }
+            }
         }
     }
 

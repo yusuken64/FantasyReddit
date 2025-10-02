@@ -8,14 +8,9 @@
 body {
   color: hsl(278, 18%, 9%);
   background: hsl(220, 7%, 92%);
+  height: 100vh;
   display: grid;
   grid: "header header" auto "sidebar main" 1fr/max-content 1fr;
-  height: 100vh;
-}
-body * {
-  font-weight: 500;
-  font-family: "Rubik";
-  color: inherit;
 }
 body > header {
   grid-area: header;
@@ -30,6 +25,11 @@ body > main {
   body {
     grid: "header header" auto "main main" 1fr/max-content 1fr;
   }
+}
+body * {
+  font-weight: 500;
+  font-family: "Rubik";
+  color: inherit;
 }
 
 html {
@@ -60,6 +60,13 @@ a {
 button {
   cursor: pointer;
   border: none;
+}
+
+.noscript p {
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(91, 91, 91, 0.16);
+  padding: 1rem;
+  border: 2px solid hsl(16, 99%, 46%);
 }
 
 *:not(svg) > svg.icon {
@@ -141,7 +148,7 @@ button {
 /*===
 Navbar Header
 ==== */
-body:has(.nav-list #btn--toggle-sidebar:checked) > #sidebar {
+body:has(.nav-list #btn--toggle-sidebar[aria-expanded=true]) > #sidebar {
   display: block;
   animation: 0.6s ease-in-out animate-sidebar 1 forwards;
 }
@@ -301,10 +308,10 @@ body:has(.nav-list #btn--toggle-sidebar:checked) > #sidebar {
   width: 52%;
   height: 1.2rem;
 }
-.nav-list #toggle-sidebar-form #btn--toggle-sidebar:checked {
+.nav-list #toggle-sidebar-form #btn--toggle-sidebar[aria-expanded=true] {
   background: rgb(232, 227, 227);
 }
-.nav-list #toggle-sidebar-form #btn--toggle-sidebar:checked::after {
+.nav-list #toggle-sidebar-form #btn--toggle-sidebar[aria-expanded=true]::after {
   content: url("../../assets/svg/close-icon.svg")/"A letter X representing a close icon.";
   width: 64%;
   height: 1.7rem;
@@ -333,8 +340,7 @@ body:has(.nav-list #btn--toggle-sidebar:checked) > #sidebar {
 }
 @media screen and (max-width: 66rem) {
   .nav-list .account-info-item .username {
-    position: absolute;
-    left: -200vw;
+    display: none;
   }
 }
 .nav-list .account-info-item .credits {
@@ -342,12 +348,12 @@ body:has(.nav-list #btn--toggle-sidebar:checked) > #sidebar {
 }
 @media screen and (max-width: 66rem) {
   .nav-list .account-info-item .credits {
-    position: absolute;
-    left: -200vw;
+    display: none;
   }
 }
 @media screen and (max-width: 48rem) {
   .nav-list .account-info-item .credits {
+    display: block;
     position: static;
     width: fit-content;
     justify-self: center;
@@ -454,6 +460,16 @@ Sidebar
 }
 #sidebar .sidebar-navlist .navlist-item:nth-child(n+2) {
   margin-top: 2rem;
+}
+@media screen and (min-width: 66rem) {
+  #sidebar .sidebar-navlist .account-info-item {
+    display: none;
+  }
+}
+@media screen and (max-width: 48rem) {
+  #sidebar .sidebar-navlist .account-info-item .credits {
+    display: none;
+  }
 }
 #sidebar .recent-thread-list {
   margin-top: 0.75rem;

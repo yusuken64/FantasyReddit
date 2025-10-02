@@ -30,13 +30,11 @@
                 <li class="nav-item toggle-sidebar-form-item">
                     <form id="toggle-sidebar-form">
                         <label for="btn--toggle-sidebar" class="sr-only">Toggle side-bar</label>
-                        <!--
-                            Offers toggle behavior via CSS instead of JS.
-                            Todo: make the aria HTML5 compliant and use best-practices
-                        -->
-                        <input id="btn--toggle-sidebar" type="checkbox"
-                               aria-controls="sidebar"
-                               aria-expanded="false">
+                        <button id="btn--toggle-sidebar"
+                                type="button"
+                                aria-controls="sidebar"
+                                aria-expanded="false">
+                        </button>
                     </form>
                 </li>
                 
@@ -80,6 +78,11 @@
                 </li>
             </ul>
         </nav>
+        
+        <!-- <noscript> is turned into a span on browsers, so we create a class to target in CSS -->
+        <noscript class="noscript">
+            <p>Please enable JavaScript for interactive functionality to work correctly.</p>
+        </noscript>
     </header>
     
     <!-- Sidebar navigation -->
@@ -89,11 +92,11 @@
             
             <ul class="sidebar-navlist">
                 <!-- This sidebar item is not displayed if the screen size is GTE a medium breakpoint value. -->
-                <li class="navlist-item hide-when-gte-md">
+                <li class="navlist-item account-info-item">
                     <p class="username">
                         <a class="underline-hover underline-hover--orange text-orange" href="#">Yusuken64</a>
                     </p>
-                    <p class="credits hide-when-lte-xsm">
+                    <p class="credits">
                         <a class="underline-hover" href="#">3000 credits</a>
                     </p>
                 </li>

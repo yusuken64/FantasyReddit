@@ -3,7 +3,7 @@ const sidebar = document.getElementById('sidebar');
 
 const animating = false;
 
-sidebarToggleButton.addEventListener('click', () => {
+sidebarToggleButton.addEventListener('click', (event) => {
     if (!animating) {
         const isSidebarToggled = sidebarToggleButton.getAttribute('aria-expanded');
     

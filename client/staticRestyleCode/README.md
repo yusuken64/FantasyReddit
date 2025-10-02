@@ -1,10 +1,10 @@
 ## staticRestyleCode
 
 A directory where I will upload the landing page once it's complete,
-... and where I will continue to work on the other pages of the website.
+.. and where I will continue to work on the other pages of the website.
 
-Pull requets & git logs will reveal what changes occur for you
-... to integrate via React.
+Pull requests & git logs will reveal what changes occur for you
+.. to integrate via React.
 
 ## Todo:
 

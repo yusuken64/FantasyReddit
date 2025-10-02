@@ -12,14 +12,10 @@ body {
     color: base_variables.$color-black;
     background: base_variables.$color-white;
     
-    // Certain elements like <input>s have a user-agent defined `font-family`.
-    // Elements like <h1-6> have a user-agent defined font-weight.
-    // Override these browser defaults, as well as the browser default color.
-    * {
-        font-weight: 500;
-        font-family: "Rubik";
-        color: inherit; // <a>nchors use purple by default. We would like the body's color property instead.
-    }
+    // Allow <aside> sidebar & <main>'s grid tracks to fill the whole screen.
+    // We expect the page to be no larger than the viewport (unless the <aside> on small screen sizes is toggled)
+    // The tracks will stretch due to the default `place-contents` constituent values.
+    height: 100vh;
 
     display: grid;
     // I'm not sure why `grid: ... / max-content auto;` results in odd behavior if <main> has no children...
@@ -27,11 +23,6 @@ body {
         "header header" auto
         "sidebar main" 1fr
         / max-content 1fr;
-
-    // Allow <aside> sidebar & <main>'s grid tracks to fill the whole screen.
-    // We expect the page to be no larger than the viewport (unless the <aside> on small screen sizes is toggled)
-    // The tracks will stretch due to the default `place-contents` constituent values.
-    height: 100vh;
         
     > header {
         grid-area: header;
@@ -53,6 +44,15 @@ body {
             "header header" auto
             "main main" 1fr
             / max-content 1fr;
+    }
+    
+    // Certain elements like <input>s have a user-agent defined `font-family`.
+    // Elements like <h1-6> have a user-agent defined font-weight.
+    // Override these browser defaults, as well as the browser default color.
+    * {
+        font-weight: 500;
+        font-family: "Rubik";
+        color: inherit; // <a>nchors use purple by default. We would like the body's color property instead.
     }
 }
 
@@ -94,6 +94,13 @@ a {
 button {
     cursor: pointer;
     border: none;
+}
+
+.noscript p {
+    text-align: center;
+    text-shadow: 0 1px 1px rgba(91, 91, 91, 0.16);
+	padding: 1rem;
+	border: 2px solid base_variables.$color-orange;
 }
 
 // Ideally, icons should each be specific in their dimensions according to the design
