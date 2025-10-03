@@ -8,21 +8,30 @@ Navbar Header
 //  ... has been pressed by the user. Then we need to toggle the sidebar accordingly.
 // These have a common ancestor of the <body>, so to access both we must structure it like so,
 //  ... as we can't traverse upwards from a node in CSS.
-body:has(.nav-list #btn--toggle-sidebar[aria-expanded="true"]) {
-    > #sidebar {
-        display: block;
+// body:has(.nav-list #btn--toggle-sidebar[aria-expanded="true"]) {
+//     > #sidebar {
+//         display: block;
         
-        animation: .6s ease-in-out animate-sidebar 1 forwards;
-    }
-}
+//         animation: .6s ease-in-out animate-sidebar 1 forwards;
+//     }
+// }
 
-// Le Animation
-@keyframes animate-sidebar {
+// Le Animations
+@keyframes open-sidebar {
     from {
         left: -100%;
     }
     to {
         left: 0;
+    }
+}
+
+@keyframes close-sidebar {
+    from {
+        left: 0;
+    }
+    to {
+        left: -100%;
     }
 }
 
@@ -419,11 +428,12 @@ Sidebar
 ==== */
 
 #sidebar {
+    border: none; // Remove default popover border
     height: 100%;
     width: min-content;
-    position: relative;
     padding: 4rem;
     padding-bottom: 2rem;
+    background: base_variables.$color-white;
 
     // LTE $breakpoint-xsm
     @media screen and (max-width: base_variables.$breakpoint-sm) {
@@ -432,18 +442,33 @@ Sidebar
         height: fit-content;
         min-height: 100%; // we could optimize this by putting it into the #sidebar with no media query, but this makes more sense to read
     }
-              
+    
+    // GT $breakpoint-xsm
+    @media screen and (min-width: calc(base_variables.$breakpoint-xsm + 1px)) {
+        // Restore <aside> visibility by overriding user agent popover styling
+        position: relative; // absolute ::after will position relative to #sidebar
+        display: block;
+    }
+    
     // LTE $breakpoint-xsm
     @media screen and (max-width: base_variables.$breakpoint-xsm) {
-        display: none;
-        
+        // Popover is hidden by default
         position: absolute;
         z-index: 1; // draw stacking context over-top main content
         
         top: 15.5rem; // size of header box at this screen size
         width: 100%; // fill screen width
         
-        background: base_variables.$color-white;
+        // this will break on firefox since the browser disabled allow-discrete for display due to a bug
+        // Switch to `display: none;` (controlled by hidePopover()) after animation ends
+        transition: .7s display allow-discrete;
+        
+        // Animate in
+        animation: .6s ease-in-out open-sidebar 1 forwards;
+        
+        &.closing {
+            animation: .6s ease-in-out close-sidebar 1 forwards;
+        }
     }
     
     // LTE $breakpoint-xsm

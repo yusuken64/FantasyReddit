@@ -2,36 +2,42 @@ const sidebarToggleButton = document.getElementById('btn--toggle-sidebar');
 const sidebar = document.getElementById('sidebar');
 
 // Debounce
-const animating = false;
+let isAnimating = false;
 
 sidebarToggleButton.addEventListener('click', (event) => {
-    if (!animating) {
-        animating = true;
+    if (!isAnimating) {
+        isAnimating = true;
         
-        const isSidebarToggled = sidebarToggleButton.getAttribute('aria-expanded');
+        const initialIsSidebarToggled = sidebarToggleButton.getAttribute('aria-expanded');
     
         // User tampered with the aria-expanded value.
-        if (isSidebarToggled != 'true' && isSidebarToggled != 'false') {
-            throw new Error(`Invalid aria-expanded value provided: '${isSidebarToggled}'.`)
+        if (initialIsSidebarToggled != 'true' && initialIsSidebarToggled != 'false') {
+            throw new Error(`Invalid aria-expanded value provided: '${initialIsSidebarToggled}'.`)
         }
         
-        const negatedIsSidebarToggled = isSidebarToggled == 'false' ? 'true' : 'false';
+        // firstIsSidebarToggled is a string, so we must use this logic to negate it,
+        // ... as Boolean(non_empty_string) results in true
+        const newIsSidebarToggled = initialIsSidebarToggled == 'false' ? 'true' : 'false';
         
-        if (negatedIsSidebarToggled) {
-            mobileSidebar.showPopover(); // popover, as I like this behavior compared to trapping focus.
-        }
-        
-        // Trigger close animation to occur (currently not implemented yet)
+        // Will also trigger a close animation to occur (currently not implemented yet in the CSS)
         sidebarToggleButton.setAttribute(
             'aria-expanded',
-            negatedIsSidebarToggled
+            newIsSidebarToggled
         );
         
+        if (newIsSidebarToggled == 'false') {
+            // Play closing animation
+            sidebar.classList.add('closing');
+        }
+        
         // Wait for current animation to finish
-        sidebarToggleButton.addEventListener('animationend', () => {
-            animating = false;
+        sidebar.addEventListener('animationend', () => {
+            // If user toggled to close, cleanup class after close animation completes.
+            if (newIsSidebarToggled == 'false') {
+                sidebar.classList.remove('closing');
+            }
             
-            mobileSidebar.hidePopover();
+            isAnimating = false;
         });
     }
 });

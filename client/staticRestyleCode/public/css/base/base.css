@@ -136,17 +136,20 @@ button {
 /*===
 Navbar Header
 ==== */
-body:has(.nav-list #btn--toggle-sidebar[aria-expanded=true]) > #sidebar {
-  display: block;
-  animation: 0.6s ease-in-out animate-sidebar 1 forwards;
-}
-
-@keyframes animate-sidebar {
+@keyframes open-sidebar {
   from {
     left: -100%;
   }
   to {
     left: 0;
+  }
+}
+@keyframes close-sidebar {
+  from {
+    left: 0;
+  }
+  to {
+    left: -100%;
   }
 }
 .nav-list {
@@ -396,11 +399,12 @@ body:has(.nav-list #btn--toggle-sidebar[aria-expanded=true]) > #sidebar {
 Sidebar
 ==== */
 #sidebar {
+  border: none;
   height: 100%;
   width: min-content;
-  position: relative;
   padding: 4rem;
   padding-bottom: 2rem;
+  background: hsl(220, 7%, 92%);
 }
 @media screen and (max-width: 54rem) {
   #sidebar {
@@ -408,14 +412,23 @@ Sidebar
     min-height: 100%;
   }
 }
+@media screen and (min-width: calc(48rem + 1px)) {
+  #sidebar {
+    position: relative;
+    display: block;
+  }
+}
 @media screen and (max-width: 48rem) {
   #sidebar {
-    display: none;
     position: absolute;
     z-index: 1;
     top: 15.5rem;
     width: 100%;
-    background: hsl(220, 7%, 92%);
+    transition: 0.7s display allow-discrete;
+    animation: 0.6s ease-in-out open-sidebar 1 forwards;
+  }
+  #sidebar.closing {
+    animation: 0.6s ease-in-out close-sidebar 1 forwards;
   }
 }
 @media screen and (max-width: 32rem) {

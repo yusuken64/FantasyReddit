@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="./css/base/base.css">
     <link rel="stylesheet" href="./css/index/index.css">
     
+    <link rel="icon" href="../favicon.ico">
+    
     <script defer src="./js/btn--toggle-sidebar.js"></script>
 
     <title>Landing Page - FantasyReddit</title>
@@ -30,11 +32,12 @@
                 <li class="nav-item toggle-sidebar-form-item">
                     <form id="toggle-sidebar-form">
                         <label for="btn--toggle-sidebar" class="sr-only">Toggle side-bar</label>
+                        
+                        <!-- popoverTargetAction="toggle" by default -->
                         <button id="btn--toggle-sidebar"
                                 type="button"
-                                popover="manual"
                                 popovertarget="sidebar"
-                                aria-controls="sidebar"
+                                aria-cntrools="sidebar"
                                 aria-expanded="false">
                         </button>
                     </form>
@@ -88,7 +91,7 @@
     </header>
     
     <!-- Sidebar navigation -->
-    <aside id="sidebar">
+    <aside id="sidebar" popover="manual">
         <nav>
             <h2 class="sr-only">Navigation:</h2>
             
