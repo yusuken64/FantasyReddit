@@ -136,22 +136,6 @@ button {
 /*===
 Navbar Header
 ==== */
-@keyframes open-sidebar {
-  from {
-    left: -100%;
-  }
-  to {
-    left: 0;
-  }
-}
-@keyframes close-sidebar {
-  from {
-    left: 0;
-  }
-  to {
-    left: -100%;
-  }
-}
 .nav-list {
   padding: 1.25rem 4rem;
   position: relative;
@@ -396,6 +380,25 @@ Navbar Header
 }
 
 /*===
+Sidebar keyframes
+==== */
+@keyframes open-sidebar {
+  from {
+    left: -100%;
+  }
+  to {
+    left: 0;
+  }
+}
+@keyframes close-sidebar {
+  from {
+    left: 0;
+  }
+  to {
+    left: -100%;
+  }
+}
+/*===
 Sidebar
 ==== */
 #sidebar {
@@ -405,6 +408,7 @@ Sidebar
   padding: 4rem;
   padding-bottom: 2rem;
   background: hsl(220, 7%, 92%);
+  position: relative;
 }
 @media screen and (max-width: 54rem) {
   #sidebar {
@@ -414,7 +418,6 @@ Sidebar
 }
 @media screen and (min-width: calc(48rem + 1px)) {
   #sidebar {
-    position: relative;
     display: block;
   }
 }
@@ -424,11 +427,24 @@ Sidebar
     z-index: 1;
     top: 15.5rem;
     width: 100%;
-    transition: 0.7s display allow-discrete;
+  }
+  #sidebar.opening {
     animation: 0.6s ease-in-out open-sidebar 1 forwards;
   }
+}
+@media screen and (max-width: 48rem) and (prefers-reduced-motion) {
+  #sidebar.opening {
+    animation-duration: 0s;
+  }
+}
+@media screen and (max-width: 48rem) {
   #sidebar.closing {
     animation: 0.6s ease-in-out close-sidebar 1 forwards;
+  }
+}
+@media screen and (max-width: 48rem) and (prefers-reduced-motion) {
+  #sidebar.closing {
+    animation-duration: 0s;
   }
 }
 @media screen and (max-width: 32rem) {
@@ -444,6 +460,11 @@ Sidebar
   height: 100%;
   width: 2px;
   background: linear-gradient(180deg, rgba(156, 160, 170, 0.064) 0%, rgba(156, 160, 170, 0.128) 16%, rgba(156, 160, 170, 0.2) 32%, rgba(222, 135, 104, 0.128) 48%, rgba(222, 135, 104, 0.128) 64%, rgba(156, 160, 170, 0.064) 80%);
+}
+@media screen and (max-width: 48rem) {
+  #sidebar::after {
+    background: linear-gradient(180deg, rgba(156, 160, 170, 0.64) 0%, rgba(156, 160, 170, 0.32) 16%, rgba(156, 160, 170, 0.32) 32%, rgba(222, 135, 104, 0.32) 48%, rgba(222, 135, 104, 0.32) 64%, rgba(156, 160, 170, 0.64) 80%);
+  }
 }
 #sidebar .sidebar-navlist {
   margin-bottom: 4.75rem;

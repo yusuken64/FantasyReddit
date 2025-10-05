@@ -4,37 +4,6 @@
 Navbar Header
 ==== */
 
-// We have this complex selector since we need to check if the hamburger menu toggle button
-//  ... has been pressed by the user. Then we need to toggle the sidebar accordingly.
-// These have a common ancestor of the <body>, so to access both we must structure it like so,
-//  ... as we can't traverse upwards from a node in CSS.
-// body:has(.nav-list #btn--toggle-sidebar[aria-expanded="true"]) {
-//     > #sidebar {
-//         display: block;
-        
-//         animation: .6s ease-in-out animate-sidebar 1 forwards;
-//     }
-// }
-
-// Le Animations
-@keyframes open-sidebar {
-    from {
-        left: -100%;
-    }
-    to {
-        left: 0;
-    }
-}
-
-@keyframes close-sidebar {
-    from {
-        left: 0;
-    }
-    to {
-        left: -100%;
-    }
-}
-
 // Navbar's <ul> of <li>s:
 .nav-list {
     padding: 1.25rem 4rem;
@@ -424,6 +393,28 @@ Navbar Header
 }
 
 /*===
+Sidebar keyframes
+==== */
+
+@keyframes open-sidebar {
+    from {
+        left: -100%;
+    }
+    to {
+        left: 0;
+    }
+}
+
+@keyframes close-sidebar {
+    from {
+        left: 0;
+    }
+    to {
+        left: -100%;
+    }
+}
+
+/*===
 Sidebar
 ==== */
 
@@ -434,7 +425,8 @@ Sidebar
     padding: 4rem;
     padding-bottom: 2rem;
     background: base_variables.$color-white;
-
+    position: relative; // absolute ::after will position relative to #sidebar
+    
     // LTE $breakpoint-xsm
     @media screen and (max-width: base_variables.$breakpoint-sm) {
         // 100% of the screen height might be too small and cause contents to overflow the content box, which makes it look like there's no padding
@@ -446,8 +438,16 @@ Sidebar
     // GT $breakpoint-xsm
     @media screen and (min-width: calc(base_variables.$breakpoint-xsm + 1px)) {
         // Restore <aside> visibility by overriding user agent popover styling
-        position: relative; // absolute ::after will position relative to #sidebar
         display: block;
+        
+        // Note:
+        // If in the user's browser they make the window mobile size, then toggle the sidebar popover,
+        // then make the browser window desktop size, the sidebar will lay itself out according to the free
+        // space in the top-layer (thus has access to 100% of screen height).
+        // We cannot force a popover in this opened state to lay itself out relative to anywhere but the top-layer,
+        // as "The top layer is managed entirely by the user agent; it cannot be directly manipulated by authors."
+        // (https://drafts.csswg.org/css-position-4/#top-layer)
+        // We'd need to take the element out of the top-layer in order to lay it out in its original grid area.
     }
     
     // LTE $breakpoint-xsm
@@ -459,15 +459,20 @@ Sidebar
         top: 15.5rem; // size of header box at this screen size
         width: 100%; // fill screen width
         
-        // this will break on firefox since the browser disabled allow-discrete for display due to a bug
-        // Switch to `display: none;` (controlled by hidePopover()) after animation ends
-        transition: .7s display allow-discrete;
-        
-        // Animate in
-        animation: .6s ease-in-out open-sidebar 1 forwards;
-        
+        // We don't put the open animation property on the sidebar itself,
+        // ... as if we were to remove the closing class the open animation will trigger again.
+        // So we use a .closing and a .opening class.
+        &.opening {
+            animation: .6s ease-in-out open-sidebar 1 forwards;
+            @media (prefers-reduced-motion) {
+                animation-duration: 0s;
+            }
+        }
         &.closing {
             animation: .6s ease-in-out close-sidebar 1 forwards;
+            @media (prefers-reduced-motion) {
+                animation-duration: 0s;
+            }
         }
     }
     
@@ -488,6 +493,12 @@ Sidebar
         width: 2px;
 
         background: linear-gradient(180deg, rgba(156, 160, 170, 0.064) 0%, rgba(156, 160, 170, 0.128) 16%, rgba(156, 160, 170, 0.2) 32%, rgba(222, 135, 104, 0.128) 48%, rgba(222, 135, 104, 0.128) 64%, rgba(156, 160, 170, 0.064) 80%);
+        
+        // LTE $breakpoint-xsm
+        @media screen and (max-width: base_variables.$breakpoint-xsm) {
+            // More contrast looks better on mobile
+            background: linear-gradient(180deg, rgba(156, 160, 170, 0.64) 0%, rgba(156, 160, 170, 0.32) 16%, rgba(156, 160, 170, 0.32) 32%, rgba(222, 135, 104, 0.32) 48%, rgba(222, 135, 104, 0.32) 64%, rgba(156, 160, 170, 0.64) 80%);
+        }
     }
 
     .sidebar-navlist {
