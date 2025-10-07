@@ -33,7 +33,7 @@ body * {
 }
 
 html {
-  scrollbar-color: hsl(from hsl(16, 99%, 46%) h s calc(l - 32)) transparent;
+  scrollbar-color: #873213 transparent;
 }
 
 main {
@@ -44,7 +44,7 @@ main {
 .scrollable-container {
   height: 100%;
   overflow-y: auto;
-  scrollbar-color: hsl(from hsl(16, 99%, 46%) h s calc(l - 32)) transparent;
+  scrollbar-color: #ab4520 transparent;
   padding: 4rem 3rem;
 }
 
@@ -136,6 +136,10 @@ button {
 /*===
 Navbar Header
 ==== */
+#page-header {
+  anchor-name: --page-header;
+}
+
 .nav-list {
   padding: 1.25rem 4rem;
   position: relative;
@@ -398,6 +402,22 @@ Sidebar keyframes
     left: -100%;
   }
 }
+@keyframes close-sidebar-mobile {
+  from {
+    left: 0;
+  }
+  to {
+    left: -200%;
+  }
+}
+@keyframes open-sidebar-mobile {
+  from {
+    left: -200%;
+  }
+  to {
+    left: 0;
+  }
+}
 /*===
 Sidebar
 ==== */
@@ -405,8 +425,7 @@ Sidebar
   border: none;
   height: 100%;
   width: min-content;
-  padding: 4rem;
-  padding-bottom: 2rem;
+  padding: 2rem 4rem;
   background: hsl(220, 7%, 92%);
   position: relative;
 }
@@ -428,8 +447,20 @@ Sidebar
     top: 15.5rem;
     width: 100%;
   }
+  @supports (position-anchor: --page-header) {
+    #sidebar {
+      top: 0;
+      position-anchor: --page-header;
+      position-area: center block-end;
+    }
+  }
   #sidebar.opening {
     animation: 0.6s ease-in-out open-sidebar 1 forwards;
+  }
+  @supports (position-anchor: --page-header) {
+    #sidebar.opening {
+      animation: 0.6s ease-in-out open-sidebar-mobile 1 forwards;
+    }
   }
 }
 @media screen and (max-width: 48rem) and (prefers-reduced-motion) {
@@ -441,6 +472,11 @@ Sidebar
   #sidebar.closing {
     animation: 0.6s ease-in-out close-sidebar 1 forwards;
   }
+  @supports (position-anchor: --page-header) {
+    #sidebar.closing {
+      animation: 0.6s ease-in-out close-sidebar-mobile 1 forwards;
+    }
+  }
 }
 @media screen and (max-width: 48rem) and (prefers-reduced-motion) {
   #sidebar.closing {
@@ -450,6 +486,11 @@ Sidebar
 @media screen and (max-width: 32rem) {
   #sidebar {
     top: 17.5rem;
+  }
+  @supports (position-anchor: --page-header) {
+    #sidebar {
+      top: 0;
+    }
   }
 }
 #sidebar::after {
@@ -502,6 +543,11 @@ Sidebar
   overflow-y: auto;
   scrollbar-color: hsl(278, 18%, 9%) transparent;
   scrollbar-width: thin;
+}
+@media screen and (max-width: 66rem) {
+  #sidebar .recent-thread-list {
+    height: 11rem;
+  }
 }
 @media screen and (max-width: 54rem) {
   #sidebar .recent-thread-list {

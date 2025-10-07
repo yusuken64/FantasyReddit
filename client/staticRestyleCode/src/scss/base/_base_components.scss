@@ -4,6 +4,11 @@
 Navbar Header
 ==== */
 
+#page-header {
+    // Sidebar will anchor position underneath header if supported on the user's browser
+    anchor-name: --page-header;
+}
+
 // Navbar's <ul> of <li>s:
 .nav-list {
     padding: 1.25rem 4rem;
@@ -396,6 +401,10 @@ Navbar Header
 Sidebar keyframes
 ==== */
 
+// [?] Unknown: Anchor positioning affects what position the `left` property is relative to.
+// When an element has a centered anchor-area position,
+// ... left is relative to the anchor point.
+// So -50% will make the sidebar 
 @keyframes open-sidebar {
     from {
         left: -100%;
@@ -414,6 +423,24 @@ Sidebar keyframes
     }
 }
 
+@keyframes close-sidebar-mobile {
+    from {
+        left: 0;
+    }
+    to {
+        left: -200%;
+    }
+}
+
+@keyframes open-sidebar-mobile {
+    from {
+        left: -200%;
+    }
+    to {
+        left: 0;
+    }
+}
+
 /*===
 Sidebar
 ==== */
@@ -422,8 +449,7 @@ Sidebar
     border: none; // Remove default popover border
     height: 100%;
     width: min-content;
-    padding: 4rem;
-    padding-bottom: 2rem;
+    padding: 2rem 4rem;
     background: base_variables.$color-white;
     position: relative; // absolute ::after will position relative to #sidebar
     
@@ -459,17 +485,35 @@ Sidebar
         top: 15.5rem; // size of header box at this screen size
         width: 100%; // fill screen width
         
+        @supports (position-anchor: --page-header) {
+            top: 0;
+            position-anchor: --page-header;
+            // [?] Unknown: Research more on how this works
+            // top: anchor(--page-header block-end);
+            position-area: center block-end;
+        }
+        
         // We don't put the open animation property on the sidebar itself,
         // ... as if we were to remove the closing class the open animation will trigger again.
         // So we use a .closing and a .opening class.
         &.opening {
+            // [?] Unknown: Why does the left property act differently when the element it
+            // ... acts upon is anchored? To research...
             animation: .6s ease-in-out open-sidebar 1 forwards;
+            @supports (position-anchor: --page-header) {
+                animation: .6s ease-in-out open-sidebar-mobile 1 forwards; // quick fix
+            }
+            
             @media (prefers-reduced-motion) {
                 animation-duration: 0s;
             }
         }
         &.closing {
             animation: .6s ease-in-out close-sidebar 1 forwards;
+            @supports (position-anchor: --page-header) {
+                animation: .6s ease-in-out close-sidebar-mobile 1 forwards;
+            }
+            
             @media (prefers-reduced-motion) {
                 animation-duration: 0s;
             }
@@ -479,6 +523,10 @@ Sidebar
     // LTE $breakpoint-xsm
     @media screen and (max-width: base_variables.$breakpoint-xxsm) {
         top: 17.5rem; // size of header box at this screen size
+        
+        @supports (position-anchor: --page-header) {
+            top: 0;
+        }
     }
     
     // Make a fake border-right so that we can give it a linear gradient
@@ -545,13 +593,18 @@ Sidebar
         width: max-content; // make links take up size that they need, instead of 100%.
         
         // Fixed size to allow scrolling for overflow
-        height: 14.75rem;
+        height: 14.75rem; // show 4 entries
         
         // Scrollbar properties
         scrollbar-gutter: auto;
         overflow-y: auto;
         scrollbar-color: base_variables.$color-black transparent;
         scrollbar-width: thin;    
+        
+        
+        @media screen and (max-width: base_variables.$breakpoint-md) {
+            height: 11rem;; // show 3 entries
+        }
         
         @media screen and (max-width: base_variables.$breakpoint-sm) {
             // No more overflow; expand to infinity (not that we should show that much history)

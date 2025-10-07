@@ -58,7 +58,7 @@ body {
 
 html {
     // A scrollbar may appear at very small screen sizes which will scroll the absolute <aside> sidebar:
-    scrollbar-color: hsl(from base_variables.$color-orange h s calc(l - 32)) transparent;
+    scrollbar-color: #873213 transparent;
     
     // [?] Unknown answer:
     // Why does the HTML scroll instead of the body?
@@ -77,7 +77,7 @@ main {
 .scrollable-container {
     height: 100%;// inherit <main>'s height
     overflow-y: auto; // Show a scrollbar if the content overflows
-    scrollbar-color: hsl(from base_variables.$color-orange h s calc(l - 32)) transparent;
+    scrollbar-color: #ab4520 transparent;
     
     padding: 4rem 3rem;
 }
