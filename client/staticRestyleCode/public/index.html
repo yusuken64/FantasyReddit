@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="./css/base/base.css">
+    <link rel="stylesheet" href="./css/index/index.css">
+    
+    <link rel="icon" href="../favicon.ico">
+    
+    <script defer src="./js/btn--toggle-sidebar.js"></script>
+
+    <title>Landing Page - FantasyReddit</title>
+</head>
+
+<body>
+    <!-- Header -->
+    <header id="page-header">
+        <nav>
+            <ul class="nav-list">
+                <li class="nav-item logo-item">
+                    <h1>
+                        <a class="underline-hover" href="#">
+                            <span>Fantasy</span><span class="text-orange">Reddit</span>
+                        </a>
+                    </h1>
+                </li>
+                
+                <li class="nav-item toggle-sidebar-form-item">
+                    <form id="toggle-sidebar-form">
+                        <label for="btn--toggle-sidebar" class="sr-only">Toggle side-bar</label>
+                        
+                        <!-- popoverTargetAction="toggle" by default -->
+                        <button id="btn--toggle-sidebar"
+                                type="button"
+                                aria-controls="sidebar"
+                                aria-expanded="false">
+                        </button>
+                    </form>
+                </li>
+                
+                <!-- Not sure that this is the best BEM naming, but it'll do. -->
+                <li class="nav-item search-item">                    
+                    <form id="search-form" action="#" method="GET">
+                        <div class="icon-field-wrapper">
+                            <svg class="field-icon" viewBox="0 0 27 24">
+                                <title>A magnifying glass icon</title>
+                                <use href="./assets/svg/magnification-list-icon.svg#magnification-list-icon"></use>
+                            </svg>
+                            
+                            <input id="search-field" type="text" placeholder="Search for threads" name="search-query">
+                        </div>
+                    </form>
+                </li>
+                
+                <li class="nav-item account-info-item">
+                    <p class="username">
+                        <a class="underline-hover underline-hover--orange text-orange" href="#">Yusuken64</a>
+                    </p>
+                    <p class="credits">
+                        <a class="underline-hover" href="#">
+                            <!--
+                                When the user hovers this, we could do an animation that shows the amount in their localized currency.
+                                Not sure how to make it accessible. It requires JS for sure, and some smart use of overflow.
+                            -->
+                            <span class="credit-amount">3000 credits</span>
+                        </a>
+                    </p>
+
+                    <button class="btn btn--options">
+                        <span class="sr-only">Account Settings</span>
+
+                        <!-- Note: Firefox requires an ID fragement. -->
+                        <svg viewBox="0 0 28 28">
+                            <title>A cog icon</title>
+                            <use href="./assets/svg/cog-icon.svg#cog-icon"></use>
+                        </svg>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- <noscript> is turned into a span on browsers, so we create a class to target in CSS -->
+        <noscript class="noscript">
+            <p>Please enable JavaScript for interactive functionality to work correctly.</p>
+        </noscript>
+    </header>
+    
+    <!-- Sidebar navigation -->
+    <aside id="sidebar" popover="manual">
+        <nav>
+            <h2 class="sr-only">Navigation:</h2>
+            
+            <ul class="sidebar-navlist">
+                <!-- This sidebar item is not displayed if the screen size is GTE a medium breakpoint value. -->
+                <li class="navlist-item account-info-item">
+                    <p class="username">
+                        <a class="underline-hover underline-hover--orange text-orange" href="#">Yusuken64</a>
+                    </p>
+                    <!-- This element is not displayed if the screen size is LTE an extra-small breakpoint value. -->
+                    <p class="credits">
+                        <a class="underline-hover" href="#">3000 credits</a>
+                    </p>
+                </li>
+                
+                <li class="navlist-item">
+                    <a class="item-link underline-hover-minus-svg" href="#">
+                        <svg class="icon" viewBox="0 0 26 24">
+                            <title>Ribbon medal award icon</title>
+                            <use href="./assets/svg/ribbon-icon.svg#ribbon-icon"></use>
+                        </svg>
+                        
+                        <p>Top</p>
+                    </a>
+                </li>
+                <li class="navlist-item">
+                    <a class="item-link underline-hover-minus-svg" href="#">
+                        <svg class="icon" viewBox="0 0 21 24">
+                            <title>Fire flame icon</title>
+                            <use href="./assets/svg/flame-icon.svg#flame-icon"></use>
+                        </svg>
+                        
+                        <p>Hot</p>
+                    </a>
+                </li>
+                <li class="navlist-item">
+                    <a class="item-link underline-hover-minus-svg" href="#">
+                        <svg class="icon" viewBox="0 0 26 26">
+                            <title>Opposing diagonal arrows icon</title>
+                            <use href="./assets/svg/trade-icon.svg#trade-icon"></use>
+                        </svg>
+                        
+                        <p>Trade</p>
+                    </a>
+                </li>
+                <li class="navlist-item">
+                    <a class="item-link underline-hover-minus-svg" href="#">
+                        <svg class="icon" viewBox="0 0 25 18">
+                            <title>Folder icon</title>
+                            <use href="./assets/svg/folder-icon.svg#folder-icon"></use>
+                        </svg>
+                        
+                        <p>Portfolio</p>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <h3 class="text-orange">Recently Viewed:</h3>
+        
+        <!-- Not the best BEM naming, but CSS-in-JS is probably the better alternative. -->
+        <ul class="recent-thread-list">
+                <li class="list__item">
+                    <a class="item__link" href="#">
+                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                        <p class="thread__subreddit">r/RedesignHelp</p>
+                        <p class="thread__title">How to design this this thing...</p>
+                    </a>
+                </li>
+                
+                <li class="list__item">
+                    <a class="item__link" href="#">
+                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                        <p class="thread__subreddit">r/RedesignHelp</p>
+                        <p class="thread__title">How to design this this thing...</p>
+                    </a>
+                </li>
+                <li class="list__item">
+                    <a class="item__link" href="#">
+                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                        <p class="thread__subreddit">r/RedesignHelp</p>
+                        <p class="thread__title">How to design this this thing...</p>
+                    </a>
+                </li>
+                
+                <li class="list__item">
+                    <a class="item__link" href="#">
+                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                        <p class="thread__subreddit">r/RedesignHelp</p>
+                        <p class="thread__title">How to design this this thing...</p>
+                    </a>
+                </li>
+                <li class="list__item">
+                    <a class="item__link" href="#">
+                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                        <p class="thread__subreddit">r/RedesignHelp</p>
+                        <p class="thread__title">How to design this this thing...</p>
+                    </a>
+                </li>
+                
+                <li class="list__item">
+                    <a class="item__link" href="#">
+                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                        <p class="thread__subreddit">r/RedesignHelp</p>
+                        <p class="thread__title">How to design this this thing...</p>
+                    </a>
+                </li>
+                <li class="list__item">
+                    <a class="item__link" href="#">
+                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                        <p class="thread__subreddit">r/RedesignHelp</p>
+                        <p class="thread__title">How to design this this thing...</p>
+                    </a>
+                </li>
+                
+                <li class="list__item">
+                    <a class="item__link" href="#">
+                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                        <p class="thread__subreddit">r/RedesignHelp</p>
+                        <p class="thread__title">How to design this this thing...</p>
+                    </a>
+                </li>
+                <li class="list__item">
+                    <a class="item__link" href="#">
+                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                        <p class="thread__subreddit">r/RedesignHelp</p>
+                        <p class="thread__title">How to design this this thing...</p>
+                    </a>
+                </li>
+                
+                <li class="list__item">
+                    <a class="item__link" href="#">
+                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                        <p class="thread__subreddit">r/RedesignHelp</p>
+                        <p class="thread__title">How to design this this thing...</p>
+                    </a>
+                </li>
+        </ul>
+    </aside>
+    
+    <!--
+        On mobile, we want a dialog for ultimate accessibility.
+        We get a lot of a11y functionality for free via a dialog:
+        
+        * "When closing the mobile menu, the user should still be in the header with their focus returned to the button that triggered it, not anywhere else on the page."
+        * "Allow the mobile nav to close with the escape key."
+        * "Once you have opened the menu with a keyboard, hitting the Tab key takes you to the first item in the menu, not the somewhere on the page behind the menu."
+        (https://theadminbar.com/accessibility-weekly/mobile-nav-and-hamburger-menus/)
+        
+        We can make a visually hidden "Close" button within the modal that appears when focused for a nice balance between aesthetics and a11y.
+    -->
+    
+    <!-- Main content -->
+    <main>   
+        <article class="scrollable-container">
+            <h2 class="text-orange">The best place to discover, own, and trade threads:</h2>
+            
+            <div class="card-list">
+                
+                <!-- Thread card -->
+                <article class="card card--thread-card">
+                    <a href="#">
+                        <!-- BEM can be improved here -->
+                        <div class="card-publication-info">
+                            <img class="icon-img" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                            <p class="subreddit-title">r/RedesignHelp</p>
+                            <p class="author-name">ZadocPaet</p>
+                            <p class="date-published">
+                                <time datetime="2017">• 8 yr. ago</time>
+                            </p>
+                        </div>
+                        
+                        <h3 class="card-title">Official reddit brand hex color codes...</h3>
+                        <p class="card-body">
+                            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illum corporis vero cum, numquam necessitatibus obcaecati ratione earum eaque delectus, nobis maiores quisquam ea voluptas eum consectetur quidem perferendis nisi pariatur.
+                        </p>
+                        
+                        <div class="card-engagement-buttons">
+                            <!-- We probably don't need to actually make these into buttons -->
+                            <div class="btn btn--like">
+                                <svg class="icon" data-width="18" data-height="20" viewBox="0 0 18 20">
+                                    <title>Up arrow icon</title>
+                                    <use href="./assets/svg/like-icon.svg#like-icon"></use>
+                                </svg>
+                                
+                                <p>
+                                    3.9k
+                                    <span class="sr-only">likes</span>
+                                </p>
+                            </div>
+                            
+                            <div class="btn btn--dislike">
+                                <svg class="icon" data-width="18" data-height="20" viewBox="0 0 18 20">
+                                    <title>Down arrow icon</title>
+                                    <use href="./assets/svg/dislike-icon.svg#dislike-icon"></use>
+                                </svg>
+                                
+                                <p>
+                                    231
+                                    <span class="sr-only">dislikes</span>
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </article>
+                
+                <!-- Price, relative thread growth within x time, share, buy, sell card -->
+                <div class="card card--thread-options">
+                    <h3 class="credit-cost">52 credits</h3>
+                    
+                    <div class="badge badge--growth">
+                        <div class="icon-wrapper">
+                            <svg class="icon icon--growth" viewBox="0 0 15 9">
+                                <title>Diagonal jagged green arrow icon going from bottom left to top right</title>
+                                <use href="./assets/svg/rise-icon.svg#rise-icon"></use>
+                            </svg>
+                        </div>
+                        
+                        <p class="growth-amount">
+                            +35%
+                            <!-- Dynamically populate for a11y -->
+                            <span class="sr-only">
+                                in credit value compared to
+                                <time datetime="2025">five minutes ago</time>
+                            </span>
+                        </p>
+                    </div>
+                    
+                    <!-- Share our page on Reddit for +30 credits -->
+                    <!-- Dynamically generate href based on thread -->
+                    <a class="btn btn--share" href="https://www.reddit.com/submit?url=https%3A%2F%2Fexample.com&title=Check+this+out">                 
+                        Share for +30 credits
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <title>Reddit logo</title>
+                            <use href="./assets/svg/reddit-icon.svg#reddit-icon"></use>
+                        </svg>
+                    </a>
+                    
+                    <button class="btn btn--buy">
+                        Buy
+                    </button>
+                    
+                    <button class="btn btn--sell">
+                        Sell
+                    </button>
+                </div>
+            </div>
+        </article>
+    </main>
+</body>
+
+</html>
