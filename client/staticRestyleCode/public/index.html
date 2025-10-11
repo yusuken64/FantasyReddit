@@ -6,6 +6,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- Download Rubik font if not present on client's computer -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="./css/base/base.css">
     <link rel="stylesheet" href="./css/index/index.css">
     
@@ -56,29 +61,13 @@
                     </form>
                 </li>
                 
-                <li class="nav-item account-info-item">
-                    <p class="username">
-                        <a class="underline-hover underline-hover--orange text-orange" href="#">Yusuken64</a>
-                    </p>
-                    <p class="credits">
-                        <a class="underline-hover" href="#">
-                            <!--
-                                When the user hovers this, we could do an animation that shows the amount in their localized currency.
-                                Not sure how to make it accessible. It requires JS for sure, and some smart use of overflow.
-                            -->
-                            <span class="credit-amount">3000 credits</span>
-                        </a>
-                    </p>
-
-                    <button class="btn btn--options">
-                        <span class="sr-only">Account Settings</span>
-
-                        <!-- Note: Firefox requires an ID fragement. -->
-                        <svg viewBox="0 0 28 28">
-                            <title>A cog icon</title>
-                            <use href="./assets/svg/cog-icon.svg#cog-icon"></use>
-                        </svg>
-                    </button>
+                <!-- Add .account-info-item--logged-in or .account-info-item--logged-out depending on auth state -->
+                <li class="nav-item account-info-item--logged-out">
+                    <!-- if loggedin -->
+                    <!-- else -->
+                        <a href="#" class="btn btn--register">Register</a>
+                        <a href="#" class="btn btn--login">Login</a>
+                    <!-- endif -->
                 </li>
             </ul>
         </nav>
@@ -96,14 +85,12 @@
             
             <ul class="sidebar-navlist">
                 <!-- This sidebar item is not displayed if the screen size is GTE a medium breakpoint value. -->
-                <li class="navlist-item account-info-item">
-                    <p class="username">
-                        <a class="underline-hover underline-hover--orange text-orange" href="#">Yusuken64</a>
-                    </p>
-                    <!-- This element is not displayed if the screen size is LTE an extra-small breakpoint value. -->
-                    <p class="credits">
-                        <a class="underline-hover" href="#">3000 credits</a>
-                    </p>
+                <li class="navlist-item account-info-item--logged-out">
+                    <!-- if loggedin -->
+                    <!-- else -->
+                        <a href="#" class="btn btn--register">Register</a>
+                        <a href="#" class="btn btn--login">Login</a>
+                    <!-- end -->
                 </li>
                 
                 <li class="navlist-item">

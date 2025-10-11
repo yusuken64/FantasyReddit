@@ -1,0 +1,59 @@
+@use "../base_variables";
+
+/*===
+Buttons
+==== */
+
+.btn--register {
+    display: grid; // Also does away with descender whitespace that comes by default with display: inline
+    place-items: center; // [?] Unknown: how does this affect text nodes within a stretched parent? I guess it centered it verically.. odd...
+    
+    height: 3rem;
+    width: 8.5rem;
+    
+    border: 2px solid rgba(255, 68, 0, 0.64);
+    border-radius: 1rem;
+    
+    font-size: 1.25rem;
+    text-shadow: 0 1px 0 rgba(156, 161, 170, 0.32);
+    color: #FF4500;
+    
+    box-shadow: 0 0 6px transparent;
+    transition: .4s box-shadow ease;
+    &:hover {
+        box-shadow: 0 0 3px rgba(255, 68, 0, 0.64);
+    }
+    
+    // LTE 
+    @media screen and (max-width: base_variables.$breakpoint-md-lg) {
+        width: 6.5rem;
+        font-size: 1rem;
+    }
+}
+
+.btn--login {
+    display: grid; // Also does away with descender whitespace that comes by default with display: inline
+    place-items: center; // [?] Unknown: how does this affect text nodes within a stretched parent? I guess it centered it verically.. odd...
+    
+    height: 3rem;
+    width: 6.5rem;
+    
+    border-radius: 1rem;
+    
+    font-size: 1.25rem;
+    color: base_variables.$color-white;
+    background: base_variables.$color-black;
+    
+    outline: 2px dashed transparent;
+    outline-offset: -4px;
+    transition: .4s outline-color;
+    &:hover {
+        outline-color: base_variables.$color-white;
+    }
+    
+    // LTE 
+    @media screen and (max-width: base_variables.$breakpoint-md-lg) {
+        width: 5.5rem;
+        font-size: 1rem;
+    }
+}

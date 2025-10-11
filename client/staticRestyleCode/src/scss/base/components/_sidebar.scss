@@ -1,0 +1,275 @@
+@use "../base_variables";
+
+/*===
+Sidebar
+==== */
+
+#sidebar {
+    border: none; // Remove default popover border
+    height: 100%;
+    width: min-content;
+    padding: 2rem 4rem;
+    background: base_variables.$color-white;
+    position: relative; // absolute ::after will position relative to #sidebar
+    
+    // LTE $breakpoint-xsm
+    @media screen and (max-width: base_variables.$breakpoint-sm) {
+        // 100% of the screen height might be too small and cause contents to overflow the content box, which makes it look like there's no padding
+        // fit the contents. if there aren't many recently viewed items, fill the screen height
+        height: fit-content;
+        min-height: 100%; // we could optimize this by putting it into the #sidebar with no media query, but this makes more sense to read
+    }
+    
+    // GT $breakpoint-xsm
+    @media screen and (min-width: calc(base_variables.$breakpoint-xsm + 1px)) {
+        // Restore <aside> visibility by overriding user agent popover styling
+        display: block;
+        
+        // Note:
+        // If in the user's browser they make the window mobile size, then toggle the sidebar popover,
+        // then make the browser window desktop size, the sidebar will lay itself out according to the free
+        // space in the top-layer (thus has access to 100% of screen height).
+        // We cannot force a popover in this opened state to lay itself out relative to anywhere but the top-layer,
+        // as "The top layer is managed entirely by the user agent; it cannot be directly manipulated by authors."
+        // (https://drafts.csswg.org/css-position-4/#top-layer)
+        // We'd need to take the element out of the top-layer in order to lay it out in its original grid area.
+    }
+    
+    // LTE $breakpoint-xsm
+    @media screen and (max-width: base_variables.$breakpoint-xsm) {
+        // Popover is hidden by default
+        position: absolute;
+        z-index: 1; // draw stacking context over-top main content
+        
+        top: 15.5rem; // size of header box at this screen size
+        width: 100%; // fill screen width
+        
+        @supports (position-anchor: --page-header) {
+            top: 0;
+            position-anchor: --page-header;
+            // [?] Unknown: Research more on how this works
+            // top: anchor(--page-header block-end);
+            position-area: center block-end;
+        }
+        
+        // We don't put the open animation property on the sidebar itself,
+        // ... as if we were to remove the closing class the open animation will trigger again.
+        // So we use a .closing and a .opening class.
+        &.opening {
+            // [?] Unknown: Why does the left property act differently when the element it
+            // ... acts upon is anchored? To research...
+            animation: .6s ease-in-out open-sidebar 1 forwards;
+            @supports (position-anchor: --page-header) {
+                animation: .6s ease-in-out open-sidebar-mobile 1 forwards; // quick fix
+            }
+            
+            @media (prefers-reduced-motion) {
+                animation-duration: 0s;
+            }
+        }
+        &.closing {
+            animation: .6s ease-in-out close-sidebar 1 forwards;
+            @supports (position-anchor: --page-header) {
+                animation: .6s ease-in-out close-sidebar-mobile 1 forwards;
+            }
+            
+            @media (prefers-reduced-motion) {
+                animation-duration: 0s;
+            }
+        }
+    }
+    
+    // LTE $breakpoint-xsm
+    @media screen and (max-width: base_variables.$breakpoint-xxsm) {
+        top: 17.5rem; // size of header box at this screen size
+        
+        @supports (position-anchor: --page-header) {
+            top: 0;
+        }
+    }
+    
+    // Make a fake border-right so that we can give it a linear gradient
+    &::after {
+        content: "";
+
+        position: absolute;
+        right: 0;
+        top: 0;
+
+        height: 100%;
+        width: 2px;
+
+        background: linear-gradient(180deg, rgba(156, 160, 170, 0.064) 0%, rgba(156, 160, 170, 0.128) 16%, rgba(156, 160, 170, 0.2) 32%, rgba(222, 135, 104, 0.128) 48%, rgba(222, 135, 104, 0.128) 64%, rgba(156, 160, 170, 0.064) 80%);
+        
+        // LTE $breakpoint-xsm
+        @media screen and (max-width: base_variables.$breakpoint-xsm) {
+            // More contrast looks better on mobile
+            background: linear-gradient(180deg, rgba(156, 160, 170, 0.64) 0%, rgba(156, 160, 170, 0.32) 16%, rgba(156, 160, 170, 0.32) 32%, rgba(222, 135, 104, 0.32) 48%, rgba(222, 135, 104, 0.32) 64%, rgba(156, 160, 170, 0.64) 80%);
+        }
+    }
+
+    .sidebar-navlist {
+        margin-bottom: 4.75rem; // distance between "Recently Viewed" heading and nav link
+
+        .navlist-item {
+            width: fit-content;
+
+            &::marker {
+                font-size: 0;
+            }
+
+            .item-link {
+                display: flex;
+                // Don't cause items to stretch while text remains at the top left, which causes poor vertical alignment for text.
+                // This makes the item's height fit its contents, and aligns it in the center of its line along the cross axis. The line assumes a block length of its child with the longest block length in LTR writing mode w/ flex-direction: row.
+                align-items: center;
+                gap: 0.625rem;
+            }
+        }
+
+        .navlist-item:nth-child(n+2) {
+            margin-top: 2rem; // Spacing between nav links. We could opt for a flex <ul>, but that is too many nested flexboxes imo for a small feature like this.
+        }
+        
+        .account-info-item--logged-in {
+            // GTE $breakpoint-md
+            @media screen and (min-width: base_variables.$breakpoint-md) {
+                display: none;
+            }
+            
+            // LTE $breakpoint-xsm
+            .credits {
+                @media screen and (max-width: base_variables.$breakpoint-xsm) {
+                    display: none;
+                }
+            }
+        }
+        
+        .account-info-item--logged-out {
+            outline: 2px solid blue;
+            outline-offset: 2px;
+            
+            display: flex;
+            gap: 1rem;
+            
+            // GTE $breakpoint-md
+            @media screen and (min-width: #{base_variables.$breakpoint-md}) {
+                display: none;
+            }
+        }
+    }
+
+    .recent-thread-list {
+        margin-top: .75rem; // distance between list of threads and "Recently Viewed" heading
+        /* Not sure why body's max-content column track inline length squishes this. Explicitly give max-content width to the recently viewed subreddit: */
+        width: max-content; // make links take up size that they need, instead of 100%.
+        
+        // Fixed size to allow scrolling for overflow
+        height: 14.75rem; // show 4 entries
+        
+        // Scrollbar properties
+        scrollbar-gutter: auto;
+        overflow-y: auto;
+        scrollbar-color: base_variables.$color-black transparent;
+        scrollbar-width: thin;    
+        
+        @media screen and (max-width: base_variables.$breakpoint-md) {
+            height: 11rem;; // show 3 entries
+        }
+        
+        @media screen and (max-width: base_variables.$breakpoint-sm) {
+            // No more overflow; expand to infinity (not that we should show that much history)
+            height: fit-content;
+        }
+
+        .list__item {
+            &::marker {
+                font-size: 0px;
+            }
+        }
+        
+        .list__item:nth-child(n+2) {
+            margin-top: .25rem;
+        }
+
+        .item__link {
+            display: grid;
+            /*
+                all auto vs. all 1fr???
+                hmm.. what is fr based on here?
+                is it auto + any other available space?
+                why is there additional space when I use fr? maybe a glitch?
+            */
+            grid: "logo-img subreddit-title" auto
+                  "logo-img thread-title" auto
+                  / auto auto;
+            
+            border: 1px solid transparent;
+            padding: .5rem;
+            transition: .4s border-color;
+            border-radius: .5rem;
+            gap: .25rem .5rem;
+            
+            &:hover {
+                border-color: hsl(from base_variables.$color-white h s calc(l - 32));
+            }
+
+            .thread__icon {
+                width: 2rem;
+                aspect-ratio: 1/1;
+                grid-area: logo-img;
+                align-self: center;
+            }
+
+            .thread__subreddit {
+                grid-area: subreddit-title;
+            }
+
+            .thread__title {
+                grid-area: thread-title;
+                font-size: .75rem;
+            }
+        }
+    }
+}
+
+/*===
+Sidebar keyframes
+==== */
+
+// [?] Unknown: Anchor positioning affects what position the `left` property is relative to.
+@keyframes open-sidebar {
+    from {
+        left: -100%;
+    }
+    to {
+        left: 0;
+    }
+}
+
+@keyframes close-sidebar {
+    from {
+        left: 0;
+    }
+    to {
+        left: -100%;
+    }
+}
+
+@keyframes close-sidebar-mobile {
+    from {
+        left: 0;
+    }
+    to {
+        left: -200%;
+    }
+}
+
+@keyframes open-sidebar-mobile {
+    from {
+        left: -200%;
+    }
+    to {
+        left: 0;
+    }
+}
