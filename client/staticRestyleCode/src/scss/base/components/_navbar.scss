@@ -21,7 +21,7 @@ Navbar Header
 
     display: grid;
     align-items: center; // block direction item alignment within its grid area if there is free space
-    // logo-item,    search-field,    account-info
+    // logo-item,    search-field,    account-info-item
     grid: 1fr / max-content max-content max-content;
     justify-content: space-between;  // inline direction container free space distribution among tracks
     column-gap: 1rem;
@@ -187,10 +187,17 @@ Navbar Header
     
     // LTE extra small screen size
     @media screen and (max-width: base_variables.$breakpoint-xsm) {
-        grid: "logo-item logo-item logo-item" 1fr
-              "toggle-sidebar-form-item search-item btn--options" 1fr
-              "credits credits credits" 1fr
-        / max-content 1fr max-content;
+        &:has(> .account-info-item--logged-in) {
+            grid: "logo-item logo-item logo-item" 1fr
+                  "toggle-sidebar-form-item search-item btn--options" 1fr
+                  "credits credits credits" 1fr
+            / max-content 1fr max-content;
+        }
+        &:has(> .account-info-item--logged-out) {
+            grid: "logo-item logo-item logo-item" 1fr
+                  "toggle-sidebar-form-item search-item account-info-item" 1fr
+            / max-content 1fr max-content;
+        }
         
         // [?] Unknown: why does space-between justify-content increase the width of the container's content area?
         // requires a dive back into grid!! and the spec!! :D
@@ -205,11 +212,23 @@ Navbar Header
     
     // LTE extra extra small screen size
     @media screen and (max-width: base_variables.$breakpoint-xxsm) {
-        grid: "logo-item logo-item logo-item logo-item" 1fr
-              "search-item search-item search-item search-item" 1fr
-              "toggle-sidebar-form-item toggle-sidebar-form-item btn--options btn--options" 1fr
-              "credits credits credits credits" 1fr
-        / max-content max-content max-content max-content;
+        &:has(> .account-info-item--logged-in) {
+            grid: "logo-item logo-item logo-item logo-item" 1fr
+                "search-item search-item search-item search-item" 1fr
+                "toggle-sidebar-form-item toggle-sidebar-form-item btn--options btn--options" 1fr
+                "credits credits credits credits" 1fr
+            / max-content max-content max-content max-content;
+        }
+        &:has(> .account-info-item--logged-out) {
+            grid: "logo-item logo-item logo-item logo-item" 1fr
+                "search-item search-item search-item search-item" 1fr
+                "toggle-sidebar-form-item toggle-sidebar-form-item toggle-sidebar-form-item toggle-sidebar-form-item" 1fr
+            / max-content max-content max-content max-content;
+            
+            .toggle-sidebar-form-item {
+                justify-self: center;
+            }
+        }
         
         padding: 1.25rem 1rem; // reduced left/right padding
         

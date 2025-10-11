@@ -297,8 +297,13 @@ Navbar Header
 }
 @media screen and (max-width: 48rem) {
   .nav-list {
-    grid: "logo-item logo-item logo-item" 1fr "toggle-sidebar-form-item search-item btn--options" 1fr "credits credits credits" 1fr/max-content 1fr max-content;
     row-gap: 0.5rem;
+  }
+  .nav-list:has(> .account-info-item--logged-in) {
+    grid: "logo-item logo-item logo-item" 1fr "toggle-sidebar-form-item search-item btn--options" 1fr "credits credits credits" 1fr/max-content 1fr max-content;
+  }
+  .nav-list:has(> .account-info-item--logged-out) {
+    grid: "logo-item logo-item logo-item" 1fr "toggle-sidebar-form-item search-item account-info-item" 1fr/max-content 1fr max-content;
   }
   .nav-list .toggle-sidebar-form-item {
     display: block;
@@ -307,9 +312,17 @@ Navbar Header
 }
 @media screen and (max-width: 32rem) {
   .nav-list {
-    grid: "logo-item logo-item logo-item logo-item" 1fr "search-item search-item search-item search-item" 1fr "toggle-sidebar-form-item toggle-sidebar-form-item btn--options btn--options" 1fr "credits credits credits credits" 1fr/max-content max-content max-content max-content;
     padding: 1.25rem 1rem;
     gap: 1rem;
+  }
+  .nav-list:has(> .account-info-item--logged-in) {
+    grid: "logo-item logo-item logo-item logo-item" 1fr "search-item search-item search-item search-item" 1fr "toggle-sidebar-form-item toggle-sidebar-form-item btn--options btn--options" 1fr "credits credits credits credits" 1fr/max-content max-content max-content max-content;
+  }
+  .nav-list:has(> .account-info-item--logged-out) {
+    grid: "logo-item logo-item logo-item logo-item" 1fr "search-item search-item search-item search-item" 1fr "toggle-sidebar-form-item toggle-sidebar-form-item toggle-sidebar-form-item toggle-sidebar-form-item" 1fr/max-content max-content max-content max-content;
+  }
+  .nav-list:has(> .account-info-item--logged-out) .toggle-sidebar-form-item {
+    justify-self: center;
   }
 }
 .nav-list .toggle-sidebar-form-item {
@@ -565,8 +578,6 @@ Sidebar
   }
 }
 #sidebar .sidebar-navlist .account-info-item--logged-out {
-  outline: 2px solid blue;
-  outline-offset: 2px;
   display: flex;
   gap: 1rem;
 }

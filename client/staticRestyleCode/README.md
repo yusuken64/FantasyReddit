@@ -37,3 +37,13 @@ HTML, CSS, Sass
 
 Compile SCSS for development:
 `sass --watch src/scss:public/css`
+
+## Biggest issues as of present:
+
+1. bug where both logged-out button sets for the sidebar & header appear at the same time
+
+2. weird adjustment hack with the header's search bar width
+
+3. hacks throughout the code
+
+4. mobile logged-in destructured account-info variable spacing between the options button and hamburger button
