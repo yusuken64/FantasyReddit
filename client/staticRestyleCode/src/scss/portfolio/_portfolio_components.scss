@@ -43,13 +43,15 @@
     }
     
     .btn--toggle-order {
-        margin-left: .5rem;
+        box-sizing: content-box; // easier calculations for perfect circles w/ borders
         width: 1rem;
         height: 1rem;
-        border-radius: 50%;
-        box-sizing: content-box; // easier calculations for perfect circles w/ borders
         border: 1px solid rgb(128, 89, 25);
         background: rgb(222, 151, 88);
-        font-weight: bolder;
+        border-radius: 50%;
+        
+        font-weight: bolder; // no effect with chosen symbol. choose another
+        
+        margin-left: .5rem;
     }
 }

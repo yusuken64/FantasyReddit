@@ -244,40 +244,28 @@
                         <label class="filter__label" for="price-filter">
                             Price
                             
+                            <!-- update when toggle button pressed -->
                             <span class="sr-only">descending</span>
                         </label>
                         
+                        <!-- update value when toggle button pressed -->
                         <input id="price-filter" class="filter__input"
-                               type="checkbox" name="price" value="desc" data-order="desc">
+                               type="checkbox" name="price" value="desc">
                         
                         <button type="button" class="btn btn--toggle-order" aria-label="Toggle price order">
+                            <!-- update when toggle button pressed -->
                             <span class="sr-only btn--toggle-order">
                                 Sort by ascending order
                             </span>
                             
+                            <!-- update when toggle button pressed -->
                             <span aria-hidden="true">↓</span>
                         </button>
                     </div>
                     
                     <!-- defaults take effect if un-selected -->
-                    <input type="checkbox" name="price" value="desc" data-order="desc">
-                        Price
-                        
-                        <span class="sr-only">descending</span>
-                        
-                        <button class="toggle-order">
-                            <span class="sr-only">Toggle ascending or descending order</span>
-                        </button>
-                    </input>
-                    
-                    
-                    <!-- Or? -->
-                     
-                    <button>
-                        Price
-                        <span class="sr-only">Toggle ascending or descending order for</span>
-                    </button>
- 
+    
+
                     <input type="checkbox" data-order="desc">
                         Number of Shareholders
                     </input>
