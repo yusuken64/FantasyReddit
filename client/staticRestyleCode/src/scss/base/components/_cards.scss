@@ -4,9 +4,13 @@
 Main components shared by many pages
 ==== */
 
-// Card & card container (.card-list)
+// Thread Card & purchase card container (.card-group)
 
-.card-list {
+* > .card-group:nth-of-type(n+2) {
+     margin-top: 8rem;
+}
+
+.card-group {
     display: flex;
     // make items' block length fit-content instead of stretch if they have no height set
     // we could also set height: fit-content for items but meh either way works
@@ -16,10 +20,18 @@ Main components shared by many pages
     @media screen and (max-width: base_variables.$breakpoint-lg) {
         flex-direction: column;
         position: relative; // allow for item absolute positioning relative to this container
+        
+        &.card-group:nth-of-type(n+2) {
+            margin-top: 8rem;
+        }
     }
     
     @media screen and (max-width: base_variables.$breakpoint-md-sm) {
         align-items: center;
+        
+        &.card-group:nth-of-type(n+2) {
+            margin-top: 0rem;
+        }
     }
 }
 

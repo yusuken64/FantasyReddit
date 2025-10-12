@@ -682,20 +682,30 @@ Sidebar keyframes
 /*===
 Main components shared by many pages
 ==== */
-.card-list {
+* > .card-group:nth-of-type(n+2) {
+  margin-top: 8rem;
+}
+
+.card-group {
   display: flex;
   align-items: flex-end;
   gap: 2rem;
 }
 @media screen and (max-width: 78rem) {
-  .card-list {
+  .card-group {
     flex-direction: column;
     position: relative;
   }
+  .card-group.card-group:nth-of-type(n+2) {
+    margin-top: 8rem;
+  }
 }
 @media screen and (max-width: 59rem) {
-  .card-list {
+  .card-group {
     align-items: center;
+  }
+  .card-group.card-group:nth-of-type(n+2) {
+    margin-top: 0rem;
   }
 }
 

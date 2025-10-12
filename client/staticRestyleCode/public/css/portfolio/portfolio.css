@@ -1,0 +1,48 @@
+.filter-option {
+  position: relative;
+  width: fit-content;
+  padding: 0.5rem 0.8rem;
+  border-radius: 1rem;
+  --color-bg: rgb(225, 139, 81);
+  --color-bg--hover: rgb(214, 131, 76);
+  --color-border: rgb(160, 81, 29);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  transition: 0.2s background, 0.2s border-color;
+}
+.filter-option:has(.filter__input:checked) {
+  --color-bg: rgb(215, 121, 59);
+  --color-bg--hover: rgb(203, 111, 50);
+  --color-border: rgb(138, 70, 28);
+}
+.filter-option:hover {
+  background: var(--color-bg--hover);
+}
+.filter-option .filter__label {
+  user-select: none;
+}
+.filter-option .filter__input {
+  appearance: none;
+  background: rgba(255, 0, 0, 0);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 1rem;
+}
+.filter-option .filter__input:hover {
+  cursor: pointer;
+}
+.filter-option .btn--toggle-order {
+  margin-left: 0.5rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  box-sizing: content-box;
+  border: 1px solid rgb(128, 89, 25);
+  background: rgb(222, 151, 88);
+  font-weight: bolder;
+}
+
+/*# sourceMappingURL=portfolio.css.map */
