@@ -43,6 +43,12 @@
   border-radius: 50%;
   font-weight: bolder;
   margin-left: 0.5rem;
+  /*
+      Make a stacking context and draw element over-top .control__input to allow clicks.
+      This element appears later in the source order than absolute .control__input,
+      ... so it appears on top.
+  */
+  isolation: isolate;
 }
 
 /*# sourceMappingURL=portfolio.css.map */

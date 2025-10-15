@@ -22,21 +22,21 @@ sortControlDivs.forEach(sortControlDiv => {
         const currentOrderValue = enableSortRuleCheckboxInput.value;
         
         // User tampered with sort rule input value or logic errors occured.
-        if (currentOrderValue != 'desc' || currentOrderValue != 'asc') {
+        if (currentOrderValue != 'desc' && currentOrderValue != 'asc') {
             throw new Error('enableSortRuleCheckboxInput must have a value of desc or asc.')
         }
         
         const negatedOrderString = currentOrderValue == 'desc' ? 'asc' : 'desc';
-        const negatedOrderIconText = nextOrderString == 'asc' ? '↑' : '↓';
+        const negatedOrderIconText = negatedOrderString == 'asc' ? '↑' : '↓';
         
-        a11yNextOrderTextSpan = enableSortRuleCheckboxInput.value;
+        a11yNextOrderTextSpan.textContent = enableSortRuleCheckboxInput.value;
         enableSortRuleCheckboxInput.value = negatedOrderString;
         
         a11yCurrentOrderTextSpan.textContent = negatedOrderString;
         
         currentSortOrderIndicator.textContent = negatedOrderIconText;
         
-        // Update the server somehow here...
+        // Send a web request and update the URL to include query parameters (in case the user shares their query to other users via URL)
     });
 });
 

@@ -53,5 +53,12 @@
         font-weight: bolder; // no effect with chosen symbol. choose another
         
         margin-left: .5rem;
+        
+        /*
+            Make a stacking context and draw element over-top .control__input to allow clicks.
+            This element appears later in the source order than absolute .control__input,
+            ... so it appears on top.
+        */
+        isolation: isolate;
     }
 }
