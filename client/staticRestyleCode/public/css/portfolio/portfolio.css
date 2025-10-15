@@ -1,4 +1,4 @@
-.filter-option {
+.sort-control {
   position: relative;
   width: fit-content;
   padding: 0.5rem 0.8rem;
@@ -10,18 +10,18 @@
   border: 1px solid var(--color-border);
   transition: 0.2s background, 0.2s border-color;
 }
-.filter-option:has(.filter__input:checked) {
+.sort-control:has(.filter__input:checked) {
   --color-bg: rgb(215, 121, 59);
   --color-bg--hover: rgb(203, 111, 50);
   --color-border: rgb(138, 70, 28);
 }
-.filter-option:hover {
+.sort-control:hover {
   background: var(--color-bg--hover);
 }
-.filter-option .filter__label {
+.sort-control .control__label {
   user-select: none;
 }
-.filter-option .filter__input {
+.sort-control .control__input {
   appearance: none;
   background: rgba(255, 0, 0, 0);
   width: 100%;
@@ -31,10 +31,10 @@
   top: 0;
   border-radius: 1rem;
 }
-.filter-option .filter__input:hover {
+.sort-control .control__input:hover {
   cursor: pointer;
 }
-.filter-option .btn--toggle-order {
+.sort-control .btn--toggle-order {
   box-sizing: content-box;
   width: 1rem;
   height: 1rem;

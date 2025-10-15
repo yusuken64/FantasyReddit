@@ -1,4 +1,4 @@
-.filter-option {
+.sort-control {
     position: relative; // act as the container for absolute .filter__input
     width: fit-content;
     
@@ -23,11 +23,11 @@
         background: var(--color-bg--hover);
     }
     
-    .filter__label {
+    .control__label {
         user-select: none;
     }
     
-    .filter__input {
+    .control__input {
         appearance: none;
         background: rgba(255, 0, 0, 0);
         width: 100%;
