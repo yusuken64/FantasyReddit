@@ -1,23 +1,34 @@
+#sort-fieldset {
+    margin-top: 1rem;
+    padding: .5rem;
+}
+
 .sort-control {
-    position: relative; // act as the container for absolute .filter__input
+    position: relative; // act as the container for absolute .control__input & .btn--toggle-order
     width: fit-content;
     
-    padding: .5rem .8rem;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 0 rgb(177 177 177);
+    
+    /* give room to the absolute .btn--toggle-order */
+    padding: .5rem 2.8rem .5rem .8rem;
     border-radius: 1rem;
     
-    --color-bg: rgb(225, 139, 81);
-    --color-bg--hover: rgb(214, 131, 76);
-    --color-border: rgb(160, 81, 29);
+    --color-bg: rgb(237 167 115);
+    --color-bg--hover: rgb(222 152 107);
+    --color-border: rgb(145 85 45);
     
-    &:has(.filter__input:checked) {
-        --color-bg: rgb(215, 121, 59);
-        --color-bg--hover: rgb(203, 111, 50);
-        --color-border: rgb(138, 70, 28);
+    &:has(.control__input:checked) {
+        --color-bg: rgb(211 136 87);
+        --color-bg--hover: rgb(219 142 92);
+        --color-border: rgb(127 62 18);
+        transform: none;
+        box-shadow: 0 0 0 transparent;
     }
     
     background: var(--color-bg);
     border: 1px solid var(--color-border);
-    transition: .2s background, .2s border-color;
+    transition: .2s background, .2s border-color, .2s transform, .2s box-shadow, .2s outline;
     
     &:hover {
         background: var(--color-bg--hover);
@@ -30,6 +41,7 @@
     .control__input {
         appearance: none;
         background: rgba(255, 0, 0, 0);
+        /* fill the .sort-control */
         width: 100%;
         height: 100%;
         position: absolute; // new stacking context; ??? how's it work again to be on top?
@@ -39,6 +51,20 @@
         
         &:hover {
             cursor: pointer;
+        }
+    }
+    
+    // Currently ascending order 
+    &:has(.control__input[value="desc"]) {
+        .btn--toggle-order .order-icon {
+            rotate: 0deg;
+        }
+    }
+    
+    // Currently descending order
+    &:has(.control__input[value="asc"]) {
+        .btn--toggle-order .order-icon {
+            rotate: 180deg;
         }
     }
     
@@ -60,5 +86,22 @@
             ... so it appears on top.
         */
         isolation: isolate;
+        
+        // absolute, as it won't affect the intrinsic size of the button and make the layout look wonky
+        // inline might have this capability too but I would have to research it more in-depth
+        position: absolute;
+        right: 0.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        
+        transition: .2s background;
+        &:hover {
+            background: rgb(230, 172, 120);
+        }
+        
+        .order-icon {
+            display: inline-block; // allow for rotation
+            transition: .2s ease rotate;
+        }
     }
 }

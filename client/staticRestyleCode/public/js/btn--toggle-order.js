@@ -1,7 +1,7 @@
 const sortControlDivs = Array.from(document.querySelectorAll('#sort-fieldset .sort-control'));
 const enableSortRuleCheckboxInputs = Array.from(document.querySelectorAll('#sort-fieldset .control__input'));
 
-// Hairy state. A framework might make this a lot better.
+// Hairy state management. A framework might make this a lot better.
 
 // Controls default to descending order until the user toggles the order.
 sortControlDivs.forEach(sortControlDiv => {
@@ -27,14 +27,14 @@ sortControlDivs.forEach(sortControlDiv => {
         }
         
         const negatedOrderString = currentOrderValue == 'desc' ? 'asc' : 'desc';
-        const negatedOrderIconText = negatedOrderString == 'asc' ? '↑' : '↓';
+        // const negatedOrderIconText = negatedOrderString == 'asc' ? '↑' : '↓';
         
         a11yNextOrderTextSpan.textContent = enableSortRuleCheckboxInput.value;
         enableSortRuleCheckboxInput.value = negatedOrderString;
         
         a11yCurrentOrderTextSpan.textContent = negatedOrderString;
         
-        currentSortOrderIndicator.textContent = negatedOrderIconText;
+        // currentSortOrderIndicator.textContent = negatedOrderIconText;
         
         // Send a web request and update the URL to include query parameters (in case the user shares their query to other users via URL)
     });
