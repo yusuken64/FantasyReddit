@@ -71,8 +71,6 @@
 }
 .sort-control .btn--toggle-order .order-icon {
   display: inline-block;
-  rotate: 0deg;
-  animation-fill-mode: forwards;
 }
 
 /*# sourceMappingURL=portfolio.css.map */

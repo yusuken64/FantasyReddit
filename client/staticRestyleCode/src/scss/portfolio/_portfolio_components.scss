@@ -101,8 +101,6 @@
         
         .order-icon {
             display: inline-block; // allow for rotation
-            rotate: 0deg; // initial rotation for JS manipulation
-            animation-fill-mode: forwards;
         }
     }
 }

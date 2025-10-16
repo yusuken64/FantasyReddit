@@ -8,19 +8,27 @@ const enableSortRuleCheckboxInputs = Array.from(document.querySelectorAll('#sort
  * counter-clockwise rotation animation like this.
  */
 function rotateSortIndicator(sortIndicatorElement) {
-    debugger;
-    const currentStyleObject = getComputedStyle(sortIndicatorElement);
-    const currentRotationValueString = currentStyleObject.getPropertyValue("rotate");
-    const currentRotationDeg = Number(currentRotationValueString.slice(0, -3)); // remove 'deg' from the end
+    // Don't use getComputedStyle(), since that can reflect rotation values while an animation plays 
+    // ... instead of purely the set 'to' rotation value regardless of where the computed rotation value is at.
+    const currentStyleObject = sortIndicatorElement.style;
+    let currentRotationValueString = currentStyleObject.getPropertyValue("rotate");
     
-    // Don't use up more memory than we need.
-    if (currentRotationDeg == 360) {
-        currentRotationDeg = 0;
+    // Handle non-existant rotate property
+    if (currentRotationValueString == "") {
+        currentRotationValueString = "0deg";
     }
     
-    const keyFrame = new KeyframeEffect(
-        sortIndicatorElement,
-        // Properties
+    const currentRotationDeg = Number(currentRotationValueString.slice(0, -3)); // remove 'deg' from the end
+    
+    // how to ensure the degree value doesn't go up to the max int size?
+    // if we do the following, it rotates counter-clockwise back to 0 + 180 as per below:
+    // Don't use up more memory than we need.
+    // if (currentRotationDeg == 360) {
+    //     currentRotationDeg = 0;
+    // }
+    
+    const animationTo = sortIndicatorElement.animate(
+        // Keyframes
         [
             { rotate: `${currentRotationDeg + 180}deg` },
         ],
@@ -28,12 +36,16 @@ function rotateSortIndicator(sortIndicatorElement) {
         {
             duration: .2 * 1000, // .2 seconds
             easing: "ease",
-            composite: "add",
+            composite: "replace",
             fill: "forwards",
         },
-    )
-    const animationTo = new Animation(keyFrame);
-    animationTo.play();
+    );
+    
+    animationTo.addEventListener('finish', () => {
+        // Update the indicator's style property so we can use it for future animations
+        animationTo.commitStyles();
+        animationTo.cancel();
+    });
 }
 
 // Hairy state management. A framework might make this a lot better.
@@ -42,6 +54,7 @@ function rotateSortIndicator(sortIndicatorElement) {
 sortControlDivs.forEach(sortControlDiv => {
     const enableSortRuleCheckboxInput = sortControlDiv.querySelector('.control__input');
     const toggleSortOrderButton = sortControlDiv.querySelector('.btn--toggle-order');
+    const sortTypeLabel = sortControlDiv.querySelector('.control__label');
     
     // Show screen readers what the next order will be when the order toggler is clicked.
     // e.g ascending if the current order is descending.
@@ -67,6 +80,12 @@ sortControlDivs.forEach(sortControlDiv => {
         a11yNextOrderTextSpan.textContent = enableSortRuleCheckboxInput.value;
         enableSortRuleCheckboxInput.value = negatedOrderString;
         
+        // Update hover title
+        const sortTypeLabelDirectTextNode = sortTypeLabel.childNodes[0];
+        const sortTypeLabelDirectTextContent = sortTypeLabelDirectTextNode.textContent.trim();
+        const finalHoverTitleText = `${sortTypeLabelDirectTextContent} ${negatedOrderString}ending`;
+        sortControlDiv.setAttribute('title', finalHoverTitleText);
+        
         a11yCurrentOrderTextSpan.textContent = negatedOrderString;
         
         rotateSortIndicator(currentSortOrderIndicator);
@@ -78,7 +97,7 @@ sortControlDivs.forEach(sortControlDiv => {
 
 // Handle click to enable sort rule
 enableSortRuleCheckboxInputs.forEach(
-    enableSortRuleCheckboxInput => enableSortRuleCheckboxInput.addEventListener(event => {
+    enableSortRuleCheckboxInput => enableSortRuleCheckboxInput.addEventListener('click', event => {
     // Send a web request and update the URL to include query parameters (in case the user shares their query to other users via URL)
 
     // Use the checkbox's value attribute
