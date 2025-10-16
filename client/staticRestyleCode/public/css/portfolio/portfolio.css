@@ -45,12 +45,6 @@
 .sort-control .control__input:hover {
   cursor: pointer;
 }
-.sort-control:has(.control__input[value=desc]) .btn--toggle-order .order-icon {
-  rotate: 0deg;
-}
-.sort-control:has(.control__input[value=asc]) .btn--toggle-order .order-icon {
-  rotate: 180deg;
-}
 .sort-control .btn--toggle-order {
   box-sizing: content-box;
   width: 1rem;
@@ -77,7 +71,8 @@
 }
 .sort-control .btn--toggle-order .order-icon {
   display: inline-block;
-  transition: 0.2s ease rotate;
+  rotate: 0deg;
+  animation-fill-mode: forwards;
 }
 
 /*# sourceMappingURL=portfolio.css.map */

@@ -55,18 +55,18 @@
     }
     
     // Currently ascending order 
-    &:has(.control__input[value="desc"]) {
-        .btn--toggle-order .order-icon {
-            rotate: 0deg;
-        }
-    }
+    // &:has(.control__input[value="desc"]) {
+    //     .btn--toggle-order .order-icon {
+    //         transform: rotate(180deg);
+    //     }
+    // }
     
-    // Currently descending order
-    &:has(.control__input[value="asc"]) {
-        .btn--toggle-order .order-icon {
-            rotate: 180deg;
-        }
-    }
+    // // Currently descending order
+    // &:has(.control__input[value="asc"]) {
+    //     .btn--toggle-order .order-icon {
+    //         transform: rotate(0deg);
+    //     }
+    // }
     
     .btn--toggle-order {
         box-sizing: content-box; // easier calculations for perfect circles w/ borders
@@ -101,7 +101,8 @@
         
         .order-icon {
             display: inline-block; // allow for rotation
-            transition: .2s ease rotate;
+            rotate: 0deg; // initial rotation for JS manipulation
+            animation-fill-mode: forwards;
         }
     }
 }
