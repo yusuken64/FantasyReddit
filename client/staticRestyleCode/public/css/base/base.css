@@ -683,7 +683,7 @@ Sidebar keyframes
 Main components shared by many pages
 ==== */
 * > .card-group:nth-of-type(n+2) {
-  margin-top: 8rem;
+  margin-top: 1rem;
 }
 
 .card-group {

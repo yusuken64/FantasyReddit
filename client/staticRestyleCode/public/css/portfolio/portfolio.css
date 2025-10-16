@@ -1,3 +1,23 @@
+.card--portfolio-options {
+  grid: "credits badge" 1fr "shares shares" max-content "btn-buy btn-sell" 1fr/1fr 1fr;
+  row-gap: 1rem;
+}
+.card--portfolio-options .share-count {
+  grid-area: shares;
+}
+@media screen and (max-width: 78rem) {
+  .card--portfolio-options {
+    position: absolute;
+    right: 1rem;
+    bottom: -6.5rem;
+  }
+}
+@media screen and (max-width: 59rem) {
+  .card--portfolio-options {
+    position: static;
+  }
+}
+
 #sort-fieldset {
   margin-top: 1rem;
   padding: 0.5rem;
