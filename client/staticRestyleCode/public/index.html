@@ -455,26 +455,42 @@
 </div>
 
 
-        <section>
-            <h3>Page 3 of 4</h3>
-            <div>
-                <button>
-                    &lt;-
+        <section class="paginator">
+            <h3 class="paginator__current-page">Page 3 of 4</h3>
+            
+            <div class="pagiator__buttons">
+                <!-- dynamically add to the GET URL query list via JS -->
+                <button class="btn btn--pager">
+                    <span class="sr-only">Previous page</span>
+                    
+                    <svg class="arrow-icon arrow-icon--left" viewBox="0 0 24 24">
+                        <title>A left-pointing arrow</title>
+                        <use href="./assets/svg/up-arrow.svg"></use>
+                    </svg>
                 </button>
-                <button>
+                <button class="btn btn--pager">
+                    <span class="sr-only">Page</span>
                     1
                 </button>
-                <button>
+                <button class="btn btn--pager">
+                    <span class="sr-only">Page</span>
                     2
                 </button>
-                <button>
+                <button class="btn btn--pager">
+                    <span class="sr-only">Page</span>
                     3
                 </button>
-                <button>
+                <button class="btn btn--pager">
+                    <span class="sr-only">Page</span>
                     4
                 </button>
-                <button>
-                    -&gt;
+                <button class="btn btn--pager">
+                    <span class="sr-only">Next page</span>
+                    
+                    <svg class="arrow-icon arrow-icon--right" viewBox="0 0 24 24">
+                        <title>A right-pointing arrow</title>
+                        <use href="./assets/svg/up-arrow.svg"></use>
+                    </svg>
                 </button>
             </div>
         </section>
