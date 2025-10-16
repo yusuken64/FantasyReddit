@@ -1,6 +1,16 @@
+@use '../base/base_variables';
+
 #sort-fieldset {
     margin-top: 1rem;
     padding: .5rem;
+    
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    
+    @media screen and (max-width: base_variables.$breakpoint-md) {
+        justify-content: center;
+    }
 }
 
 .sort-control {

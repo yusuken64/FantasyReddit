@@ -1,6 +1,8 @@
 const sidebarToggleButton = document.getElementById('btn--toggle-sidebar');
 const sidebar = document.getElementById('sidebar');
 
+// WARNING: this must be made into a module script for namespace separation
+
 // Debounce
 let isAnimating = false;
 

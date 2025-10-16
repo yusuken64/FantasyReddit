@@ -1,6 +1,14 @@
 #sort-fieldset {
   margin-top: 1rem;
   padding: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+@media screen and (max-width: 66rem) {
+  #sort-fieldset {
+    justify-content: center;
+  }
 }
 
 .sort-control {

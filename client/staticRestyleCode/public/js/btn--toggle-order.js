@@ -24,16 +24,11 @@ function rotateSortIndicator(sortIndicatorElement) {
     
     const currentRotationDeg = Number(currentRotationValueString.slice(0, -3)); // remove 'deg' from the end
     
-    // how to ensure the degree value doesn't go up to the max int size?
-    // if we do the following, it rotates counter-clockwise back to 0 + 180 as per below:
-    // Don't use up more memory than we need.
-    // if (currentRotationDeg == 360) {
-    //     currentRotationDeg = 0;
-    // }
-    
     const animationTo = sortIndicatorElement.animate(
         // Keyframes
         [
+            // I guess precision loss will occur once the max int size is hit.
+            // But hey, if they get there then they'll get a fun (broken) animation as an easter-egg.
             { rotate: `${currentRotationDeg + 180}deg` },
         ],
         // Keyframe options
@@ -49,6 +44,7 @@ function rotateSortIndicator(sortIndicatorElement) {
         // Update the indicator's style property so we can use it for future animations
         animationTo.commitStyles();
         animationTo.cancel();
+        
         isAnimating = false;
     });
 }
