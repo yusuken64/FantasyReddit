@@ -92,6 +92,8 @@
   right: 0.5rem;
   top: 50%;
   transform: translateY(-50%);
+  display: grid;
+  place-items: center;
   transition: 0.2s background;
 }
 .sort-control .btn--toggle-order:hover {
@@ -99,6 +101,10 @@
 }
 .sort-control .btn--toggle-order .order-icon {
   display: inline-block;
+}
+.sort-control .btn--toggle-order .order-icon svg {
+  width: 75%;
+  height: 75%;
 }
 
 .paginator {

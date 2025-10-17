@@ -2,6 +2,7 @@ const sortControlDivs = Array.from(document.querySelectorAll('#sort-fieldset .so
 const enableSortRuleCheckboxInputs = Array.from(document.querySelectorAll('#sort-fieldset .control__input'));
 
 // debounce to keep state and animation in sync
+// warning: out of sync issues still occur
 let isAnimating = false;
 /*
  * Add +180deg to the arrow's rotation.

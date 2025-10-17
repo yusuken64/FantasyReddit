@@ -104,6 +104,11 @@
         top: 50%;
         transform: translateY(-50%);
         
+        
+        // Center the arrow svg icon
+        display: grid;
+        place-items: center;
+        
         transition: .2s background;
         &:hover {
             background: rgb(230, 172, 120);
@@ -111,6 +116,11 @@
         
         .order-icon {
             display: inline-block; // allow for rotation
+
+            svg {
+                width: 75%;
+                height: 75%;
+            }
         }
     }
 }
