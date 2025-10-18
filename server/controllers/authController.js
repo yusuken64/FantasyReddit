@@ -4,6 +4,8 @@ const crypto = require('crypto')
 const database = require('../database')
 
 exports.redditLogin = (req, res) => {
+  console.log('Initiating Reddit OAuth login', process.env);
+
   const state = crypto.randomBytes(16).toString('hex') // Optional: store this in session
   const params = new URLSearchParams({
     client_id: process.env.REDDIT_CLIENT_ID,
