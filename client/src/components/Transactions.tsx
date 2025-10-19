@@ -199,7 +199,7 @@ const Transactions: React.FC = () => {
                   </Typography>
                 </TableCell>
                 <TableCell>{tx.shares}</TableCell>
-                <TableCell>${tx.price_per_share.toFixed(2)}</TableCell>
+                <TableCell>${Number(tx.price_per_share).toFixed(2)}</TableCell>
                 <TableCell>${total.toFixed(2)}</TableCell>
               </TableRow>
             )
