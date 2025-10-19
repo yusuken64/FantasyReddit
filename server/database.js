@@ -1,20 +1,17 @@
 const sql = require('mssql');
 
-console.log(`Running in ${process.env.NODE_ENV || 'unknown'} mode`);
-const isLocal = process.env.NODE_ENV !== 'production';
+const nodeEnv = process.env.NODE_ENV || 'development';
+console.log(`Running in ${nodeEnv} mode`);
 
-const config = {
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  server: process.env.DB_SERVER,
-  database: process.env.DB_NAME,
-  options: {
-    encrypt: !isLocal,
-    trustServerCertificate: isLocal
-  }
-};
+const connectionString = process.env.DB_CONNECTION_STRING;
+console.log(connectionString);
 
-console.log(config.options);
+if (!connectionString) {
+  console.error("❌ DB_CONNECTION_STRING not set in environment variables!");
+  process.exit(1);
+}
+
+const config = new sql.ConnectionPool(connectionString).config;
 
 let _pool;
 let _poolConnect;

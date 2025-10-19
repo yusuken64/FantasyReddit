@@ -32,28 +32,28 @@ Track trends, build your portfolio, and see if you can outsmart the Reddit hive 
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/yusuken64/fantasy-reddit-stocks.git
-cd fantasy-reddit-stocks
+cd FantasyReddit
 ```
 
-### 2. Setup Database
-Make sure you have Docker installed, then run:
-```bash
-docker compose up
-```
+### 2. Create a .env File
+Before starting the app, copy the example environment file and fill in your own secrets:
+cp .env.example .env
 
-### 3. Start the Backend
-```bash
-cd server
-npm install
-node server.js
-```
+Then open .env in a text editor and replace the placeholder values with your own credentials, such as:
 
-### 4. Start the Frontend
-```bash
-cd client
-npm install
-npm run dev
-```
+A secure JWT_SECRET
+Reddit API credentials (REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET)
+Optional adjustments to FRONTEND_URL or REDDIT_REDIRECT_URI if ports differ
 
-Frontend will be available at http://localhost:5173 (or similar, per Vite's output).
-Backend will be available at http://localhost:3000.
+### 3. Start All Services (Database + Backend + Frontend)
+Make sure you have Docker and Docker Compose installed, then run:
+docker compose up --build
+
+This will:
+
+Start a local SQL Server container (with data persisted in a volume)
+Wait for SQL Server to become healthy before launching the backend
+Launch both backend and frontend containers
+
+Frontend will be available at http://localhost:5173
+Backend will be available at http://localhost:8080

@@ -1,20 +1,24 @@
 console.log('--- Environment Initialization ---');
 
-const nodeEnv = process.env.NODE_ENV;
-console.log(`Current NODE_ENV value: ${nodeEnv ? `"${nodeEnv}"` : 'undefined (not set)'}`);
+const nodeEnv = process.env.NODE_ENV || 'development';
+console.log(`Current NODE_ENV value: "${nodeEnv}"`);
 
-if (nodeEnv !== 'production') {
-  console.log('NODE_ENV is not "production". Loading environment variables from .env.local file...');
+let connectionString = process.env.DB_CONNECTION_STRING;
+
+if (connectionString) {
+  console.log('Using DB_CONNECTION_STRING from environment');
+} else if (nodeEnv !== 'production') {
+  console.log('DB_CONNECTION_STRING not set, loading .env.local for local development...');
   const result = require('dotenv').config({ path: '.env.local' });
   if (result.error) {
     console.error('Failed to load .env.local:', result.error);
   } else {
-    console.log('.env.local loaded successfully. Variables:');
-    //console.log(process.env);
+    console.log('.env.local loaded successfully');
+    connectionString = process.env.DB_CONNECTION_STRING;
   }
 } else {
-  console.log('NODE_ENV is "production". Skipping .env.local loading and relying on Azure App Service environment variables.');
-  //console.log(process.env);
+  console.error('❌ DB_CONNECTION_STRING not set in production!');
+  process.exit(1);
 }
 
 console.log('--- End of Environment Initialization ---\n');
