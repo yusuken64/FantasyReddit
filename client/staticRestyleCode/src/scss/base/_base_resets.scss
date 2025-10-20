@@ -113,7 +113,9 @@ button {
     // Not supported on Firefox unfortunately...
     // width: attr(data-width px);
     // height: attr(data-height px);
-    
+}
+
+svg {
     /* Warning: disables event emission for the svg */
     pointer-events: none; // don't display <svg> <title>s on hover
 }

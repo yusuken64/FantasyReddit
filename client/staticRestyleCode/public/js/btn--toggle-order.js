@@ -2,8 +2,7 @@ const sortControlDivs = Array.from(document.querySelectorAll('#sort-fieldset .so
 const enableSortRuleCheckboxInputs = Array.from(document.querySelectorAll('#sort-fieldset .control__input'));
 
 // debounce to keep state and animation in sync
-// warning: out of sync issues still occur
-let isAnimating = false;
+let isChangingState = false;
 /*
  * Add +180deg to the arrow's rotation.
  * If the current rotation is 360deg, reset to 0.
@@ -11,17 +10,18 @@ let isAnimating = false;
  * counter-clockwise rotation animation like this.
  */
 function rotateSortIndicator(sortIndicatorElement) {
-    isAnimating = true;
-    
+    // If we opt to allow or queue rotations as the animation plays the following will apply:
     // Don't use getComputedStyle(), since that can reflect rotation values while an animation plays 
     // ... instead of purely the set 'to' rotation value regardless of where the computed rotation value is at.
-    const currentStyleObject = sortIndicatorElement.style;
-    let currentRotationValueString = currentStyleObject.getPropertyValue("rotate");
+    // const currentStyleObject = sortIndicatorElement.style;
+    // let currentRotationValueString = currentStyleObject.getPropertyValue("rotate");
     
-    // Handle non-existant rotate property
-    if (currentRotationValueString == "") {
-        currentRotationValueString = "0deg";
-    }
+    // At first, nothing will be set on style.rotate, as it purely reflects direct mutation, not computed.
+    // if (currentRotationValueString == "") {
+    // Use computed rotation value; it's fine since the isChangingState lock prevents desync.
+    const computedStyleObject = getComputedStyle(sortIndicatorElement);
+    const currentRotationValueString = computedStyleObject.getPropertyValue("rotate");
+    // }
     
     const currentRotationDeg = Number(currentRotationValueString.slice(0, -3)); // remove 'deg' from the end
     
@@ -46,7 +46,7 @@ function rotateSortIndicator(sortIndicatorElement) {
         animationTo.commitStyles();
         animationTo.cancel();
         
-        isAnimating = false;
+        isChangingState = false;
     });
 }
 
@@ -67,7 +67,9 @@ sortControlDivs.forEach(sortControlDiv => {
     
     // Order (asc/desc) button handler
     toggleSortOrderButton.addEventListener('click', (event) => {
-        if (!isAnimating) {
+        if (!isChangingState) {
+            isChangingState = true; // prevent state de sync issues
+            
             // No need to stop propagation since the checkbox input and sort order button have not a parent-child relationship.
             
             const currentOrderValue = enableSortRuleCheckboxInput.value;
