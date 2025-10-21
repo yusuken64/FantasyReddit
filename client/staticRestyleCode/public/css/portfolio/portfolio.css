@@ -108,68 +108,15 @@
   height: 100%;
 }
 
-.paginator {
-  display: flex;
-  flex-direction: column;
-  margin-top: 2rem;
-}
 @media screen and (max-width: 78rem) {
-  .paginator {
-    align-items: center;
+  .paginator:last-of-type {
     margin-top: 10rem;
-  }
-  .paginator .paginator__current-page {
-    position: relative;
-    left: -0.3rem;
   }
 }
 @media screen and (max-width: 59rem) {
-  .paginator {
+  .paginator:last-of-type {
     margin-top: 2rem;
   }
-}
-.paginator .pagiator__buttons {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-.paginator .pagiator__buttons .btn--pager {
-  width: 1.75rem;
-  aspect-ratio: 1/1;
-  border-radius: 50%;
-  background: rgb(110, 209, 255);
-  border: 1px solid rgb(110, 209, 255);
-  box-shadow: 0 2px 0 rgba(177, 177, 177, 0.35);
-  transition: 0.4s background, 0.2s border-color;
-}
-.paginator .pagiator__buttons .btn--pager:hover {
-  background: rgb(107, 193, 233);
-  border: 1px solid rgb(69, 160, 203);
-}
-.paginator .pagiator__buttons .btn--pager:has(.arrow-icon) {
-  position: relative;
-}
-.paginator .pagiator__buttons .btn--pager:has(.arrow-icon) .arrow-icon {
-  position: absolute;
-  rotate: 90deg;
-  top: 0;
-  transform: translate(50%, 50%);
-}
-.paginator .pagiator__buttons .btn--pager:has(.arrow-icon) .arrow-icon--right {
-  rotate: 90deg;
-  transform: translate(50%, 50%);
-}
-.paginator .pagiator__buttons .btn--pager:has(.arrow-icon) .arrow-icon--left {
-  rotate: -90deg;
-  transform: translate(-50%, -50%);
-}
-.paginator .pagiator__buttons .btn--current-pager {
-  background: rgb(101, 185, 225);
-  border: 1px solid rgb(48, 125, 161);
-}
-.paginator .pagiator__buttons .btn--current-pager:hover {
-  background: rgb(101, 185, 225);
-  border: 1px solid rgb(48, 125, 161);
 }
 
 /*# sourceMappingURL=portfolio.css.map */
