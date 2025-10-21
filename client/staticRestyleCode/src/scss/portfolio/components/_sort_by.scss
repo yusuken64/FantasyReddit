@@ -26,6 +26,7 @@
     /* Visual space to put the absolutely positioned .btn--toggle-order into */
     padding: .5rem 2.8rem .5rem .8rem;
     border-radius: 1rem;
+    overflow: hidden; // clip rectangle children
     
     --color-bg: rgb(237 167 115);
     --color-bg--hover: rgb(222 152 107);
@@ -55,7 +56,7 @@
     
     .control__input {
         appearance: none;
-        background: rgba(255, 0, 0, 0);
+        background: transparent;
         /* Fill the parent ( .sort-control ) */
         width: 100%;
         height: 100%;
@@ -65,7 +66,6 @@
         position: absolute;
         left: 0;
         top: 0;
-        border-radius: 1rem;
         
         &:hover {
             cursor: pointer;
@@ -73,16 +73,14 @@
     }
     
     .btn--toggle-order {
-        box-sizing: content-box; // easier calculations for perfect circles w/ borders
+        // Content-box makes it easier to create perfect circles w/ borders
+        box-sizing: content-box;
         width: 1rem;
         height: 1rem;
+        
         border: 1px solid rgb(128, 89, 25);
         background: rgb(222, 151, 88);
         border-radius: 50%;
-        
-        font-weight: bolder; // no effect with chosen symbol. choose another
-        
-        margin-left: .5rem;
         
         /*
             Make a stacking context and draw element over-top .control__input to allow clicks.
@@ -91,13 +89,14 @@
         */
         isolation: isolate;
         
-        // absolute, as it won't affect the intrinsic size of the button and make the layout look wonky
+        // absolute, as it won't affect the intrinsic size of the button and make the parent layout look wonky.
         // inline might have this capability too but I would have to research it more in-depth
         position: absolute;
         right: 0.5rem;
+        
+        // Translate the element's block-length center by 50% from the parent's block-start.
         top: 50%;
         transform: translateY(-50%);
-        
         
         // Center the arrow svg icon
         display: grid;
@@ -109,13 +108,14 @@
         }
         
         .order-icon {
-            display: inline-block; // allow for rotation
-            rotate: -180deg; // initial descending rotation
+            display: inline-block; // Allow for rotation
+            rotate: -180deg; // Initial descending rotation
+            
+            // I'm not sure how to explain the effect of the following size adjustments on the <svg>:
             width: 100%;
             height: 100%;
-                
-            svg,
-            use {
+            
+            svg {
                 width: 100%;
                 height: 100%;
             }
