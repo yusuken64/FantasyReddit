@@ -36,7 +36,7 @@
             border: 1px solid rgb(110, 209, 255);
             box-shadow: 0 2px 0 rgba(177, 177, 177, 0.35);
             
-            transition: .2s background;
+            transition: .4s background, .2s border-color;
             &:hover {
                 background: rgb(107, 193, 233);
                 border: 1px solid rgb(69, 160, 203);
@@ -61,6 +61,16 @@
                     rotate: -90deg;
                     transform: translate(-50%, -50%); // [?] Unknown: I have no clue why this works. I need to learn svg better
                 }
+            }
+        }
+        
+        .btn--current-pager {
+            background: rgb(101, 185, 225);
+            border: 1px solid rgb(48, 125, 161);
+            
+            &:hover {
+                background: rgb(101, 185, 225);
+                border: 1px solid rgb(48, 125, 161);
             }
         }
         

@@ -1,5 +1,12 @@
 @use "base_variables";
 
+// Problem:
+// If <main>'s content exceeds 100vh,
+// I can scroll past the <html>, <body>, and <main>. 
+
+// Solution:
+// blahh tomorrow
+
 *, ::before, ::after {
     box-sizing: border-box;
     margin: 0;
@@ -23,6 +30,10 @@ body {
         "header header" auto
         "sidebar main" 1fr
         / max-content 1fr;
+        
+    // On Firefox only, for some reason there is overflow that allows the user
+    // ... to scroll past the body and its contents. I'm not sure why..
+    overflow: hidden;
         
     > header {
         grid-area: header;
