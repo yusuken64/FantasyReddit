@@ -10,16 +10,23 @@ Pull requests & git logs will reveal what changes occur for you
 
 ✅ Shared page base
 ✅ Landing page content
+
 Top chart page content
+Hot chart page content
+
+Options page
+Login
+Register
+password reset page
+
+Leaderboard
 Trade chart page* content
     *we may forgo this if such a feature is not desired
-Portfolio page content
-Transaction History page content (accessible from the Portfolio)
-
-Login page content
-Registration page content
-Password reset page content
-
+🚧 Portfolio page content
+    ✅ - Portfolio thread list
+    - Transaction History page content (accessible from the Portfolio)
+    🚧 - Holdings page in graphical format on the portfolio
+    
 ## Known issues:
 
 The search bar width changes are not designed very well (too viral).
