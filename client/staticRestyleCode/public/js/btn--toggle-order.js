@@ -79,7 +79,7 @@ sortControlDivs.forEach(sortControlDiv => {
             
             a11yCurrentOrderTextSpan.textContent = negatedOrderString;
             
-            rotateSortIndicator(currentSortOrderIndicator);
+            flipElementClockwise(currentSortOrderIndicator);
             
             // For Yusuke:
             // Send a web request and update the URL to include query parameters (in case the user shares their query to other users via URL)
