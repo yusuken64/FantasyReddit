@@ -39,7 +39,6 @@
                     <form id="toggle-sidebar-form">
                         <label for="btn--toggle-sidebar" class="sr-only">Toggle side-bar</label>
                         
-                        <!-- popoverTargetAction="toggle" by default -->
                         <button id="btn--toggle-sidebar"
                                 type="button"
                                 aria-controls="sidebar"
@@ -62,10 +61,12 @@
                     </form>
                 </li>
                 
-                <!-- Add .account-info-item--logged-in or .account-info-item--logged-out depending on auth state -->
+                <!-- Use .account-info-item--logged-in or .account-info-item--logged-out depending on auth state -->
                 <li class="nav-item account-info-item--logged-out">
                     <!-- if loggedin -->
+                        <!-- populate with logged-in-header-partial.html -->
                     <!-- else -->
+                        <!-- logged-out-header-partial.html: -->
                         <a href="#" class="btn btn--register">Register</a>
                         <a href="#" class="btn btn--login">Login</a>
                     <!-- endif -->
@@ -73,11 +74,24 @@
             </ul>
         </nav>
         
-        <!-- <noscript> is turned into a span on browsers, so we create a class to target in CSS -->
+        <!-- <noscript> is turned into a <span> on browsers, so add create a class to target in CSS -->
         <noscript class="noscript">
             <p>Please enable JavaScript for interactive functionality to work correctly.</p>
         </noscript>
     </header>
+    
+    <!--
+        We currently use a popover for an accessible sidebar.
+        This gives us a lot of accessibility features out-of-the-box for free.
+        
+        For ultimate accessibility, a <dialog> is recommended:
+            https://theadminbar.com/accessibility-weekly/mobile-nav-and-hamburger-menus/
+            
+        I do not like the focus entrapment however. Adding a "Close" sidebar instead of or in addition
+        ... to the toggle button is not ideal for the design.
+        
+        A screen reader or tab user can back-tab if they want to retrieve an element prior in the DOM.
+    -->
     
     <!-- Sidebar navigation -->
     <aside id="sidebar" popover="manual">
@@ -85,10 +99,13 @@
             <h2 class="sr-only">Navigation:</h2>
             
             <ul class="sidebar-navlist">
-                <!-- This sidebar item is not displayed if the screen size is GTE a medium breakpoint value. -->
+                <!-- This sidebar item (should) not displayed if the screen size is GTE a medium breakpoint value. -->
+                <!-- Use .account-info-item--logged-in or .account-info-item--logged-out depending on auth state -->
                 <li class="navlist-item account-info-item--logged-out">
                     <!-- if loggedin -->
+                        <!-- populate with logged-in-sidebar-partial.html -->
                     <!-- else -->
+                        <!-- logged-out-sidebar-partial.html: -->
                         <a href="#" class="btn btn--register">Register</a>
                         <a href="#" class="btn btn--login">Login</a>
                     <!-- end -->
@@ -141,99 +158,88 @@
         
         <!-- Not the best BEM naming, but CSS-in-JS is probably the better alternative. -->
         <ul class="recent-thread-list">
-                <li class="list__item">
-                    <a class="item__link" href="#">
-                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
-                        <p class="thread__subreddit">r/RedesignHelp</p>
-                        <p class="thread__title">How to design this this thing...</p>
-                    </a>
-                </li>
-                
-                <li class="list__item">
-                    <a class="item__link" href="#">
-                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
-                        <p class="thread__subreddit">r/RedesignHelp</p>
-                        <p class="thread__title">How to design this this thing...</p>
-                    </a>
-                </li>
-                <li class="list__item">
-                    <a class="item__link" href="#">
-                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
-                        <p class="thread__subreddit">r/RedesignHelp</p>
-                        <p class="thread__title">How to design this this thing...</p>
-                    </a>
-                </li>
-                
-                <li class="list__item">
-                    <a class="item__link" href="#">
-                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
-                        <p class="thread__subreddit">r/RedesignHelp</p>
-                        <p class="thread__title">How to design this this thing...</p>
-                    </a>
-                </li>
-                <li class="list__item">
-                    <a class="item__link" href="#">
-                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
-                        <p class="thread__subreddit">r/RedesignHelp</p>
-                        <p class="thread__title">How to design this this thing...</p>
-                    </a>
-                </li>
-                
-                <li class="list__item">
-                    <a class="item__link" href="#">
-                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
-                        <p class="thread__subreddit">r/RedesignHelp</p>
-                        <p class="thread__title">How to design this this thing...</p>
-                    </a>
-                </li>
-                <li class="list__item">
-                    <a class="item__link" href="#">
-                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
-                        <p class="thread__subreddit">r/RedesignHelp</p>
-                        <p class="thread__title">How to design this this thing...</p>
-                    </a>
-                </li>
-                
-                <li class="list__item">
-                    <a class="item__link" href="#">
-                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
-                        <p class="thread__subreddit">r/RedesignHelp</p>
-                        <p class="thread__title">How to design this this thing...</p>
-                    </a>
-                </li>
-                <li class="list__item">
-                    <a class="item__link" href="#">
-                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
-                        <p class="thread__subreddit">r/RedesignHelp</p>
-                        <p class="thread__title">How to design this this thing...</p>
-                    </a>
-                </li>
-                
-                <li class="list__item">
-                    <a class="item__link" href="#">
-                        <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
-                        <p class="thread__subreddit">r/RedesignHelp</p>
-                        <p class="thread__title">How to design this this thing...</p>
-                    </a>
-                </li>
+            <li class="list__item">
+                <a class="item__link" href="#">
+                    <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                    <p class="thread__subreddit">r/RedesignHelp</p>
+                    <p class="thread__title">How to design this this thing...</p>
+                </a>
+            </li>
+            <li class="list__item">
+                <a class="item__link" href="#">
+                    <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                    <p class="thread__subreddit">r/RedesignHelp</p>
+                    <p class="thread__title">How to design this this thing...</p>
+                </a>
+            </li>
+            <li class="list__item">
+                <a class="item__link" href="#">
+                    <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                    <p class="thread__subreddit">r/RedesignHelp</p>
+                    <p class="thread__title">How to design this this thing...</p>
+                </a>
+            </li>
+            
+            <li class="list__item">
+                <a class="item__link" href="#">
+                    <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                    <p class="thread__subreddit">r/RedesignHelp</p>
+                    <p class="thread__title">How to design this this thing...</p>
+                </a>
+            </li>
+            <li class="list__item">
+                <a class="item__link" href="#">
+                    <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                    <p class="thread__subreddit">r/RedesignHelp</p>
+                    <p class="thread__title">How to design this this thing...</p>
+                </a>
+            </li>
+            
+            <li class="list__item">
+                <a class="item__link" href="#">
+                    <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                    <p class="thread__subreddit">r/RedesignHelp</p>
+                    <p class="thread__title">How to design this this thing...</p>
+                </a>
+            </li>
+            <li class="list__item">
+                <a class="item__link" href="#">
+                    <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                    <p class="thread__subreddit">r/RedesignHelp</p>
+                    <p class="thread__title">How to design this this thing...</p>
+                </a>
+            </li>
+            
+            <li class="list__item">
+                <a class="item__link" href="#">
+                    <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                    <p class="thread__subreddit">r/RedesignHelp</p>
+                    <p class="thread__title">How to design this this thing...</p>
+                </a>
+            </li>
+            <li class="list__item">
+                <a class="item__link" href="#">
+                    <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                    <p class="thread__subreddit">r/RedesignHelp</p>
+                    <p class="thread__title">How to design this this thing...</p>
+                </a>
+            </li>
+            
+            <li class="list__item">
+                <a class="item__link" href="#">
+                    <img class="thread__icon" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                    <p class="thread__subreddit">r/RedesignHelp</p>
+                    <p class="thread__title">How to design this this thing...</p>
+                </a>
+            </li>
         </ul>
     </aside>
-    
-    <!--
-        On mobile, we want a dialog for ultimate accessibility.
-        We get a lot of a11y functionality for free via a dialog:
-        
-        * "When closing the mobile menu, the user should still be in the header with their focus returned to the button that triggered it, not anywhere else on the page."
-        * "Allow the mobile nav to close with the escape key."
-        * "Once you have opened the menu with a keyboard, hitting the Tab key takes you to the first item in the menu, not the somewhere on the page behind the menu."
-        (https://theadminbar.com/accessibility-weekly/mobile-nav-and-hamburger-menus/)
-        
-        We can make a visually hidden "Close" button within the modal that appears when focused for a nice balance between aesthetics and a11y.
-    -->
     
     <!-- Main content -->
     <main>   
         <article class="scrollable-container">
+            <!-- Use partial: content-portfolio-partial.html: -->
+             
             <h2 class="text-orange">Portfolio:</h2>
             
             <form>
@@ -251,12 +257,12 @@
                         <input id="sort-input-1" class="control__input"
                                type="checkbox" name="price" value="desc">
                          
+                               
                         <button type="button" class="btn btn--toggle-order" aria-label="Switch price ordering">
                             <span class="sr-only">
                                 Sort by <span class="next-order-text">ascending</span> order
                             </span>
                             
-                 
                             <span class="order-icon" aria-hidden="true">
                                 <svg viewBox="0 0 24 24">
                                     <title>An arrow icon</title>
@@ -271,14 +277,14 @@
                         Also add:
                         
                         Global shares (total shares bought by all users)
-                        Purchase frequency (lots of shares bought in a short duration)
+                        Purchase frequency (sort by number of shares bought in a short period of time within the last 10 days)
                             lots of sells = negative
                             lots of purchases = positive
                             no purchases or sells = 0
                         Likes
                         Dislikes
-                        Views
-                        Comments
+                        Reddit Thread Views
+                        Reddit Comment count
                         Subreddit name
                         Author name
                     -->
@@ -299,9 +305,9 @@
                         </svg>
                     </button>
                     <!--
-                    Yusuke, populate page buttons as you see fit within React.
+                    Yusuke,
                     
-                    You might want to implement a portion of page buttons relative to the current page
+                    You might want to implement a limited number of page buttons relative to the current page
                     ... so as to save on space and memory. For example, a user with 500 pages of items
                     ... would not like to see 500 buttons on the screen. Instead, they might prefer something like:
                     
@@ -346,7 +352,7 @@
                             <p class="subreddit-title">r/RedesignHelp</p>
                             <p class="author-name">ZadocPaet</p>
                             <p class="date-published">
-                                <time datetime="2017">• 8 yr. ago</time>
+                                <time datetime="2017"><span aria-hidden="true">•</span> 8 yr. ago</time>
                             </p>
                         </div>
 
@@ -360,7 +366,7 @@
                         <div class="card-engagement-buttons">
                             <!-- We probably don't need to actually make these into buttons -->
                             <div class="btn btn--like">
-                                <svg class="icon" data-width="18" data-height="20" viewBox="0 0 18 20">
+                                <svg class="icon" viewBox="0 0 18 20">
                                     <title>Up arrow icon</title>
                                     <use href="./assets/svg/like-icon.svg#like-icon"></use>
                                 </svg>
@@ -372,7 +378,7 @@
                             </div>
 
                             <div class="btn btn--dislike">
-                                <svg class="icon" data-width="18" data-height="20" viewBox="0 0 18 20">
+                                <svg class="icon" viewBox="0 0 18 20">
                                     <title>Down arrow icon</title>
                                     <use href="./assets/svg/dislike-icon.svg#dislike-icon"></use>
                                 </svg>
@@ -432,7 +438,7 @@
                             <p class="subreddit-title">r/RedesignHelp</p>
                             <p class="author-name">ZadocPaet</p>
                             <p class="date-published">
-                                <time datetime="2017">• 8 yr. ago</time>
+                                <time datetime="2017"> 8 yr. ago</time>
                             </p>
                         </div>
 
@@ -446,7 +452,7 @@
                         <div class="card-engagement-buttons">
                             <!-- We probably don't need to actually make these into buttons -->
                             <div class="btn btn--like">
-                                <svg class="icon" data-width="18" data-height="20" viewBox="0 0 18 20">
+                                <svg class="icon" viewBox="0 0 18 20">
                                     <title>Up arrow icon</title>
                                     <use href="./assets/svg/like-icon.svg#like-icon"></use>
                                 </svg>
@@ -458,7 +464,7 @@
                             </div>
 
                             <div class="btn btn--dislike">
-                                <svg class="icon" data-width="18" data-height="20" viewBox="0 0 18 20">
+                                <svg class="icon" viewBox="0 0 18 20">
                                     <title>Down arrow icon</title>
                                     <use href="./assets/svg/dislike-icon.svg#dislike-icon"></use>
                                 </svg>
@@ -522,9 +528,9 @@
                         </svg>
                     </button>
                     <!--
-                    Yusuke, populate page buttons as you see fit within React.
+                    Yusuke,
                     
-                    You might want to implement a portion of page buttons relative to the current page
+                    You might want to implement a limited number of page buttons relative to the current page
                     ... so as to save on space and memory. For example, a user with 500 pages of items
                     ... would not like to see 500 buttons on the screen. Instead, they might prefer something like:
                     
