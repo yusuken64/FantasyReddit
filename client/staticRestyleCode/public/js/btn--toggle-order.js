@@ -1,38 +1,26 @@
 const sortControlDivs = Array.from(document.querySelectorAll('#sort-fieldset .sort-control'));
 const enableSortRuleCheckboxInputs = Array.from(document.querySelectorAll('#sort-fieldset .control__input'));
 
-// debounce to keep state and animation in sync
+// Debounce to keep state and animation in sync
 let isChangingState = false;
+
 /*
- * Add +180deg to the arrow's rotation.
- * If the current rotation is 360deg, reset to 0.
- * Saves memory (given the reset) and is the best way to achieve a
- * counter-clockwise rotation animation like this.
+ * Add +180deg to the passed element's rotation.
  */
-function rotateSortIndicator(sortIndicatorElement) {
-    // If we opt to allow or queue rotations as the animation plays the following will apply:
-    // Don't use getComputedStyle(), since that can reflect rotation values while an animation plays 
-    // ... instead of purely the set 'to' rotation value regardless of where the computed rotation value is at.
-    // const currentStyleObject = sortIndicatorElement.style;
-    // let currentRotationValueString = currentStyleObject.getPropertyValue("rotate");
-    
+function flipElementClockwise(element) {    
     // At first, nothing will be set on style.rotate, as it purely reflects direct mutation, not computed.
-    // if (currentRotationValueString == "") {
-    // Use computed rotation value; it's fine since the isChangingState lock prevents desync.
-    const computedStyleObject = getComputedStyle(sortIndicatorElement);
+    // So we use the computed rotation value; it's fine since the isChangingState lock prevents de-sync.
+    const computedStyleObject = getComputedStyle(element);
     const currentRotationValueString = computedStyleObject.getPropertyValue("rotate");
-    // }
     
     const currentRotationDeg = Number(currentRotationValueString.slice(0, -3)); // remove 'deg' from the end
     
-    const animationTo = sortIndicatorElement.animate(
-        // Keyframes
+    const animationTo = element.animate(
         [
             // I guess precision loss will occur once the max int size is hit.
             // But hey, if they get there then they'll get a fun (broken) animation as an easter-egg.
             { rotate: `${currentRotationDeg + 180}deg` },
         ],
-        // Keyframe options
         {
             duration: .2 * 1000, // .2 seconds
             easing: "ease",
@@ -42,7 +30,7 @@ function rotateSortIndicator(sortIndicatorElement) {
     );
     
     animationTo.addEventListener('finish', () => {
-        // Update the indicator's style property so we can use it for future animations
+        // Update the element's .style property so we can use it for future animations
         animationTo.commitStyles();
         animationTo.cancel();
         
@@ -50,9 +38,8 @@ function rotateSortIndicator(sortIndicatorElement) {
     });
 }
 
-// Hairy state management. A framework might make this a lot better.
+// Warning: hairy state management. A framework might make this a lot better.
 
-// Controls default to descending order until the user toggles the order.
 sortControlDivs.forEach(sortControlDiv => {
     const enableSortRuleCheckboxInput = sortControlDiv.querySelector('.control__input');
     const toggleSortOrderButton = sortControlDiv.querySelector('.btn--toggle-order');
@@ -68,10 +55,10 @@ sortControlDivs.forEach(sortControlDiv => {
     // Order (asc/desc) button handler
     toggleSortOrderButton.addEventListener('click', (event) => {
         if (!isChangingState) {
-            isChangingState = true; // prevent state de sync issues
+            isChangingState = true; // Prevent state de-sync issues
             
-            // No need to stop propagation since the checkbox input and sort order button have not a parent-child relationship.
-            
+            // No need to call stopPropogation(),
+            // ... since the checkbox input and sort order button don't have a parent-child relationship.
             const currentOrderValue = enableSortRuleCheckboxInput.value;
             
             // User tampered with sort rule input value or logic errors occured.
@@ -80,7 +67,6 @@ sortControlDivs.forEach(sortControlDiv => {
             }
             
             const negatedOrderString = currentOrderValue == 'desc' ? 'asc' : 'desc';
-            // const negatedOrderIconText = negatedOrderString == 'asc' ? '↑' : '↓';
             
             a11yNextOrderTextSpan.textContent = enableSortRuleCheckboxInput.value;
             enableSortRuleCheckboxInput.value = negatedOrderString;
@@ -94,8 +80,8 @@ sortControlDivs.forEach(sortControlDiv => {
             a11yCurrentOrderTextSpan.textContent = negatedOrderString;
             
             rotateSortIndicator(currentSortOrderIndicator);
-            // currentSortOrderIndicator.textContent = negatedOrderIconText;
             
+            // For Yusuke:
             // Send a web request and update the URL to include query parameters (in case the user shares their query to other users via URL)
         }
     });
@@ -104,7 +90,7 @@ sortControlDivs.forEach(sortControlDiv => {
 // Handle click to enable sort rule
 enableSortRuleCheckboxInputs.forEach(
     enableSortRuleCheckboxInput => enableSortRuleCheckboxInput.addEventListener('click', event => {
+    // For Yusuke:
     // Send a web request and update the URL to include query parameters (in case the user shares their query to other users via URL)
-
     // Use the checkbox's value attribute
 }));
