@@ -1,0 +1,88 @@
+@use "../../base/base_variables";
+
+#transaction-table {
+    table-layout: fixed; // [?] Unknown: idk what this does
+    
+    /*
+        Required for border-radius to take effect:
+        https://www.w3.org/TR/CSS2/tables.html#separated-borders
+        https://www.w3.org/TR/CSS2/tables.html#collapsing-borders
+    */
+    border-collapse: separate;
+    border-spacing: 0;
+    
+    $border-value: 1px solid rgb(189, 189, 189);
+    
+    margin-top: 1rem;
+    width: 75%;
+    // overflow: hidden; // why does this fuck up the table?
+    
+    /* Border radii */
+    thead tr:first-child th:first-child {
+        border-top-left-radius: .5rem;
+    }
+    thead tr:first-child th:last-child {
+        border-top-right-radius: .5rem;
+    }
+    tbody tr:last-child th:first-child,
+    tbody tr:last-child td:first-child {
+        border-bottom-left-radius: .5rem;
+    }
+    tbody tr:last-child th:last-child,
+    tbody tr:last-child td:last-child {
+        border-bottom-right-radius: .5rem;
+    }
+    
+    /* Cell Borders */
+    tbody th:first-child,
+    tbody td:first-child {
+        border-left: $border-value;
+    }
+    tbody td,
+    tbody th {
+        border-right: $border-value;
+        border-bottom: $border-value;
+    }
+    
+    td,
+    th {
+        padding: .5rem;
+    }
+    
+    /* Cell widths */
+    th:nth-child(1),
+    td:nth-child(1) {
+        // what happens when data widths don't add up to 100% in a row?
+        // the children's width percentages are summed. the sum represents the parent width.
+        // 30% / 60% = 1/2 = 0.5
+        
+        // if table width is auto, child percent widths do not work. why? should be based on fit-content
+        // what if we want to go over 100% of the parent width?
+        width: 30%;
+    }
+    th:nth-child(2),
+    td:nth-child(2) {
+        width: 15%; // if table width is auto, child percent widths do not work. why?
+    }
+    th:nth-child(3),
+    td:nth-child(3) {
+        width: 15%; // if table width is auto, child percent widths do not work. why?
+    }
+    
+    /* Text alignment for numeric text data within cells */
+    tbody th:nth-child(2),
+    tbody td:nth-child(2),
+    tbody th:nth-child(3),
+    tbody td:nth-child(3) {
+        text-align: right;
+    }
+    
+    /* Coloring */
+    thead {
+        background: rgb(5, 16, 38);
+        color: base_variables.$color-white;
+    }
+    tbody tr:nth-child(even) {
+        background: rgb(225, 225, 225);
+    }
+}

@@ -1,0 +1,71 @@
+#transaction-table {
+  table-layout: fixed;
+  /*
+      Required for border-radius to take effect:
+      https://www.w3.org/TR/CSS2/tables.html#separated-borders
+      https://www.w3.org/TR/CSS2/tables.html#collapsing-borders
+  */
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 1rem;
+  width: 75%;
+  /* Border radii */
+  /* Cell Borders */
+  /* Cell widths */
+  /* Text alignment for numeric text data within cells */
+  /* Coloring */
+}
+#transaction-table thead tr:first-child th:first-child {
+  border-top-left-radius: 0.5rem;
+}
+#transaction-table thead tr:first-child th:last-child {
+  border-top-right-radius: 0.5rem;
+}
+#transaction-table tbody tr:last-child th:first-child,
+#transaction-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 0.5rem;
+}
+#transaction-table tbody tr:last-child th:last-child,
+#transaction-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 0.5rem;
+}
+#transaction-table tbody th:first-child,
+#transaction-table tbody td:first-child {
+  border-left: 1px solid rgb(189, 189, 189);
+}
+#transaction-table tbody td,
+#transaction-table tbody th {
+  border-right: 1px solid rgb(189, 189, 189);
+  border-bottom: 1px solid rgb(189, 189, 189);
+}
+#transaction-table td,
+#transaction-table th {
+  padding: 0.5rem;
+}
+#transaction-table th:nth-child(1),
+#transaction-table td:nth-child(1) {
+  width: 30%;
+}
+#transaction-table th:nth-child(2),
+#transaction-table td:nth-child(2) {
+  width: 15%;
+}
+#transaction-table th:nth-child(3),
+#transaction-table td:nth-child(3) {
+  width: 15%;
+}
+#transaction-table tbody th:nth-child(2),
+#transaction-table tbody td:nth-child(2),
+#transaction-table tbody th:nth-child(3),
+#transaction-table tbody td:nth-child(3) {
+  text-align: right;
+}
+#transaction-table thead {
+  background: rgb(5, 16, 38);
+  color: hsl(220, 7%, 92%);
+}
+#transaction-table tbody tr:nth-child(even) {
+  background: rgb(225, 225, 225);
+}
+
+/*# sourceMappingURL=transaction-history.css.map */

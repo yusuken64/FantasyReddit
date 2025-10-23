@@ -207,6 +207,8 @@ Sidebar
             border-radius: .5rem;
             gap: .25rem .5rem;
             
+            text-decoration: none;
+            
             &:hover {
                 border-color: hsl(from base_variables.$color-white h s calc(l - 32));
             }

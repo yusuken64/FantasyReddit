@@ -14,6 +14,7 @@
 // A psuedo-element underline that will animate in length to become visible when
 // ... the target element is hovered:
 .underline-hover {
+    text-decoration: none;
     position: relative;
     
     &::after {
@@ -45,6 +46,8 @@
 
 // <a> <span>Click to view profile</span> <svg class="icon icon--external">...</svg></a>
 .underline-hover-minus-svg {
+    text-decoration: none;
+    
     > *:not(svg) {
         position: relative;
     }
@@ -86,4 +89,8 @@
 // Length utilities
 .h-100 {
     height: 100%;
+}
+
+.width-mc {
+    width: max-content;
 }
