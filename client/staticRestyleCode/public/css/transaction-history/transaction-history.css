@@ -7,7 +7,6 @@
   */
   border-collapse: separate;
   border-spacing: 0;
-  width: fit-content;
   margin-top: 1rem;
   /* Border radii */
   /* Cell Borders */
@@ -43,9 +42,8 @@
 }
 #transaction-table td,
 #transaction-table th {
+  white-space: nowrap;
   padding: 0.5rem 1rem;
-  word-break: break-word;
-  hyphens: auto;
 }
 #transaction-table th:nth-child(1),
 #transaction-table td:nth-child(1) {
@@ -95,19 +93,38 @@
 #transaction-table td:has(a) a {
   padding: 0.5rem;
 }
-
-.mobile-overflow-wrapper {
-  width: 75%;
-}
-@media screen and (max-width: 78rem) {
-  .mobile-overflow-wrapper {
-    width: 100%;
+@media screen and (max-width: 54rem) {
+  #transaction-table tbody td,
+  #transaction-table tbody th {
+    padding: 1rem;
+  }
+  #transaction-table td:has(a) {
+    padding: 0;
+  }
+  #transaction-table td:has(a) a {
+    padding: 1rem;
   }
 }
-@media screen and (max-width: 66rem) {
+@media screen and (max-width: 32rem) {
+  #transaction-table tbody td:nth-child(n+2),
+  #transaction-table tbody th:nth-child(n+2) {
+    text-align: center;
+  }
+}
+
+.mobile-overflow-wrapper {
+  overflow-x: auto;
+  scrollbar-color: rgb(41, 42, 44) transparent;
+  padding-bottom: 0.5rem;
+}
+@media screen and (min-width: 66rem) {
   .mobile-overflow-wrapper {
-    width: 90%;
-    overflow-x: auto;
+    width: 75%;
+  }
+}
+@media screen and (max-width: 59rem) {
+  .mobile-overflow-wrapper {
+    width: 100%;
   }
 }
 

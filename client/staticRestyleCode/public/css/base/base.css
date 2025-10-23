@@ -602,7 +602,7 @@ Sidebar
   margin-top: 0.75rem;
   /* Not sure why body's max-content column track inline length squishes this. Explicitly give max-content width to the recently viewed subreddit: */
   width: max-content;
-  height: 14.75rem;
+  height: 11.75rem;
   scrollbar-gutter: auto;
   overflow-y: auto;
   scrollbar-color: hsl(278, 18%, 9%) transparent;
@@ -610,7 +610,7 @@ Sidebar
 }
 @media screen and (max-width: 66rem) {
   #sidebar .recent-thread-list {
-    height: 11rem;
+    height: 8.5rem;
   }
 }
 @media screen and (max-width: 54rem) {

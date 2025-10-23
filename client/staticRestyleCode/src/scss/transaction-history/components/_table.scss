@@ -11,8 +11,6 @@
     border-collapse: separate;
     border-spacing: 0;
     
-    width: fit-content;
-    
     $border-value: 1px solid rgb(189, 189, 189);
     $cell-padding-vertical: 1rem;
     $cell-padding-horizontal: .5rem;
@@ -52,9 +50,8 @@
     
     td,
     th {
+        white-space: nowrap;
         padding: $cell-padding-horizontal $cell-padding-vertical;
-        word-break: break-word;
-        hyphens: auto;
     }
     
     /* Cell widths */
@@ -123,16 +120,37 @@
             padding: $cell-padding-horizontal;
         }
     }
+    
+    @media screen and (max-width: base_variables.$breakpoint-sm) {
+        tbody td,
+        tbody th {
+            padding: 1rem;
+        }
+        td:has(a) {
+            padding: 0;
+            a {
+                // Ensure padding is clickable area
+                padding: 1rem;
+            }
+        }
+    }
+    @media screen and (max-width: base_variables.$breakpoint-xxsm) {
+        tbody td:nth-child(n+2),
+        tbody th:nth-child(n+2) {
+            text-align: center;
+        }
+    }
 }
 
 .mobile-overflow-wrapper {
-    width: 75%;
-    
-    @media screen and (max-width: base_variables.$breakpoint-lg) {
+    @media screen and (min-width: base_variables.$breakpoint-md) {
+        width: 75%;
+    }
+    @media screen and (max-width: base_variables.$breakpoint-md-sm) {
         width: 100%;
     }
-    @media screen and (max-width: base_variables.$breakpoint-md) {
-        width: 90%;
-        overflow-x: auto;
-    }
+    
+    overflow-x: auto;
+    scrollbar-color: rgb(41, 42, 44) transparent;
+    padding-bottom: .5rem;
 }

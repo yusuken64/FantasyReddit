@@ -162,7 +162,7 @@ Sidebar
         width: max-content; // make links take up size that they need, instead of 100%.
         
         // Fixed size to allow scrolling for overflow
-        height: 14.75rem; // show 4 entries
+        height: 11.75rem; // show 3 entries
         
         // Scrollbar properties
         scrollbar-gutter: auto;
@@ -171,7 +171,7 @@ Sidebar
         scrollbar-width: thin;    
         
         @media screen and (max-width: base_variables.$breakpoint-md) {
-            height: 11rem;; // show 3 entries
+            height: 8.5rem;; // show 2.2 entries
         }
         
         @media screen and (max-width: base_variables.$breakpoint-sm) {
