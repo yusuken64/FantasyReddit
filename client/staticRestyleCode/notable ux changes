@@ -3,4 +3,6 @@ Logout
 
 Search via thread name/id
     Turned into the search bar
-    
+
+Holdings
+    Turned into a button that toggled graph mode on the portfolio

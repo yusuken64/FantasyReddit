@@ -247,38 +247,45 @@
                     It's also popular with data-driven companies and would look great on your resume.
                     https://www.ag-grid.com/
                 -->
-                <table id="transaction-table">
-                    <caption class="sr-only">
-                        A summary of thread purchase information
-                    </caption>
-                    <thead>
-                        <tr>
-                            <th scope="col">Thread purchased</th>
-                            <th scope="col">Credit Amount</th>
-                            <th scope="col">Credits after transaction</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <a href="#">
-                                    Billy bob joe
-                                </a>
-                            </td>
-                            <td>200</td>
-                            <td>1400</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <a href="#">
-                                    Billy bob joe
-                                </a>
-                            </td>
-                            <td>200</td>
-                            <td>1400</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="mobile-overflow-wrapper">
+                    <table id="transaction-table">
+                        <caption class="sr-only">
+                            A summary of thread purchase information
+                        </caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Thread purchased</th>
+                                <th scope="col">Shares</th>
+                                <th scope="col">Credit Amount</th>
+                                <th scope="col">New Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <a href="#">
+                                        Thread #55
+                                    </a>
+                                </td>
+                                <!-- make sure to format these numbers with a comma every 3 digits -->
+                                <!-- hyphenation on text wrap is broken. todo! -->
+                                <td>35</td>
+                                <td>-100</td>
+                                <td>1,300</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <a href="#">
+                                        Thread #56
+                                    </a>
+                                </td>
+                                <td>35</td>
+                                <td>-200</td>
+                                <td>1,400</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
         </article>
     </main>
 </body>

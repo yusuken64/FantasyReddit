@@ -11,13 +11,19 @@
     border-collapse: separate;
     border-spacing: 0;
     
+    width: fit-content;
+    
     $border-value: 1px solid rgb(189, 189, 189);
+    $cell-padding-vertical: 1rem;
+    $cell-padding-horizontal: .5rem;
     
     margin-top: 1rem;
-    width: 75%;
     // overflow: hidden; // why does this fuck up the table?
     
     /* Border radii */
+    thead th {
+        padding: $cell-padding-vertical;
+    }
     thead tr:first-child th:first-child {
         border-top-left-radius: .5rem;
     }
@@ -46,7 +52,9 @@
     
     td,
     th {
-        padding: .5rem;
+        padding: $cell-padding-horizontal $cell-padding-vertical;
+        word-break: break-word;
+        hyphens: auto;
     }
     
     /* Cell widths */
@@ -61,19 +69,22 @@
         width: 30%;
     }
     th:nth-child(2),
-    td:nth-child(2) {
-        width: 15%; // if table width is auto, child percent widths do not work. why?
-    }
+    td:nth-child(2),
     th:nth-child(3),
-    td:nth-child(3) {
+    td:nth-child(3),
+    th:nth-child(4),
+    td:nth-child(4) {
         width: 15%; // if table width is auto, child percent widths do not work. why?
     }
+
     
     /* Text alignment for numeric text data within cells */
-    tbody th:nth-child(2),
-    tbody td:nth-child(2),
-    tbody th:nth-child(3),
-    tbody td:nth-child(3) {
+    th:nth-child(2),
+    td:nth-child(2),
+    th:nth-child(3),
+    td:nth-child(3),
+    th:nth-child(4),
+    td:nth-child(4) {
         text-align: right;
     }
     
@@ -82,7 +93,46 @@
         background: rgb(5, 16, 38);
         color: base_variables.$color-white;
     }
-    tbody tr:nth-child(even) {
-        background: rgb(225, 225, 225);
+    tbody tr {
+        transition: .2s background;
+        
+        &:nth-child(odd) {
+            &:hover {
+                background: rgb(225, 223, 221);
+            }
+        }
+        &:nth-child(even) {
+            background: rgb(225, 225, 225);
+            &:hover {
+              background: rgb(220, 220, 220);  
+            }
+        }
+    }
+
+    td a {
+        /* Fill cell */
+        display: inline-block;
+        width: 100%;
+        height: 100%;
+    }
+    
+    td:has(a) {
+        padding: 0;
+        a {
+            // Ensure padding is clickable area
+            padding: $cell-padding-horizontal;
+        }
+    }
+}
+
+.mobile-overflow-wrapper {
+    width: 75%;
+    
+    @media screen and (max-width: base_variables.$breakpoint-lg) {
+        width: 100%;
+    }
+    @media screen and (max-width: base_variables.$breakpoint-md) {
+        width: 90%;
+        overflow-x: auto;
     }
 }

@@ -20,12 +20,13 @@ Register
 password reset page
 
 Leaderboard
-Trade chart page* content
-    *we may forgo this if such a feature is not desired
+
+🚧 Transaction History page content (accessible from the Portfolio)
+
 🚧 Portfolio page content
+    🚧 - Mobile bug
     ✅ - Portfolio thread list
-    - Transaction History page content (accessible from the Portfolio)
-    🚧 - Holdings page in graphical format on the portfolio
+    ✅ - Holdings page in graphical format on the portfolio
     
 ## Known issues:
 
