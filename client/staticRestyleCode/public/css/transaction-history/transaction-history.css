@@ -9,10 +9,6 @@
   border-spacing: 0;
   margin-top: 1rem;
   /* Border radii */
-  /* Cell Borders */
-  /* Cell widths */
-  /* Text alignment for numeric text data within cells */
-  /* Coloring */
 }
 #transaction-table thead th {
   padding: 1rem;
@@ -31,6 +27,9 @@
 #transaction-table tbody tr:last-child td:last-child {
   border-bottom-right-radius: 0.5rem;
 }
+#transaction-table {
+  /* Cell Borders */
+}
 #transaction-table tbody th:first-child,
 #transaction-table tbody td:first-child {
   border-left: 1px solid rgb(189, 189, 189);
@@ -45,6 +44,9 @@
   white-space: nowrap;
   padding: 0.5rem 1rem;
 }
+#transaction-table {
+  /* Cell widths */
+}
 #transaction-table th:nth-child(1),
 #transaction-table td:nth-child(1) {
   width: 30%;
@@ -57,6 +59,9 @@
 #transaction-table td:nth-child(4) {
   width: 15%;
 }
+#transaction-table {
+  /* Text alignment for numeric text data within cells */
+}
 #transaction-table th:nth-child(2),
 #transaction-table td:nth-child(2),
 #transaction-table th:nth-child(3),
@@ -64,6 +69,9 @@
 #transaction-table th:nth-child(4),
 #transaction-table td:nth-child(4) {
   text-align: right;
+}
+#transaction-table {
+  /* Coloring */
 }
 #transaction-table thead {
   background: rgb(5, 16, 38);
@@ -112,11 +120,6 @@
   }
 }
 
-.mobile-overflow-wrapper {
-  overflow-x: auto;
-  scrollbar-color: rgb(41, 42, 44) transparent;
-  padding-bottom: 0.5rem;
-}
 @media screen and (min-width: 66rem) {
   .mobile-overflow-wrapper {
     width: 75%;
@@ -125,6 +128,48 @@
 @media screen and (max-width: 59rem) {
   .mobile-overflow-wrapper {
     width: 100%;
+  }
+}
+.mobile-overflow-wrapper {
+  overflow-x: auto;
+  scrollbar-color: rgb(41, 42, 44) transparent;
+  padding-bottom: 0.5rem;
+}
+
+@media screen and (max-width: 78rem) {
+  .paginator .paginator__current-page {
+    position: static;
+    left: 0;
+  }
+  .paginator {
+    align-items: start;
+  }
+}
+@media screen and (max-width: 59rem) {
+  .paginator .paginator__current-page {
+    position: relative;
+    left: -0.3rem;
+  }
+  .paginator {
+    align-items: center;
+  }
+}
+@media screen and (max-width: 48rem) {
+  .paginator .paginator__current-page {
+    position: static;
+    left: 0;
+  }
+  .paginator {
+    align-items: start;
+  }
+}
+@media screen and (max-width: 32rem) {
+  .paginator .paginator__current-page {
+    position: relative;
+    left: -0.3rem;
+  }
+  .paginator {
+    align-items: center;
   }
 }
 
