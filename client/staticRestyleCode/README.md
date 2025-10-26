@@ -15,9 +15,9 @@ Pull requests & git logs will reveal what changes occur for you
 ✅ Hot chart page content
 
 Options page
-🚧 Login
-🚧 Register
-🚧 password reset page
+✅ Login
+✅ Register
+✅ password reset page
 
 Leaderboard
 
