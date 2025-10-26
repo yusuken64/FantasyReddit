@@ -4,7 +4,7 @@
 Buttons
 ==== */
 
-.btn--register {
+.btn--orange {
     display: grid; // Also does away with descender whitespace that comes by default with display: inline
     place-items: center; // [?] Unknown: how does this affect text nodes within a stretched parent? I guess it centered it verically.. odd...
     
@@ -31,12 +31,12 @@ Buttons
     }
 }
 
-.btn--login {
+.btn--black {
     display: grid; // Also does away with descender whitespace that comes by default with display: inline
     place-items: center; // [?] Unknown: how does this affect text nodes within a stretched parent? I guess it centered it verically.. odd...
     
     height: 3rem;
-    width: 6.5rem;
+    width: 6.5rem; // Todo: this button is mainly used for "Login" text nodes so i just did this.. really shitty
     
     border-radius: 1rem;
     

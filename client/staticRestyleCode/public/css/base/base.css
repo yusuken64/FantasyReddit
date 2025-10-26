@@ -76,6 +76,18 @@ svg {
   pointer-events: none;
 }
 
+.grid {
+  display: grid;
+}
+
+.gap-05 {
+  gap: 0.5rem;
+}
+
+.mt-05 {
+  margin-top: 0.5rem;
+}
+
 .sr-only {
   position: absolute;
   left: -300vw;
@@ -83,6 +95,10 @@ svg {
 
 .text-orange {
   color: hsl(16, 99%, 46%);
+}
+
+.decoration-none {
+  text-decoration: none;
 }
 
 .underline-hover {
@@ -144,7 +160,7 @@ svg {
 /*===
 Buttons
 ==== */
-.btn--register {
+.btn--orange {
   display: grid;
   place-items: center;
   height: 3rem;
@@ -157,17 +173,17 @@ Buttons
   box-shadow: 0 0 6px transparent;
   transition: 0.4s box-shadow ease;
 }
-.btn--register:hover {
+.btn--orange:hover {
   box-shadow: 0 0 3px rgba(255, 68, 0, 0.64);
 }
 @media screen and (max-width: 70rem) {
-  .btn--register {
+  .btn--orange {
     width: 6.5rem;
     font-size: 1rem;
   }
 }
 
-.btn--login {
+.btn--black {
   display: grid;
   place-items: center;
   height: 3rem;
@@ -180,11 +196,11 @@ Buttons
   outline-offset: -4px;
   transition: 0.4s outline-color;
 }
-.btn--login:hover {
+.btn--black:hover {
   outline-color: hsl(220, 7%, 92%);
 }
 @media screen and (max-width: 70rem) {
-  .btn--login {
+  .btn--black {
     width: 5.5rem;
     font-size: 1rem;
   }

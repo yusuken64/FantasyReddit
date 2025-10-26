@@ -1,5 +1,20 @@
 @use "base_variables";
 
+// Layout utilities
+
+.grid {
+    display: grid;
+}
+
+.gap-05 {
+    gap: 0.5rem;
+}
+
+.mt-05 {
+    margin-top: 0.5rem;
+}
+
+
 // Screen reader utilities
 .sr-only {
     position: absolute;
@@ -9,6 +24,10 @@
 // Text utilities
 .text-orange {
     color: base_variables.$color-orange;
+}
+
+.decoration-none {
+    text-decoration: none;
 }
 
 // A psuedo-element underline that will animate in length to become visible when

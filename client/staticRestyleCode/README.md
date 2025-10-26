@@ -11,20 +11,21 @@ Pull requests & git logs will reveal what changes occur for you
 ✅ Shared page base
 ✅ Landing page content
 
-Top chart page content
-Hot chart page content
+✅ Top chart page content
+✅ Hot chart page content
 
 Options page
-Login
-Register
-password reset page
+🚧 Login
+🚧 Register
+🚧 password reset page
 
 Leaderboard
 
 ✅ Transaction History page content (accessible from the Portfolio)
 
 🚧 Portfolio page content
-    🚧 - Mobile bug
+    🚧 - "Sort by" width not the same as the card group visual width
+        (hard >:) )
     ✅ - Portfolio thread list
     ✅ - Holdings page in graphical format on the portfolio
     
