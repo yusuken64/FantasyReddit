@@ -1,0 +1,98 @@
+
+<!-- Use partial: content-transaction-partial.html: -->
+<h2 class="text-orange">Transaction History:</h2>
+
+<!--
+        We could use ag-grid to make sorting/animating less work for us.
+        It's also popular with data-driven companies and would look great on your resume.
+        https://www.ag-grid.com/
+    -->
+<figure class="mobile-overflow-wrapper">
+    <table id="transaction-table">
+        <caption class="sr-only">
+            A summary of thread purchase information
+        </caption>
+        <thead>
+            <tr>
+                <th scope="col">Thread purchased</th>
+                <th scope="col">Shares</th>
+                <th scope="col">Credit Amount</th>
+                <th scope="col">New Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <a href="#">
+                        Thread #55
+                    </a>
+                </td>
+                <!-- make sure to format these numbers with a comma every 3 digits -->
+                <td>35</td>
+                <td>-100</td>
+                <td>1,300</td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="#">
+                        Thread #56
+                    </a>
+                </td>
+                <td>35</td>
+                <td>-200</td>
+                <td>1,400</td>
+            </tr>
+        </tbody>
+    </table>
+</figure>
+
+<section class="paginator">
+    <h3 class="paginator__current-page">Page 3 of 4</h3>
+
+    <div class="pagiator__buttons">
+        <!-- dynamically add to the GET URL query list via JS -->
+        <button class="btn btn--pager">
+            <span class="sr-only">Previous page</span>
+
+            <svg class="arrow-icon arrow-icon--left" viewBox="0 0 24 24">
+                <title>A left-pointing arrow</title>
+                <use href="./assets/svg/up-arrow.svg#up-arrow"></use>
+            </svg>
+        </button>
+        <!--
+                Yusuke,
+                
+                You might want to implement a limited number of page buttons relative to the current page
+                ... so as to save on space and memory. For example, a user with 500 pages of items
+                ... would not like to see 500 buttons on the screen. Instead, they might prefer something like:
+                
+                <- 1 ... 45 46 (47) 48 49 ... 500 ->
+                
+                where (47) is the current page.
+                -->
+        <button class="btn btn--pager">
+            <span class="sr-only">Page</span>
+            1
+        </button>
+        <button class="btn btn--pager">
+            <span class="sr-only">Page</span>
+            2
+        </button>
+        <button class="btn btn--pager btn--current-pager">
+            <span class="sr-only">Page</span>
+            3
+        </button>
+        <button class="btn btn--pager">
+            <span class="sr-only">Page</span>
+            4
+        </button>
+        <button class="btn btn--pager">
+            <span class="sr-only">Next page</span>
+
+            <svg class="arrow-icon arrow-icon--right" viewBox="0 0 24 24">
+                <title>A right-pointing arrow</title>
+                <use href="./assets/svg/up-arrow.svg#up-arrow"></use>
+            </svg>
+        </button>
+    </div>
+</section>

@@ -1,0 +1,38 @@
+@media screen and (max-width: 78rem) {
+  .paginator .paginator__current-page {
+    position: static;
+    left: 0;
+  }
+  .paginator {
+    align-items: start;
+  }
+}
+@media screen and (max-width: 59rem) {
+  .paginator .paginator__current-page {
+    position: relative;
+    left: -0.3rem;
+  }
+  .paginator {
+    align-items: center;
+  }
+}
+@media screen and (max-width: 48rem) {
+  .paginator .paginator__current-page {
+    position: static;
+    left: 0;
+  }
+  .paginator {
+    align-items: start;
+  }
+}
+@media screen and (max-width: 32rem) {
+  .paginator .paginator__current-page {
+    position: relative;
+    left: -0.3rem;
+  }
+  .paginator {
+    align-items: center;
+  }
+}
+
+/*# sourceMappingURL=top.css.map */

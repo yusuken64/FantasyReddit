@@ -271,10 +271,12 @@ Navbar Header
   box-shadow: inset 0px 4px 4px rgba(240, 67, 5, 0.24);
   font-size: 1.25rem;
   padding-left: 3.6875rem;
-  transition: 0.2s box-shadow, 0.4s border-color;
 }
 .nav-list .nav-item.search-item #search-form .icon-field-wrapper #search-field::placeholder {
   color: hsl(16, 99%, 51%);
+}
+.nav-list .nav-item.search-item #search-form .icon-field-wrapper #search-field {
+  transition: 0.2s box-shadow, 0.4s border-color;
 }
 .nav-list .nav-item.search-item #search-form .icon-field-wrapper #search-field:focus {
   border-color: hsl(from hsl(16, 99%, 46%) h s calc(l + 32));
@@ -308,14 +310,14 @@ Navbar Header
   }
 }
 @media screen and (max-width: 48rem) {
-  .nav-list {
-    row-gap: 0.5rem;
-  }
   .nav-list:has(> .account-info-item--logged-in) {
     grid: "logo-item logo-item logo-item" 1fr "toggle-sidebar-form-item search-item btn--options" 1fr "credits credits credits" 1fr/max-content 1fr max-content;
   }
   .nav-list:has(> .account-info-item--logged-out) {
     grid: "logo-item logo-item logo-item" 1fr "toggle-sidebar-form-item search-item account-info-item" 1fr/max-content 1fr max-content;
+  }
+  .nav-list {
+    row-gap: 0.5rem;
   }
   .nav-list .toggle-sidebar-form-item {
     display: block;
@@ -323,10 +325,6 @@ Navbar Header
   }
 }
 @media screen and (max-width: 32rem) {
-  .nav-list {
-    padding: 1.25rem 1rem;
-    gap: 1rem;
-  }
   .nav-list:has(> .account-info-item--logged-in) {
     grid: "logo-item logo-item logo-item logo-item" 1fr "search-item search-item search-item search-item" 1fr "toggle-sidebar-form-item toggle-sidebar-form-item btn--options btn--options" 1fr "credits credits credits credits" 1fr/max-content max-content max-content max-content;
   }
@@ -335,6 +333,10 @@ Navbar Header
   }
   .nav-list:has(> .account-info-item--logged-out) .toggle-sidebar-form-item {
     justify-self: center;
+  }
+  .nav-list {
+    padding: 1.25rem 1rem;
+    gap: 1rem;
   }
 }
 .nav-list .toggle-sidebar-form-item {
@@ -355,7 +357,6 @@ Navbar Header
   aspect-ratio: 1/1;
   display: grid;
   place-items: center;
-  transition: 0.2s background;
 }
 .nav-list #toggle-sidebar-form #btn--toggle-sidebar::after {
   content: url("../../assets/svg/hamburger-icon.svg")/"An icon of three horizontal lines which represent a textured hamburger menu icon.";
@@ -363,13 +364,16 @@ Navbar Header
   width: 52%;
   height: 1.2rem;
 }
-.nav-list #toggle-sidebar-form #btn--toggle-sidebar[aria-expanded=true] {
-  background: rgb(232, 227, 227);
-}
 .nav-list #toggle-sidebar-form #btn--toggle-sidebar[aria-expanded=true]::after {
   content: url("../../assets/svg/close-icon.svg")/"A letter X representing a close icon.";
   width: 64%;
   height: 1.7rem;
+}
+.nav-list #toggle-sidebar-form #btn--toggle-sidebar[aria-expanded=true] {
+  background: rgb(232, 227, 227);
+}
+.nav-list #toggle-sidebar-form #btn--toggle-sidebar {
+  transition: 0.2s background;
 }
 .nav-list #toggle-sidebar-form #btn--toggle-sidebar:hover {
   cursor: pointer;
@@ -440,9 +444,6 @@ Navbar Header
   background: hsl(278, 18%, 9%);
   border-radius: 1rem;
   padding: 0.875rem;
-  transition: 0.2s background, 0.4s outline;
-  outline: 2px solid transparent;
-  outline-offset: -4px;
 }
 .nav-list .account-info-item--logged-in .btn--options svg {
   width: 100%;
@@ -453,6 +454,11 @@ Navbar Header
 }
 .nav-list .account-info-item--logged-in .btn--options svg path {
   fill: hsl(220, 7%, 92%);
+}
+.nav-list .account-info-item--logged-in .btn--options {
+  transition: 0.2s background, 0.4s outline;
+  outline: 2px solid transparent;
+  outline-offset: -4px;
 }
 .nav-list .account-info-item--logged-in .btn--options:hover {
   background: rgb(from hsl(278, 18%, 9%) r g b/98%);
@@ -728,6 +734,9 @@ Main components shared by many pages
   border: 1px solid rgba(19, 20, 22, 0.32);
   background: #E9EAEC;
 }
+.card a {
+  text-decoration: none;
+}
 
 .card--thread-card {
   margin-left: 1rem;
@@ -898,12 +907,12 @@ Main components shared by many pages
   margin-top: 2rem;
 }
 @media screen and (max-width: 78rem) {
-  .paginator {
-    align-items: center;
-  }
   .paginator .paginator__current-page {
     position: relative;
     left: -0.3rem;
+  }
+  .paginator {
+    align-items: center;
   }
 }
 .paginator .pagiator__buttons {

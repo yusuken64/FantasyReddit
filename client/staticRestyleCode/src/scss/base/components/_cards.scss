@@ -40,6 +40,10 @@ Main components shared by many pages
     border-radius: 1rem;
     border: 1px solid rgb(19 20 22 / 32%);
     background: #E9EAEC;
+    
+    a {
+        text-decoration: none;
+    }
 }
 
 .card--thread-card {

@@ -21,7 +21,7 @@ password reset page
 
 Leaderboard
 
-🚧 Transaction History page content (accessible from the Portfolio)
+✅ Transaction History page content (accessible from the Portfolio)
 
 🚧 Portfolio page content
     🚧 - Mobile bug
