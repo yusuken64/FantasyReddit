@@ -15,8 +15,8 @@
     <link rel="stylesheet" href="./css/base/base.css">
     <script type="module" src="./js/btn--toggle-sidebar.js"></script>
 
-    <link rel="stylesheet" href="./css/auth/auth.css">
-
+    <link rel="stylesheet" href="./css/leaderboard/leaderboard.css">
+    
     <!-- <link rel="stylesheet" href="./css/portfolio/portfolio.css"> -->
     <!-- <script type="module" src="./js/btn--toggle-order.js"></script> -->
 
@@ -238,30 +238,88 @@
     <!-- Main content -->
     <main>
         <article class="scrollable-container">
-            <h2 class="text-orange">Register:</h2>
+            <h2 class="text-orange">Leaderboard:</h2>
 
-            <form id="auth-form" method="POST" action="#">
-                <label for="username-field">
-                    Enter your email:
-                </label>
-                <input id="username-field" class="text-field" name="email" type="email">
-                
-                <div class="password-group">
-                    <label for="password-field">
-                        Enter your password:
-                    </label>
-                    <input id="password-field" class="text-field" name="password" type="password">
+            <p class="mt-1">A leaderboard that showcases the top-grossing users on the platform.</p>
+            <p>Users who opt-out will not have their info displayed.</p>
+            
+            <div class="info-group">
+                <div class="user-info">
+                    <!--
+                        Note: Flex/Grid gaps put a gap around items.
+                        If we remove the content of an item (say a user wants to hide their name and credit amount from the leaderboard),
+                            a gap would still appear for the empty item if we just remove the TextNodes.
+                        Therefore we will need to remove the .info__name & .info__credits nodes entirely based on this scenario.
+                        
+                        Options available to the user from the settings page:
+                            Hide name from leaderboard
+                            Hide credit count from leaderboard
+                    -->
+                            
                     
-                    <label for="password-field-repeated">
-                        Confirm your password:
-                    </label>
-                    <input id="password-field-repeated" class="text-field" name="password-repeated" type="password">
+                    <!-- if user.leaderboardVisibility.nameVisible && !user.leaderboardVisibility.creditsVisible -->
+                        <!-- <h3 class="info__position">#2</h3>
+                        <img class="info__avatar"
+                            src="https://png.pngtree.com/png-vector/20220709/ourmid/pngtree-businessman-user-avatar-wearing-suit-with-red-tie-png-image_5809521.png"
+                            alt="">
+                        <p class="info__name">Jacob</p>
+                        <p class="info__credits hidden-info">&lt;credit balance hidden&gt;</p> -->
+                    <!-- elif !user.leaderboardVisibility.nameVisible && !user.leaderboardVisibility.creditsVisible -->
+                        <h3 class="info__position">#2</h3>
+                        <img class="info__avatar"
+                            src="https://png.pngtree.com/png-vector/20220709/ourmid/pngtree-businessman-user-avatar-wearing-suit-with-red-tie-png-image_5809521.png"
+                            alt="">
+                        <p class="info__name hidden-info">&lt;profile hidden&gt;</p>
+                        <!-- to support the layout, just don't put anything in here: -->
+                        <p class="info__credits"></p>
+                    <!-- elif !user.leaderboardVisibility.nameVisible && user.leaderboardVisibility.creditsVisible -->
+                        <!-- <h3 class="info__position">#2</h3>
+                        <img class="info__avatar"
+                            src="https://png.pngtree.com/png-vector/20220709/ourmid/pngtree-businessman-user-avatar-wearing-suit-with-red-tie-png-image_5809521.png"
+                            alt="">
+                        <p class="info__name hidden-info">&lt;user hidden&gt;</p>
+                        <p class="info__credits">3000</p> -->
+                    <!-- else: -->
+                        <!-- <h3 class="info__position">#2</h3>
+                        <img class="info__avatar"
+                            src="https://png.pngtree.com/png-vector/20220709/ourmid/pngtree-businessman-user-avatar-wearing-suit-with-red-tie-png-image_5809521.png"
+                            alt="">
+                        <p class="info__name">Jacob</p>
+                        <p class="info__credits">5,000 credits</p> -->
                 </div>
-                
-                <button type="submit" class="btn btn--orange">
-                    Register
-                </button>
-            </form>
+                <div class="user-info">
+                    <h3 class="info__position">#2</h3>
+                    <img class="info__avatar"
+                         src="https://png.pngtree.com/png-vector/20220709/ourmid/pngtree-businessman-user-avatar-wearing-suit-with-red-tie-png-image_5809521.png"
+                         alt="">
+                    <p class="info__name">Jacob</p>
+                    <p class="info__credits">5,000 credits</p>
+                </div>
+                <div class="user-info">
+                    <h3 class="info__position">#3</h3>
+                    <img class="info__avatar"
+                         src="https://png.pngtree.com/png-vector/20220709/ourmid/pngtree-businessman-user-avatar-wearing-suit-with-red-tie-png-image_5809521.png"
+                         alt="">
+                    <p class="info__name">Jeff</p>
+                    <p class="info__credits">2,000 credits</p>
+                </div>
+                <div class="user-info">
+                    <h3 class="info__position">#4</h3>
+                    <img class="info__avatar"
+                         src="https://png.pngtree.com/png-vector/20220709/ourmid/pngtree-businessman-user-avatar-wearing-suit-with-red-tie-png-image_5809521.png"
+                         alt="">
+                    <p class="info__name">Jacob</p>
+                    <p class="info__credits hidden-info">&lt;credit balance hidden&gt;</p>
+                </div>
+                <div class="user-info">
+                    <h3 class="info__position">#5</h3>
+                    <img class="info__avatar"
+                         src="https://png.pngtree.com/png-vector/20220709/ourmid/pngtree-businessman-user-avatar-wearing-suit-with-red-tie-png-image_5809521.png"
+                         alt="">
+                    <p class="info__name hidden-info">&lt;username hidden&gt;</p>
+                    <p class="info__credits">1,233 credits</p>
+                </div>
+            </div>
         </article>
     </main>
 </body>

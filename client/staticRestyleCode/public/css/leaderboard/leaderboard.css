@@ -1,0 +1,42 @@
+.info-group {
+  display: grid;
+  grid: "place-value profile-image username credit-count" max-content/max-content max-content max-content max-content;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 2rem;
+}
+.info-group .user-info {
+  display: contents;
+}
+.info-group .user-info:nth-child(n+2) {
+  margin-top: 1rem;
+}
+.info-group .user-info .info__position {
+  text-align: center;
+  text-shadow: 0 2px 1px rgba(0, 0, 0, 0.0862745098);
+  color: hsla(251, 65%, 10%, 0.72);
+  font-size: 1.5rem;
+  width: 3rem;
+}
+.info-group .user-info .info__avatar {
+  border-radius: 50%;
+  width: 2rem;
+  aspect-ratio: 1/1;
+  border: 1px solid grey;
+}
+.info-group .user-info .info__credits {
+  color: hsl(16, 99%, 46%);
+  font-size: 1.5rem;
+  justify-self: left;
+}
+.info-group .user-info .hidden-info {
+  color: hsl(278, 18%, 9%);
+  font-size: 1rem;
+}
+
+.info-group .user-info:nth-child(-n+3) .info__position {
+  color: hsl(16, 99%, 46%);
+  font-size: 2rem;
+}
+
+/*# sourceMappingURL=leaderboard.css.map */

@@ -1,0 +1,58 @@
+@use '../../base/base_variables';
+
+.info-group {
+    // We make this a grid instead so that all column tracks assume
+    // ... the inline-length of the largest child item.
+    // If we make the .user-info elements into a grid, they won't all have the
+    // ... same track lengths.
+    display: grid;
+    grid: "place-value profile-image username credit-count" max-content
+        / max-content max-content max-content max-content;
+    gap: 1rem;
+    align-items: center;
+        
+    margin-top: 2rem;
+    
+    .user-info {
+        // For layout purposes, pretend like .user-info doesn't exist.
+        display: contents;
+        
+        &:nth-child(n+2) {
+            margin-top: 1rem;
+        }
+        // All children of user-info are placed automatically into the grid defined by .info-group.
+        // This is so they each fill a newly created cell once the first row is filled.
+        // If we define grid-area on these children, they'll all fill the same cell.
+        .info__position {
+            text-align: center;
+            text-shadow: 0 2px 1px #00000016;
+            color: hsla(251, 65%, 10%, 0.72);
+            font-size: 1.5rem;
+            width: 3rem; // [?] Unknown: Is there a better way in CSS to resolve the font width differences between number characters?
+        }
+        .info__avatar {
+            border-radius: 50%;
+            width: 2rem;
+            aspect-ratio: 1 / 1;
+            border: 1px solid grey;
+        }
+        .info__credits {
+            color: base_variables.$color-orange;
+            font-size: 1.5rem;
+            justify-self: left;
+        }
+        
+        .hidden-info {
+            color: base_variables.$color-black;
+            font-size: 1rem;
+        }
+    }
+}
+
+// First three .info_position elements:
+.info-group .user-info:nth-child(-n + 3) {
+    .info__position {
+        color: base_variables.$color-orange;
+        font-size: 2rem;
+    }
+}

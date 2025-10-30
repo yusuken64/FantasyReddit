@@ -15,11 +15,14 @@ Pull requests & git logs will reveal what changes occur for you
 ✅ Hot chart page content
 
 Options page
-✅ Login
-✅ Register
-✅ password reset page
+🚧 Login
+    refactor
+🚧 Register
+    refactor
+🚧 password reset page
+    refactor
 
-Leaderboard
+🚧 Leaderboard
 
 ✅ Transaction History page content (accessible from the Portfolio)
 
