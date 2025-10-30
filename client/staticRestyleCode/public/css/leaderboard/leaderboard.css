@@ -1,3 +1,8 @@
+.info-group .user-info:nth-child(-n+3) .info__position {
+  color: hsl(16, 99%, 46%);
+  font-size: 2rem;
+}
+
 .info-group {
   display: grid;
   grid: "place-value profile-image username credit-count" max-content/max-content max-content max-content max-content;
@@ -33,10 +38,69 @@
   color: hsl(278, 18%, 9%);
   font-size: 1rem;
 }
+@media screen and (max-width: 59rem) {
+  .info-group {
+    display: block;
+  }
+  .info-group .user-info {
+    display: grid;
+    grid: "place-value place-value" max-content "profile-image profile-image" max-content "username username" max-content "credit-count credit-count" max-content/1fr 1fr;
+    place-items: center;
+    gap: 1rem;
+  }
+  .info-group .user-info:nth-child(n) {
+    margin-top: 3rem;
+  }
+  .info-group .user-info .info__position:nth-child(n) {
+    grid-area: place-value;
+    background: rgba(241, 220, 205, 0.603);
+    border-radius: 50%;
+    aspect-ratio: 1/1;
+    font-size: 2.5rem;
+    width: fit-content;
+    padding: 0.6rem;
+    display: grid;
+    place-items: center;
+  }
+  .info-group .user-info .info__avatar {
+    grid-area: profile-image;
+    width: 4rem;
+  }
+  .info-group .user-info .info__name {
+    grid-area: username;
+    font-size: 1.5rem;
+  }
+  .info-group .user-info .info__credits {
+    grid-area: credit-count;
+    justify-self: center;
+    font-size: 1.5rem;
+  }
+  .info-group .user-info .hidden-info {
+    font-size: 1.32rem;
+    font-style: italic;
+  }
+}
 
-.info-group .user-info:nth-child(-n+3) .info__position {
-  color: hsl(16, 99%, 46%);
-  font-size: 2rem;
+.paginator {
+  margin-top: 4rem;
+}
+@media screen and (max-width: 78rem) {
+  .paginator {
+    align-items: start;
+  }
+  .paginator .paginator__current-page {
+    left: 0;
+  }
+}
+@media screen and (max-width: 59rem) {
+  .paginator {
+    margin-top: 4rem;
+    align-items: center;
+  }
+  .paginator .paginator__current-page {
+    position: relative;
+    left: -0.3rem;
+  }
 }
 
 /*# sourceMappingURL=leaderboard.css.map */

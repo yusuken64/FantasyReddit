@@ -1,5 +1,13 @@
 @use '../../base/base_variables';
 
+// First three .info_position elements:
+.info-group .user-info:nth-child(-n + 3) {
+    .info__position {
+        color: base_variables.$color-orange;
+        font-size: 2rem;
+    }
+}
+
 .info-group {
     // We make this a grid instead so that all column tracks assume
     // ... the inline-length of the largest child item.
@@ -47,12 +55,66 @@
             font-size: 1rem;
         }
     }
-}
+    
+    @media screen and (max-width: base_variables.$breakpoint-md-sm) {
+        display: block;
 
-// First three .info_position elements:
-.info-group .user-info:nth-child(-n + 3) {
-    .info__position {
-        color: base_variables.$color-orange;
-        font-size: 2rem;
+        .user-info {
+            display: grid;
+            grid: "place-value place-value" max-content
+            "profile-image profile-image" max-content
+            "username username" max-content
+            "credit-count credit-count" max-content
+                / 1fr 1fr;
+            place-items: center;
+            gap: 1rem;
+            
+            // Win against original .user-info selector
+            &:nth-child(n) {
+                margin-top: 3rem;
+            }
+            
+            // Win against the top three position selectors at the top of the file
+            .info__position:nth-child(n) {
+                grid-area: place-value;
+                background: rgba(241, 220, 205, 0.603);
+                border-radius: 50%;
+                aspect-ratio: 1/1;
+                
+                font-size: 2.5rem;
+                width: fit-content;
+                padding: .6rem;
+                
+                // Center text within circle
+                display: grid;
+                place-items: center;
+            }
+            .info__avatar {
+                grid-area: profile-image;
+                width: 4rem;
+            }
+            .info__name {
+                grid-area: username;
+                font-size: 1.5rem;
+            }
+            .info__credits {
+                grid-area: credit-count;
+                justify-self: center; // override original justification
+                font-size: 1.5rem;
+            }
+            .hidden-info {
+                font-size: 1.32rem;
+                font-style: italic;
+            }
+        }
     }
+// $breakpoint-lg: 78rem;
+
+// $breakpoint-md-lg: 70rem;
+// $breakpoint-md: 66rem;
+// $breakpoint-md-sm: 59rem;
+
+// $breakpoint-sm: 54rem;
+// $breakpoint-xsm: 48rem;
+// $breakpoint-xxsm: 32rem;
 }
