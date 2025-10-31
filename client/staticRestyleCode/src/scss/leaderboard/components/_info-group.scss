@@ -60,6 +60,8 @@
         display: block;
 
         .user-info {
+            position: relative; // contain absolute children
+            
             display: grid;
             grid: "place-value place-value" max-content
             "profile-image profile-image" max-content
@@ -74,8 +76,8 @@
                 margin-top: 3rem;
             }
             
-            // Win against the top three position selectors at the top of the file
-            .info__position:nth-child(n) {
+            // :first-child is purely to win against the top three position selectors at the top of the file
+            .info__position:first-child {
                 grid-area: place-value;
                 background: rgba(241, 220, 205, 0.603);
                 border-radius: 50%;
@@ -105,6 +107,21 @@
             .hidden-info {
                 font-size: 1.32rem;
                 font-style: italic;
+            }
+        }
+        .user-info:nth-child(n+2)::before {
+            content: "";
+            display: block;
+            width: 100%;
+            height: .1rem;
+            background: rgb(221, 221, 221);
+            
+            position: absolute;
+            top: -1.5rem;
+        }
+        .user-info:nth-child(n + 4) {
+            .info__position {
+                background: rgba(221, 221, 221, 0.603);
             }
         }
     }

@@ -43,6 +43,7 @@
     display: block;
   }
   .info-group .user-info {
+    position: relative;
     display: grid;
     grid: "place-value place-value" max-content "profile-image profile-image" max-content "username username" max-content "credit-count credit-count" max-content/1fr 1fr;
     place-items: center;
@@ -51,7 +52,7 @@
   .info-group .user-info:nth-child(n) {
     margin-top: 3rem;
   }
-  .info-group .user-info .info__position:nth-child(n) {
+  .info-group .user-info .info__position:first-child {
     grid-area: place-value;
     background: rgba(241, 220, 205, 0.603);
     border-radius: 50%;
@@ -78,6 +79,18 @@
   .info-group .user-info .hidden-info {
     font-size: 1.32rem;
     font-style: italic;
+  }
+  .info-group .user-info:nth-child(n+2)::before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 0.1rem;
+    background: rgb(221, 221, 221);
+    position: absolute;
+    top: -1.5rem;
+  }
+  .info-group .user-info:nth-child(n+4) .info__position {
+    background: rgba(221, 221, 221, 0.603);
   }
 }
 
