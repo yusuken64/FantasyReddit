@@ -75,15 +75,18 @@
             "credit-count credit-count" max-content
                 / 1fr 1fr;
                 
+            // To make this work we'd need some js to keep the element on desktop (so that the auto-placement
+            // ... of items works correctly), and remove the element on mobile (so that we don't get a gap
+            // ... or some overflow). I'll just concede the gap on mobile for now.
             // If the user disabled their username and credit count from appearing on the leaderboard,
             // ... we remove .info__credits. Otherwise, if we just remove its TextNode
             // ... a gap will appear for the empty element and will distrupt the layout.
-            &:not(&:has(.info__credits)) {
-                grid: "place-value place-value" max-content
-                "profile-image profile-image" max-content
-                "username username" max-content
-                    / 1fr 1fr;
-            }
+            // &:not(&:has(.info__credits)) {
+            //     grid: "place-value place-value" max-content
+            //     "profile-image profile-image" max-content
+            //     "username username" max-content
+            //         / 1fr 1fr;
+            // }
             place-items: center;
             gap: 1rem;
             
@@ -145,7 +148,6 @@
             height: .1rem;
             width: 100%;
             background: rgb(221, 221, 221);
-            
         }
     }
 }

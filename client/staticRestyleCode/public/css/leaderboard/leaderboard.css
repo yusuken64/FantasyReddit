@@ -45,11 +45,6 @@
     position: relative;
     display: grid;
     grid: "place-value place-value" max-content "profile-image profile-image" max-content "username username" max-content "credit-count credit-count" max-content/1fr 1fr;
-  }
-  .info-group .user-info:not(.info-group .user-info:has(.info__credits)) {
-    grid: "place-value place-value" max-content "profile-image profile-image" max-content "username username" max-content/1fr 1fr;
-  }
-  .info-group .user-info {
     place-items: center;
     gap: 1rem;
   }
