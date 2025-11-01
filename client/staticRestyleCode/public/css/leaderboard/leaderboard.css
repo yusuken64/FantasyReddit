@@ -32,7 +32,6 @@
 .info-group .user-info .info__credits {
   color: hsl(16, 99%, 46%);
   font-size: 1.5rem;
-  justify-self: left;
 }
 .info-group .user-info .hidden-info {
   color: hsl(278, 18%, 9%);
@@ -46,6 +45,11 @@
     position: relative;
     display: grid;
     grid: "place-value place-value" max-content "profile-image profile-image" max-content "username username" max-content "credit-count credit-count" max-content/1fr 1fr;
+  }
+  .info-group .user-info:not(.info-group .user-info:has(.info__credits)) {
+    grid: "place-value place-value" max-content "profile-image profile-image" max-content "username username" max-content/1fr 1fr;
+  }
+  .info-group .user-info {
     place-items: center;
     gap: 1rem;
   }
@@ -55,13 +59,16 @@
   .info-group .user-info .info__position:first-child {
     grid-area: place-value;
     background: rgba(241, 220, 205, 0.603);
-    border-radius: 50%;
-    aspect-ratio: 1/1;
     font-size: 2.5rem;
+    border-radius: 50%;
     width: fit-content;
     padding: 0.6rem;
+    aspect-ratio: 1/1;
     display: grid;
     place-items: center;
+  }
+  .info-group .user-info .info__position:first-child:nth-child(n+4) {
+    background: rgba(221, 221, 221, 0.603);
   }
   .info-group .user-info .info__avatar {
     grid-area: profile-image;
@@ -83,14 +90,11 @@
   .info-group .user-info:nth-child(n+2)::before {
     content: "";
     display: block;
-    width: 100%;
-    height: 0.1rem;
-    background: rgb(221, 221, 221);
     position: absolute;
     top: -1.5rem;
-  }
-  .info-group .user-info:nth-child(n+4) .info__position {
-    background: rgba(221, 221, 221, 0.603);
+    height: 0.1rem;
+    width: 100%;
+    background: rgb(221, 221, 221);
   }
 }
 
@@ -107,12 +111,11 @@
 }
 @media screen and (max-width: 59rem) {
   .paginator {
-    margin-top: 4rem;
     align-items: center;
   }
   .paginator .paginator__current-page {
     position: relative;
-    left: -0.3rem;
+    left: var(--current-page-left-offset);
   }
 }
 

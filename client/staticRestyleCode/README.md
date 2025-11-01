@@ -23,9 +23,12 @@ Options page
     refactor
 
 🚧 Leaderboard
+    review even though i don't want to
+    compelete it out
 
-✅ Transaction History page content (accessible from the Portfolio)
-
+🚧 Transaction History page content (accessible from the Portfolio)
+    review for regressions
+    
 🚧 Portfolio page content
     🚧 - "Sort by" width not the same as the card group visual width
         (hard >:) )

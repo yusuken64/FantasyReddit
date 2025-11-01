@@ -9,28 +9,30 @@
 }
 
 .info-group {
-    // We make this a grid instead so that all column tracks assume
+    // We make this a grid so that all column tracks assume
     // ... the inline-length of the largest child item.
-    // If we make the .user-info elements into a grid, they won't all have the
+    // If we instead make the .user-info elements themselves into grids, they won't all have the
     // ... same track lengths.
     display: grid;
     grid: "place-value profile-image username credit-count" max-content
         / max-content max-content max-content max-content;
     gap: 1rem;
     align-items: center;
-        
+    
     margin-top: 2rem;
     
     .user-info {
         // For layout purposes, pretend like .user-info doesn't exist.
         display: contents;
         
+        // After the first child, separate info rows via margin:
         &:nth-child(n+2) {
             margin-top: 1rem;
         }
-        // All children of user-info are placed automatically into the grid defined by .info-group.
-        // This is so they each fill a newly created cell once the first row is filled.
-        // If we define grid-area on these children, they'll all fill the same cell.
+        
+        // All children of .user-info are placed automatically into the grid defined by .info-group.
+        // This is so the children fill the cells of a new auto-generated track once the first row is filled.
+        // Note to self: If we define the grid-area property on these children, they'll all fill the same cell.
         .info__position {
             text-align: center;
             text-shadow: 0 2px 1px #00000016;
@@ -47,12 +49,13 @@
         .info__credits {
             color: base_variables.$color-orange;
             font-size: 1.5rem;
-            justify-self: left;
         }
         
         .hidden-info {
+            // Override color for if the element's class is .info__credits.hidden-info
             color: base_variables.$color-black;
-            font-size: 1rem;
+            // Override font size for if the element's class is .info__credits.hidden-info
+            font-size: 1rem; 
         }
     }
     
@@ -62,12 +65,25 @@
         .user-info {
             position: relative; // contain absolute children
             
+            // On mobile, make .user-info its own grid instead of filling its parent's grid.
+            // This allows us to be more explicit (via the grid-area prop) as to the relationship
+            // ... between the grid parent, grid cells and grid items.
             display: grid;
             grid: "place-value place-value" max-content
             "profile-image profile-image" max-content
             "username username" max-content
             "credit-count credit-count" max-content
                 / 1fr 1fr;
+                
+            // If the user disabled their username and credit count from appearing on the leaderboard,
+            // ... we remove .info__credits. Otherwise, if we just remove its TextNode
+            // ... a gap will appear for the empty element and will distrupt the layout.
+            &:not(&:has(.info__credits)) {
+                grid: "place-value place-value" max-content
+                "profile-image profile-image" max-content
+                "username username" max-content
+                    / 1fr 1fr;
+            }
             place-items: center;
             gap: 1rem;
             
@@ -76,20 +92,28 @@
                 margin-top: 3rem;
             }
             
-            // :first-child is purely to win against the top three position selectors at the top of the file
+            // :first-child is present purely to win against the top three position selectors
+            // ... at the top of the file.
             .info__position:first-child {
                 grid-area: place-value;
-                background: rgba(241, 220, 205, 0.603);
-                border-radius: 50%;
-                aspect-ratio: 1/1;
                 
+                // Give the place values a cool background
+                background: rgba(241, 220, 205, 0.603);
                 font-size: 2.5rem;
+                
+                border-radius: 50%;
                 width: fit-content;
                 padding: .6rem;
+                aspect-ratio: 1/1;
                 
                 // Center text within circle
                 display: grid;
                 place-items: center;
+                
+                // The background after the top 3 .user-info elements should be grey.
+                &:nth-child(n + 4) {
+                    background: rgba(221, 221, 221, 0.603);
+                }
             }
             .info__avatar {
                 grid-area: profile-image;
@@ -101,7 +125,7 @@
             }
             .info__credits {
                 grid-area: credit-count;
-                justify-self: center; // override original justification
+                justify-self: center; // Override default justification
                 font-size: 1.5rem;
             }
             .hidden-info {
@@ -109,29 +133,19 @@
                 font-style: italic;
             }
         }
+        
+        // Place a faint visual line above .user-info elements, after the first element.
         .user-info:nth-child(n+2)::before {
             content: "";
             display: block;
-            width: 100%;
-            height: .1rem;
-            background: rgb(221, 221, 221);
             
             position: absolute;
             top: -1.5rem;
-        }
-        .user-info:nth-child(n + 4) {
-            .info__position {
-                background: rgba(221, 221, 221, 0.603);
-            }
+            
+            height: .1rem;
+            width: 100%;
+            background: rgb(221, 221, 221);
+            
         }
     }
-// $breakpoint-lg: 78rem;
-
-// $breakpoint-md-lg: 70rem;
-// $breakpoint-md: 66rem;
-// $breakpoint-md-sm: 59rem;
-
-// $breakpoint-sm: 54rem;
-// $breakpoint-xsm: 48rem;
-// $breakpoint-xxsm: 32rem;
 }

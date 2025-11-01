@@ -927,12 +927,21 @@ Main components shared by many pages
   margin-top: 2rem;
 }
 @media screen and (max-width: 78rem) {
-  .paginator .paginator__current-page {
-    position: relative;
-    left: -0.3rem;
-  }
   .paginator {
     align-items: center;
+  }
+}
+@media screen and (max-width: 78rem) {
+  .paginator .paginator__current-page {
+    position: relative;
+    --current-page-left-offset: -.3rem;
+    left: var(--current-page-left-offset);
+  }
+}
+@media screen and (max-width: 54rem) {
+  .paginator .paginator__current-page {
+    --current-page-left-offset: -.35rem;
+    font-size: 1.5rem;
   }
 }
 .paginator .pagiator__buttons {
@@ -970,6 +979,12 @@ Main components shared by many pages
 .paginator .pagiator__buttons .btn--pager:has(.arrow-icon) .arrow-icon--left {
   rotate: -90deg;
   transform: translate(-50%, -50%);
+}
+@media screen and (max-width: 54rem) {
+  .paginator .pagiator__buttons .btn--pager {
+    width: 2.5rem;
+    font-size: 1rem;
+  }
 }
 .paginator .pagiator__buttons .btn--current-pager {
   background: rgb(101, 185, 225);

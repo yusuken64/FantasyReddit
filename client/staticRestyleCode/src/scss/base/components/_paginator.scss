@@ -6,13 +6,21 @@
     margin-top: 2rem;
     
     @media screen and (max-width: base_variables.$breakpoint-lg) {
-        .paginator__current-page {
+        align-items: center;
+    }
+    
+    .paginator__current-page {
+        @media screen and (max-width: base_variables.$breakpoint-lg) {
             // Visually center
             position: relative;
-            left: -.3rem;
+            --current-page-left-offset: -.3rem;
+            left: var(--current-page-left-offset);
         }
-    
-        align-items: center;
+        
+        @media screen and (max-width: base_variables.$breakpoint-sm) {
+            --current-page-left-offset: -.35rem;
+            font-size: 1.5rem;
+        }
     }
     
     .pagiator__buttons {
@@ -65,6 +73,11 @@
                     transform: translate(-50%, -50%);
                 }
             }
+            
+            @media screen and (max-width: base_variables.$breakpoint-sm) {
+                width: 2.5rem;
+                font-size: 1rem;
+            }
         }
         
         .btn--current-pager {
@@ -77,6 +90,5 @@
                 border-color: rgb(48, 125, 161);
             }
         }
-        
     }
 }

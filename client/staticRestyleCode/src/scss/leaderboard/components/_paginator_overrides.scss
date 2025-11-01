@@ -12,13 +12,12 @@
     }
 
     @media screen and (max-width: base_variables.$breakpoint-md-sm) {
-        margin-top: 4rem;
         align-items: center;
 
         .paginator__current-page {
             // Visually center
             position: relative;
-            left: -.3rem;
+            left: var(--current-page-left-offset);
         }
     }
 }

@@ -148,7 +148,7 @@
 @media screen and (max-width: 59rem) {
   .paginator .paginator__current-page {
     position: relative;
-    left: -0.3rem;
+    left: var(--current-page-left-offset);
   }
   .paginator {
     align-items: center;
@@ -166,7 +166,7 @@
 @media screen and (max-width: 32rem) {
   .paginator .paginator__current-page {
     position: relative;
-    left: -0.3rem;
+    left: var(--current-page-left-offset);
   }
   .paginator {
     align-items: center;
