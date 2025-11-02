@@ -35,6 +35,8 @@ body * {
 
 html {
   scrollbar-color: #873213 transparent;
+  overflow-x: hidden;
+  overflow-y: scroll;
 }
 
 main {

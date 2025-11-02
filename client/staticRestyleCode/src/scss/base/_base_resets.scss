@@ -77,6 +77,16 @@ html {
     // i guess the body fits to its contents so there's no overflow?
     // the html is limited by the viewport size maybe?
     // the aside overflows the body, which is 100% of the viewport height for some reason.
+    
+    // Overflow x causes a horizonal scroll track to appear.
+    // This takes up space in the desired 100vh width of the body.
+    // Thus a vertical scroll track is created so we can scroll to see the space that was taken
+    // ... up by the horizontal scroll track.
+    // But, why is there horizontal overflow???
+    // We can do a quick hacky fix by hiding overflow along the x axis:
+    // Grr.. the relationship between overflown content is tricky..
+    overflow-x: hidden;
+    overflow-y: scroll;
 }
 
 main {
