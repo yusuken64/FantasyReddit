@@ -62,8 +62,8 @@
     display: grid;
     place-items: center;
   }
-  .info-group .user-info .info__position:first-child:nth-child(n+4) {
-    background: rgba(221, 221, 221, 0.603);
+  .info-group .user-info:nth-child(n+4) .info__position {
+    background: rgba(196, 196, 196, 0.32);
   }
   .info-group .user-info .info__avatar {
     grid-area: profile-image;

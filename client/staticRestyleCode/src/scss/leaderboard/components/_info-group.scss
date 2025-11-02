@@ -112,12 +112,13 @@
                 // Center text within circle
                 display: grid;
                 place-items: center;
-                
-                // The background after the top 3 .user-info elements should be grey.
-                &:nth-child(n + 4) {
-                    background: rgba(221, 221, 221, 0.603);
-                }
             }
+            
+            // The background after the top 3 .user-info elements should be grey.
+            &:nth-child(n + 4) .info__position {
+                background: rgba(196, 196, 196, 0.32);
+            }
+            
             .info__avatar {
                 grid-area: profile-image;
                 width: 4rem;
