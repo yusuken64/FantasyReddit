@@ -1,7 +1,8 @@
             <h2 class="text-orange">Leaderboard:</h2>
 
             <p class="mt-1">A leaderboard that showcases the top-grossing users on the platform.</p>
-            <p>Users who opt-out will not have their info displayed.</p>
+            
+            <p class="mt-05">Users who opt-out will not have their info displayed.</p>
             
             <div class="info-group">
                 <div class="user-info">
@@ -11,6 +12,7 @@
                             Hide credit count from leaderboard
                     -->
                             
+                    
                     <!-- if user.leaderboardVisibility.nameVisible && !user.leaderboardVisibility.creditsVisible -->
                         <!-- <h3 class="info__position">#2</h3>
                         <img class="info__avatar"
@@ -19,10 +21,10 @@
                         <p class="info__name">Jacob</p>
                         <p class="info__credits hidden-info">&lt;credit balance hidden&gt;</p> -->
                     <!-- elif !user.leaderboardVisibility.nameVisible && !user.leaderboardVisibility.creditsVisible -->
-                        <h3 class="info__position">#2</h3>
+                        <h3 class="info__position">#1</h3>
                         <img class="info__avatar"
-                            src="https://png.pngtree.com/png-vector/20220709/ourmid/pngtree-businessman-user-avatar-wearing-suit-with-red-tie-png-image_5809521.png"
-                            alt="">
+                             src="./assets/images/stock-person-icon.png"
+                             alt="SVG icon of a person's headshot in business attire">
                         <p class="info__name hidden-info">&lt;profile hidden&gt;</p>
                         <!-- to support the layout, just don't put anything in here: -->
                         <p class="info__credits"></p>
@@ -44,33 +46,84 @@
                 <div class="user-info">
                     <h3 class="info__position">#2</h3>
                     <img class="info__avatar"
-                         src="https://png.pngtree.com/png-vector/20220709/ourmid/pngtree-businessman-user-avatar-wearing-suit-with-red-tie-png-image_5809521.png"
-                         alt="">
-                    <p class="info__name">Jacob</p>
+                         src="./assets/images/stock-person-icon.png"
+                         alt="SVG icon of a person's headshot in business attire">
+                    <p class="info__name">Jared</p>
                     <p class="info__credits">5,000 credits</p>
                 </div>
                 <div class="user-info">
                     <h3 class="info__position">#3</h3>
                     <img class="info__avatar"
-                         src="https://png.pngtree.com/png-vector/20220709/ourmid/pngtree-businessman-user-avatar-wearing-suit-with-red-tie-png-image_5809521.png"
-                         alt="">
+                         src="./assets/images/stock-person-icon.png"
+                         alt="SVG icon of a person's headshot in business attire">
                     <p class="info__name">Jeff</p>
                     <p class="info__credits">2,000 credits</p>
                 </div>
                 <div class="user-info">
                     <h3 class="info__position">#4</h3>
                     <img class="info__avatar"
-                         src="https://png.pngtree.com/png-vector/20220709/ourmid/pngtree-businessman-user-avatar-wearing-suit-with-red-tie-png-image_5809521.png"
-                         alt="">
+                         src="./assets/images/stock-person-icon.png"
+                         alt="SVG icon of a person's headshot in business attire">
                     <p class="info__name">Jacob</p>
                     <p class="info__credits hidden-info">&lt;credit balance hidden&gt;</p>
                 </div>
                 <div class="user-info">
                     <h3 class="info__position">#5</h3>
                     <img class="info__avatar"
-                         src="https://png.pngtree.com/png-vector/20220709/ourmid/pngtree-businessman-user-avatar-wearing-suit-with-red-tie-png-image_5809521.png"
-                         alt="">
+                         src="./assets/images/stock-person-icon.png"
+                         alt="SVG icon of a person's headshot in business attire">
                     <p class="info__name hidden-info">&lt;username hidden&gt;</p>
                     <p class="info__credits">1,233 credits</p>
                 </div>
             </div>
+            
+            <section class="paginator">
+                <h3 class="paginator__current-page">Page 3 of 4</h3>
+
+                <div class="pagiator__buttons">
+                    <!-- dynamically add to the GET URL query list via JS -->
+                    <button class="btn btn--pager">
+                        <span class="sr-only">Previous page</span>
+
+                        <svg class="arrow-icon arrow-icon--left" viewBox="0 0 24 24">
+                            <title>A left-pointing arrow</title>
+                            <use href="./assets/svg/up-arrow.svg#up-arrow"></use>
+                        </svg>
+                    </button>
+                    <!--
+                    Yusuke,
+                    
+                    You might want to implement a limited number of page buttons relative to the current page
+                    ... so as to save on space and memory. For example, a user with 500 pages of items
+                    ... would not like to see 500 buttons on the screen. Instead, they might prefer something like:
+                    
+                    <- 1 ... 45 46 (47) 48 49 ... 500 ->
+                    
+                    where (47) is the current page.
+                    -->
+                    <button class="btn btn--pager">
+                        <span class="sr-only">Page</span>
+                        1
+                    </button>
+                    <button class="btn btn--pager">
+                        <span class="sr-only">Page</span>
+                        2
+                    </button>
+                    <button class="btn btn--pager btn--current-pager">
+                        <span class="sr-only">Page</span>
+                        3
+                    </button>
+                    <button class="btn btn--pager">
+                        <span class="sr-only">Page</span>
+                        4
+                    </button>
+                    <button class="btn btn--pager">
+                        <span class="sr-only">Next page</span>
+
+                        <svg class="arrow-icon arrow-icon--right" viewBox="0 0 24 24">
+                            <title>A right-pointing arrow</title>
+                            <use href="./assets/svg/up-arrow.svg#up-arrow"></use>
+                        </svg>
+                    </button>
+                </div>
+            </section>

@@ -122,15 +122,15 @@
 }
 
 .btn--toggle-graphmode {
-  background: hsl(16, 99%, 46%);
-  border: 1px solid hsl(16, 89%, 40%);
+  background: rgb(20, 119, 165);
+  box-shadow: 0 2px 0 rgba(118, 190, 223, 0.24);
   color: hsl(220, 7%, 92%);
   padding: 0.5rem 1rem;
   border-radius: 1rem;
-  transition: 0.2s background;
+  transition: 0.4s background;
 }
 .btn--toggle-graphmode:hover {
-  background: hsl(16, 95%, 44%);
+  background: rgb(15, 93, 130);
 }
 
 .content-heading-row {

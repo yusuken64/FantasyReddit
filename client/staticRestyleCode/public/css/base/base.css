@@ -955,15 +955,15 @@ Main components shared by many pages
   width: 1.75rem;
   aspect-ratio: 1/1;
   border-radius: 50%;
-  background: rgb(110, 209, 255);
-  border: 1px solid rgb(110, 209, 255);
-  box-shadow: 0 2px 0 rgba(177, 177, 177, 0.35);
+  background: rgb(111, 200, 242);
+  border: 1px solid rgb(94, 165, 198);
+  box-shadow: 0 2px 0 rgba(96, 174, 210, 0.16);
   user-select: none;
   transition: 0.4s background, 0.2s border-color;
 }
 .paginator .pagiator__buttons .btn--pager:hover {
-  background: rgb(107, 193, 233);
-  border-color: rgb(69, 160, 203);
+  background: rgb(104, 177, 211);
+  border-color: rgb(62, 147, 187);
 }
 .paginator .pagiator__buttons .btn--pager:has(.arrow-icon) {
   position: relative;
@@ -989,12 +989,12 @@ Main components shared by many pages
   }
 }
 .paginator .pagiator__buttons .btn--current-pager {
-  background: rgb(101, 185, 225);
-  border-color: rgb(48, 125, 161);
+  background: rgb(82, 159, 195);
+  border-color: rgb(15, 121, 170);
 }
 .paginator .pagiator__buttons .btn--current-pager:hover {
-  background: rgb(101, 185, 225);
-  border-color: rgb(48, 125, 161);
+  background: rgb(82, 159, 195);
+  border-color: rgb(15, 121, 170);
 }
 
 /*# sourceMappingURL=base.css.map */
