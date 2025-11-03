@@ -1,0 +1,6 @@
+@use "../../base/base_variables";
+
+section h2 ~ *,
+section h3 ~ * {
+    margin-left: 1rem;
+}

@@ -4,13 +4,7 @@
 Button class
 ==== */
 
-.btn {
-    // Also does away with descender whitespace that comes by default with display: inline
-    display: grid;
-    // [?] Unknown: how does this affect text nodes within a parent under the influence of align-items: stretch?
-    // I guess it centers it verically.. odd...
-    place-items: center;
-    
+.btn {    
     text-decoration: none;
     border-radius: 1rem;
     
@@ -50,6 +44,12 @@ Button color modifiers
 }
 
 .btn--register {
+    // Also does away with descender whitespace that comes by default with display: inline
+    display: grid;
+    // [?] Unknown: how does this affect text nodes within a parent under the influence of align-items: stretch?
+    // I guess it centers it verically.. odd...
+    place-items: center;
+    
     height: 3rem;
     width: 8.5rem;
     
@@ -61,6 +61,12 @@ Button color modifiers
 }
 
 .btn--login {
+    // Also does away with descender whitespace that comes by default with display: inline
+    display: grid;
+    // [?] Unknown: how does this affect text nodes within a parent under the influence of align-items: stretch?
+    // I guess it centers it verically.. odd...
+    place-items: center;
+    
     height: 3rem;
     width: 6.5rem;
     

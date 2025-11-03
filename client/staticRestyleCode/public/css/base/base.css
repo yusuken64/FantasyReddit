@@ -163,12 +163,14 @@ svg {
   width: max-content;
 }
 
+.block {
+  display: block;
+}
+
 /*===
 Button class
 ==== */
 .btn {
-  display: grid;
-  place-items: center;
   text-decoration: none;
   border-radius: 1rem;
   font-size: 1.25rem;
@@ -201,6 +203,8 @@ Button color modifiers
 }
 
 .btn--register {
+  display: grid;
+  place-items: center;
   height: 3rem;
   width: 8.5rem;
 }
@@ -212,6 +216,8 @@ Button color modifiers
 }
 
 .btn--login {
+  display: grid;
+  place-items: center;
   height: 3rem;
   width: 6.5rem;
 }

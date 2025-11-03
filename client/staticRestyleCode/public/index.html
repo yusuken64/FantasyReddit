@@ -236,35 +236,73 @@
     <!-- Main content -->
     <main>
         <article class="scrollable-container">
-            <h2 class="text-orange">Account info</h2>
-
-            <p>
-                Password: ********
-                <button>
-                    <span class="sr-only">Update password</span>
-                </button>
-            </p>
-            <p>
-                Username: ********
-                <button>
-                    <span class="sr-only">Update username</span>
-                </button>
-            </p>
-            <p>
-                Email: w*******@gmail.com
-                <button>
-                    <span class="sr-only">Update email</span>
-                </button>
-            </p>
+            <section>
+                <h2 class="text-orange">Account info</h2>
+                
+                <p>
+                    Username: greg_heffley
+                    
+                    <button class="btn btn--edit">
+                        <span class="sr-only">Update username</span>
+                        <svg class="icon" aria-hidden="true">
+                            <use href="./assets/svg/edit-icon.svg#edit-icon"></use>
+                        </svg>
+                    </button>
+                </p>
+                <p>
+                    Password: ********
+                    
+                    <button class="btn btn--edit">
+                        <span class="sr-only">Update password</span>
+                        <svg class="icon" aria-hidden="true">
+                            <use href="./assets/svg/edit-icon.svg#edit-icon"></use>
+                        </svg>
+                    </button>
+                </p>
+                <p>
+                    Email: x*******@gmail.com
+                    <button class="btn btn--edit">
+                        <span class="sr-only">Update email</span>
+                        <svg class="icon" aria-hidden="true">
+                            <use href="./assets/svg/edit-icon.svg#edit-icon"></use>
+                        </svg>
+                    </button>
+                </p>    
+            </section>
             
-            <h3 class="text-orange">Account Data Storage:</h3>
+            <section>
+                <h3 class="text-orange">Leaderboard settings:</h3>
+                
+                <p>
+                    Username is currently public
+                    <button class="btn btn--edit">
+                        <span class="sr-only">Hide your credit amount to leaderboard</span>
+                        <svg class="icon" aria-hidden="true">
+                            <use href="./assets/svg/eye-open-icon.svg#eye-open-icon"></use>
+                        </svg>
+                    </button>
+                </p> 
+                <p>
+                    Credit is currently hidden
+                    <button class="btn btn--edit">
+                        <span class="sr-only">Publicize your credit amount to leaderboard</span>
+                        <svg class="icon" aria-hidden="true">
+                            <use href="./assets/svg/eye-closed-icon.svg#eye-closed-icon"></use>
+                        </svg>
+                    </button>
+                </p>  
+            </section> 
             
-            <button class="btn btn--black btn--medium mt-1">
-                Request a copy of my data
-            </button>
-            <button class="btn btn--danger btn--medium mt-1">
-                Delete Account
-            </button>
+            <section>
+                <h3 class="text-orange">Account Data:</h3>
+                
+                <button class="btn btn--black btn--medium mt-1 block">
+                    Request a copy of my data
+                </button>
+                <button class="btn btn--danger btn--medium mt-1 block">
+                    Delete Account
+                </button>
+            </section>            
         </article>
     </main>
 </body>

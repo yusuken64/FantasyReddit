@@ -1,8 +1,26 @@
 @use "../../base/base_variables";
 
-.btn--danger {
-    background: rgb(215, 60, 60);
-    color: base_variables.$color-white;
-    padding: 0 1rem;
-    border-radius: 1rem;
+.btn--edit {
+    background: rgb(243, 240, 240);
+    border: 1px solid rgba(24, 19, 27, 0.42);
+    padding: .2rem;
+    
+    vertical-align: sub;
+    margin-left: .5rem;
+    margin-top: .5rem;
+    
+    height: 2rem;
+    aspect-ratio: 1/1;
+    
+    position: relative;
+    transition: .2s background, .2s scale ease;
+    &:hover {
+        background: rgb(227, 227, 227);
+        scale: 0.95;
+    }
+    
+    svg {
+        width: .5rem;
+        aspect-ratio: 1/1;
+    }
 }

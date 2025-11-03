@@ -2,11 +2,30 @@
   margin-top: 1.5rem;
 }
 
-.btn--danger {
-  background: rgb(215, 60, 60);
-  color: hsl(220, 7%, 92%);
-  padding: 0 1rem;
-  border-radius: 1rem;
+.btn--edit {
+  background: rgb(243, 240, 240);
+  border: 1px solid rgba(24, 19, 27, 0.42);
+  padding: 0.2rem;
+  vertical-align: sub;
+  margin-left: 0.5rem;
+  margin-top: 0.5rem;
+  height: 2rem;
+  aspect-ratio: 1/1;
+  position: relative;
+  transition: 0.2s background, 0.2s scale ease;
+}
+.btn--edit:hover {
+  background: rgb(227, 227, 227);
+  scale: 0.95;
+}
+.btn--edit svg {
+  width: 0.5rem;
+  aspect-ratio: 1/1;
+}
+
+section h2 ~ *,
+section h3 ~ * {
+  margin-left: 1rem;
 }
 
 /*# sourceMappingURL=account-options.css.map */
