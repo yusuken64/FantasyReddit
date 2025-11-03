@@ -1,11 +1,16 @@
 @use "../../base/base_variables";
 
 #auth-form {
+    // Uses implicit defaults of grid-auto-flow, grid-template-rows, and automatic track generation given a lack of a defined template
     display: grid;
-    // use implicit defaults of grid-auto-flow, grid-template-rows, and automatic track generation given a lack of a defined template
-    width: 25rem;
     gap: .5rem;
+    
+    width: 25rem;
     margin-top: 1rem;
+    
+    input::placeholder {
+        color: rgba(144, 144, 144, 0.399);
+    }
     
     .text-field {
         padding: .5rem;
@@ -23,16 +28,17 @@
     .btn--orange,
     .btn--black {
         margin-top: .5rem; // adds up to a 1rem length between the button's block-start and the element above's block-end
-        font-size: 1rem;
-        
+
         @media screen and (max-width: base_variables.$breakpoint-xxsm) {
             width: 100%;
         }
     }
+    
     .password-group {
         display: grid;
         gap: .5rem;
         margin-top: .5rem;
+        margin-bottom: .25rem;
     }
     
     @media screen and (max-width: base_variables.$breakpoint-sm) {
@@ -49,4 +55,11 @@
 .forgot-password {
     margin-top: 2rem;
     width: fit-content;
+    
+    a {
+        transition: .2s color;
+        &:hover {
+            color: hsl(19, 88%, 39%);
+        }
+    }
 }

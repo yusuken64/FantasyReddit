@@ -164,56 +164,82 @@ svg {
 }
 
 /*===
-Buttons
+Button class
 ==== */
-.btn--orange {
+.btn {
   display: grid;
   place-items: center;
-  height: 3rem;
-  width: 8.5rem;
-  border: 2px solid rgba(255, 68, 0, 0.64);
+  text-decoration: none;
   border-radius: 1rem;
+  font-size: 1.25rem;
+  transition: 0.4s outline-color, 0.4s box-shadow ease;
+}
+
+/*===
+Button color modifiers
+==== */
+.btn--orange {
+  border: 2px solid rgba(255, 68, 0, 0.64);
   font-size: 1.25rem;
   text-shadow: 0 1px 0 rgba(156, 161, 170, 0.32);
   color: #FF4500;
   box-shadow: 0 0 6px transparent;
-  transition: 0.4s box-shadow ease;
 }
 .btn--orange:hover {
   box-shadow: 0 0 3px rgba(255, 68, 0, 0.64);
 }
+
+.btn--black {
+  padding: 0 1.5rem;
+  color: hsl(220, 7%, 92%);
+  background: hsl(278, 18%, 9%);
+  outline: 2px dashed transparent;
+  outline-offset: -4px;
+}
+.btn--black:hover {
+  outline-color: hsl(220, 7%, 92%);
+}
+
+.btn--register {
+  height: 3rem;
+  width: 8.5rem;
+}
 @media screen and (max-width: 70rem) {
-  .btn--orange {
+  .btn--register {
     width: 6.5rem;
     font-size: 1rem;
   }
 }
 
-.btn--black {
-  display: grid;
-  place-items: center;
+.btn--login {
   height: 3rem;
   width: 6.5rem;
-  border-radius: 1rem;
-  font-size: 1.25rem;
-  color: hsl(220, 7%, 92%);
-  background: hsl(278, 18%, 9%);
-  outline: 2px dashed transparent;
-  outline-offset: -4px;
-  transition: 0.4s outline-color;
-}
-.btn--black:hover {
-  outline-color: hsl(220, 7%, 92%);
 }
 @media screen and (max-width: 70rem) {
-  .btn--black {
+  .btn--login {
     width: 5.5rem;
     font-size: 1rem;
   }
 }
 
-.btn {
-  text-decoration: none;
+.btn--danger {
+  background: rgb(215, 60, 60);
+  color: hsl(220, 7%, 92%);
+  padding: 0 1rem;
+  border-radius: 1rem;
+  outline: 2px dashed transparent;
+  outline-offset: -4px;
+}
+.btn--danger:hover {
+  outline-color: hsl(220, 7%, 92%);
+}
+
+/*===
+Button size modifiers
+==== */
+.btn--medium {
+  font-size: 1rem;
+  height: 2.5rem;
 }
 
 /*===
@@ -942,16 +968,21 @@ Main components shared by many pages
 }
 @media screen and (max-width: 54rem) {
   .paginator .paginator__current-page {
-    --current-page-left-offset: -.35rem;
+    --current-page-left-offset: -.4rem;
     font-size: 1.5rem;
   }
 }
-.paginator .pagiator__buttons {
+.paginator .paginator__buttons {
   display: flex;
   gap: 0.5rem;
   margin-top: 0.5rem;
 }
-.paginator .pagiator__buttons .btn--pager {
+@media screen and (max-width: 54rem) {
+  .paginator .paginator__buttons {
+    margin-top: 1rem;
+  }
+}
+.paginator .paginator__buttons .btn--pager {
   width: 1.75rem;
   aspect-ratio: 1/1;
   border-radius: 50%;
@@ -961,38 +992,38 @@ Main components shared by many pages
   user-select: none;
   transition: 0.4s background, 0.2s border-color;
 }
-.paginator .pagiator__buttons .btn--pager:hover {
+.paginator .paginator__buttons .btn--pager:hover {
   background: rgb(104, 177, 211);
   border-color: rgb(62, 147, 187);
 }
-.paginator .pagiator__buttons .btn--pager:has(.arrow-icon) {
+.paginator .paginator__buttons .btn--pager:has(.arrow-icon) {
   position: relative;
 }
-.paginator .pagiator__buttons .btn--pager:has(.arrow-icon) .arrow-icon {
+.paginator .paginator__buttons .btn--pager:has(.arrow-icon) .arrow-icon {
   position: absolute;
   rotate: 90deg;
   top: 0;
   transform: translate(50%, 50%);
 }
-.paginator .pagiator__buttons .btn--pager:has(.arrow-icon) .arrow-icon--right {
+.paginator .paginator__buttons .btn--pager:has(.arrow-icon) .arrow-icon--right {
   rotate: 90deg;
   transform: translate(50%, 50%);
 }
-.paginator .pagiator__buttons .btn--pager:has(.arrow-icon) .arrow-icon--left {
+.paginator .paginator__buttons .btn--pager:has(.arrow-icon) .arrow-icon--left {
   rotate: -90deg;
   transform: translate(-50%, -50%);
 }
 @media screen and (max-width: 54rem) {
-  .paginator .pagiator__buttons .btn--pager {
+  .paginator .paginator__buttons .btn--pager {
     width: 2.5rem;
     font-size: 1rem;
   }
 }
-.paginator .pagiator__buttons .btn--current-pager {
+.paginator .paginator__buttons .btn--current-pager {
   background: rgb(82, 159, 195);
   border-color: rgb(15, 121, 170);
 }
-.paginator .pagiator__buttons .btn--current-pager:hover {
+.paginator .paginator__buttons .btn--current-pager:hover {
   background: rgb(82, 159, 195);
   border-color: rgb(15, 121, 170);
 }

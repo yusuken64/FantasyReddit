@@ -1,8 +1,11 @@
 #auth-form {
   display: grid;
-  width: 25rem;
   gap: 0.5rem;
+  width: 25rem;
   margin-top: 1rem;
+}
+#auth-form input::placeholder {
+  color: rgba(144, 144, 144, 0.399);
 }
 #auth-form .text-field {
   padding: 0.5rem;
@@ -19,7 +22,6 @@
 #auth-form .btn--orange,
 #auth-form .btn--black {
   margin-top: 0.5rem;
-  font-size: 1rem;
 }
 @media screen and (max-width: 32rem) {
   #auth-form .btn--orange,
@@ -31,6 +33,7 @@
   display: grid;
   gap: 0.5rem;
   margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 @media screen and (max-width: 54rem) {
   #auth-form {
@@ -51,6 +54,12 @@
 .forgot-password {
   margin-top: 2rem;
   width: fit-content;
+}
+.forgot-password a {
+  transition: 0.2s color;
+}
+.forgot-password a:hover {
+  color: hsl(19, 88%, 39%);
 }
 
 /*# sourceMappingURL=auth.css.map */

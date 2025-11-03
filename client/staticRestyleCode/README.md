@@ -14,26 +14,30 @@ Pull requests & git logs will reveal what changes occur for you
 ✅ Top chart page content
 ✅ Hot chart page content
 
-Options page
-🚧 Login
-    refactor
-🚧 Register
-    refactor
-🚧 password reset page
-    refactor
+🚧Options page
 
-🚧 Leaderboard
-    review even though i don't want to
-    compelete it out
+✅ Login
+✅ Register
+✅ password reset page
+✅ Leaderboard
 
-🚧 Transaction History page content (accessible from the Portfolio)
-    review for regressions
+✅ Transaction History page content (accessible from the Portfolio)
     
-🚧 Portfolio page content
-    🚧 - "Sort by" width not the same as the card group visual width
+✅ Portfolio page content
+    ⏸️ - "Sort by" width not the same as the card group visual width
         (hard >:) )
+        -- put off for now
     ✅ - Portfolio thread list
     ✅ - Holdings page in graphical format on the portfolio
+
+Refactor forms
+Final pass
+Big bugs (
+    logged-out auth buttons appear on sidebar and header in some cases,
+    viral search bar,
+    portfolio tricky layout alignment (maybe it requires js)
+    understand the overflow issue
+)
     
 ## Known issues:
 

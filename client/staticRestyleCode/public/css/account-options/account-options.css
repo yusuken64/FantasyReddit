@@ -1,0 +1,12 @@
+.scrollable-container h3 {
+  margin-top: 1.5rem;
+}
+
+.btn--danger {
+  background: rgb(215, 60, 60);
+  color: hsl(220, 7%, 92%);
+  padding: 0 1rem;
+  border-radius: 1rem;
+}
+
+/*# sourceMappingURL=account-options.css.map */

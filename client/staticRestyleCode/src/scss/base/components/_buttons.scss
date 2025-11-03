@@ -1,28 +1,57 @@
 @use "../base_variables";
 
 /*===
-Buttons
+Button class
+==== */
+
+.btn {
+    // Also does away with descender whitespace that comes by default with display: inline
+    display: grid;
+    // [?] Unknown: how does this affect text nodes within a parent under the influence of align-items: stretch?
+    // I guess it centers it verically.. odd...
+    place-items: center;
+    
+    text-decoration: none;
+    border-radius: 1rem;
+    
+    font-size: 1.25rem;
+    
+    transition: .4s outline-color, .4s box-shadow ease;
+}
+
+/*===
+Button color modifiers
 ==== */
 
 .btn--orange {
-    display: grid; // Also does away with descender whitespace that comes by default with display: inline
-    place-items: center; // [?] Unknown: how does this affect text nodes within a stretched parent? I guess it centered it verically.. odd...
-    
-    height: 3rem;
-    width: 8.5rem;
-    
     border: 2px solid rgba(255, 68, 0, 0.64);
-    border-radius: 1rem;
     
     font-size: 1.25rem;
     text-shadow: 0 1px 0 rgba(156, 161, 170, 0.32);
     color: #FF4500;
     
     box-shadow: 0 0 6px transparent;
-    transition: .4s box-shadow ease;
     &:hover {
         box-shadow: 0 0 3px rgba(255, 68, 0, 0.64);
     }
+}
+
+.btn--black {
+    padding: 0 1.5rem;
+    
+    color: base_variables.$color-white;
+    background: base_variables.$color-black;
+    
+    outline: 2px dashed transparent;
+    outline-offset: -4px;
+    &:hover {
+        outline-color: base_variables.$color-white;
+    }
+}
+
+.btn--register {
+    height: 3rem;
+    width: 8.5rem;
     
     // LTE 
     @media screen and (max-width: base_variables.$breakpoint-md-lg) {
@@ -31,25 +60,9 @@ Buttons
     }
 }
 
-.btn--black {
-    display: grid; // Also does away with descender whitespace that comes by default with display: inline
-    place-items: center; // [?] Unknown: how does this affect text nodes within a stretched parent? I guess it centered it verically.. odd...
-    
+.btn--login {
     height: 3rem;
-    width: 6.5rem; // Todo: this button is mainly used for "Login" text nodes so i just did this.. really shitty
-    
-    border-radius: 1rem;
-    
-    font-size: 1.25rem;
-    color: base_variables.$color-white;
-    background: base_variables.$color-black;
-    
-    outline: 2px dashed transparent;
-    outline-offset: -4px;
-    transition: .4s outline-color;
-    &:hover {
-        outline-color: base_variables.$color-white;
-    }
+    width: 6.5rem;
     
     // LTE 
     @media screen and (max-width: base_variables.$breakpoint-md-lg) {
@@ -58,6 +71,24 @@ Buttons
     }
 }
 
-.btn {
-    text-decoration: none;
+.btn--danger {
+    background: rgb(215, 60, 60);
+    color: base_variables.$color-white;
+    padding: 0 1rem;
+    border-radius: 1rem;
+    
+    outline: 2px dashed transparent;
+    outline-offset: -4px;
+    &:hover {
+        outline-color: base_variables.$color-white;
+    }
+}
+
+/*===
+Button size modifiers
+==== */
+
+.btn--medium {
+    font-size: 1rem;
+    height: 2.5rem;
 }
