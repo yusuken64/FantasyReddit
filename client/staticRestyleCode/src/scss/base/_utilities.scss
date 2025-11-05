@@ -1,14 +1,34 @@
 @use "base_variables";
 
-// Layout utilities
+///////////////////////
+// Display Utilities //
+///////////////////////
 
-.grid {
-    display: grid;
+.block {
+    display: block;
 }
 
-.gap-05 {
-    gap: 0.5rem;
+//////////////////////////
+// Positional Utilities //
+//////////////////////////
+
+.pos-relative {
+    position: relative;
 }
+
+////////////////////
+// A11y Utilities //
+////////////////////
+
+// Screen reader utilities
+.sr-only {
+    position: absolute;
+    left: -300vw;
+}
+
+///////////////////
+// Box Utilities //
+///////////////////
 
 .mt-05 {
     margin-top: 0.5rem;
@@ -18,13 +38,30 @@
     margin-top: 1rem;
 }
 
-// Screen reader utilities
-.sr-only {
-    position: absolute;
-    left: -300vw;
+.h-100 {
+    height: 100%;
 }
 
-// Text utilities
+.width-mc {
+    width: max-content;
+}
+
+//////////////////////
+// Layout Utilities //
+//////////////////////
+
+.grid {
+    display: grid;
+}
+
+.gap-05 {
+    gap: 0.5rem;
+}
+
+////////////////////
+// Text Utilities //
+////////////////////
+
 .text-orange {
     color: base_variables.$color-orange;
 }
@@ -101,28 +138,8 @@
 }
 
 // Color the psuedo-element orange
-.underline-hover--orange {
+.underline-hover.underline-hover--orange {
     &::after {
         background: base_variables.$color-orange;
     }
-}
-
-// Position utilities
-.pos-relative {
-    position: relative;
-}
-
-// Length utilities
-.h-100 {
-    height: 100%;
-}
-
-.width-mc {
-    width: max-content;
-}
-
-// Display utilities
-
-.block {
-    display: block;
 }

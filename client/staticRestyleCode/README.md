@@ -14,8 +14,7 @@ Pull requests & git logs will reveal what changes occur for you
 ✅ Top chart page content
 ✅ Hot chart page content
 
-🚧 Options page
-    final review of html/css
+✅ Options page
 
 ✅ Login
 ✅ Register
@@ -23,7 +22,7 @@ Pull requests & git logs will reveal what changes occur for you
 ✅ Leaderboard
 
 ✅ Transaction History page content (accessible from the Portfolio)
-    
+
 ✅ Portfolio page content
     📜 - "Sort by" width not the same as the card group visual width
         (hard >:) )

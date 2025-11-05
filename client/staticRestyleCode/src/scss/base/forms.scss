@@ -1,7 +1,6 @@
 @use "base_variables";
 
 #auth-form {
-    // Uses implicit defaults of grid-auto-flow, grid-template-rows, and automatic track generation given a lack of a defined template
     display: grid;
     gap: .5rem;
     
