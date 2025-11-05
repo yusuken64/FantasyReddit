@@ -6,23 +6,20 @@ Main components shared by many pages
 
 // Thread Card & purchase card container (.card-group)
 
-* > .card-group:nth-of-type(n+2) {
-     margin-top: 1rem;
-}
-
 .card-group {
     display: flex;
     // make items' block length fit-content instead of stretch if they have no height set
     // we could also set height: fit-content for items but meh either way works
-    align-items: flex-end;
+    align-items: flex-start;
     gap: 2rem;
+    margin-top: 1rem;
     
     @media screen and (max-width: base_variables.$breakpoint-lg) {
         flex-direction: column;
         position: relative; // allow for item absolute positioning relative to this container
         
         &.card-group:nth-of-type(n+2) {
-            margin-top: 8rem;
+            margin-top: 10rem;
         }
     }
     
@@ -30,7 +27,7 @@ Main components shared by many pages
         align-items: center;
         
         &.card-group:nth-of-type(n+2) {
-            margin-top: 0rem;
+            margin-top: 2rem;
         }
     }
 }
@@ -48,7 +45,6 @@ Main components shared by many pages
 
 .card--thread-card {
     margin-left: 1rem;
-    margin-top: 2rem;
     width: 40rem;
     
     @media screen and (max-width: base_variables.$breakpoint-lg) {
@@ -141,7 +137,9 @@ Main components shared by many pages
           "btn-buy btn-sell" 1fr
           / 1fr 1fr;
     place-items: center;
-    gap: 1.5rem .75rem;
+    gap: 1.25rem .75rem;
+    
+    text-align: center;
     
     @media screen and (max-width: base_variables.$breakpoint-lg) {
         position: absolute;

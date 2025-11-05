@@ -759,14 +759,11 @@ Sidebar keyframes
 /*===
 Main components shared by many pages
 ==== */
-* > .card-group:nth-of-type(n+2) {
-  margin-top: 1rem;
-}
-
 .card-group {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 2rem;
+  margin-top: 1rem;
 }
 @media screen and (max-width: 78rem) {
   .card-group {
@@ -774,7 +771,7 @@ Main components shared by many pages
     position: relative;
   }
   .card-group.card-group:nth-of-type(n+2) {
-    margin-top: 8rem;
+    margin-top: 10rem;
   }
 }
 @media screen and (max-width: 59rem) {
@@ -782,7 +779,7 @@ Main components shared by many pages
     align-items: center;
   }
   .card-group.card-group:nth-of-type(n+2) {
-    margin-top: 0rem;
+    margin-top: 2rem;
   }
 }
 
@@ -798,7 +795,6 @@ Main components shared by many pages
 
 .card--thread-card {
   margin-left: 1rem;
-  margin-top: 2rem;
   width: 40rem;
 }
 @media screen and (max-width: 78rem) {
@@ -876,7 +872,8 @@ Main components shared by many pages
   display: grid;
   grid: "credits badge" 1fr "btn-share btn-share" 1fr "btn-buy btn-sell" 1fr/1fr 1fr;
   place-items: center;
-  gap: 1.5rem 0.75rem;
+  gap: 1.25rem 0.75rem;
+  text-align: center;
 }
 @media screen and (max-width: 78rem) {
   .card--thread-options {
@@ -987,7 +984,7 @@ Main components shared by many pages
   gap: 0.5rem;
   margin-top: 0.5rem;
 }
-@media screen and (max-width: 54rem) {
+@media screen and (max-width: 32rem) {
   .paginator .paginator__buttons {
     margin-top: 1rem;
   }
@@ -999,6 +996,7 @@ Main components shared by many pages
   background: rgb(111, 200, 242);
   border: 1px solid rgb(94, 165, 198);
   box-shadow: 0 2px 0 rgba(96, 174, 210, 0.16);
+  font-size: 1rem;
   user-select: none;
   transition: 0.4s background, 0.2s border-color;
 }
@@ -1026,7 +1024,6 @@ Main components shared by many pages
 @media screen and (max-width: 54rem) {
   .paginator .paginator__buttons .btn--pager {
     width: 2.5rem;
-    font-size: 1rem;
   }
 }
 .paginator .paginator__buttons .btn--current-pager {

@@ -1,3 +1,13 @@
+@media screen and (max-width: 64rem) {
+  .paginator:last-child {
+    margin-top: 8rem;
+  }
+}
+@media screen and (max-width: 59rem) {
+  .paginator:last-child {
+    margin-top: 2rem;
+  }
+}
 @media screen and (max-width: 78rem) {
   .paginator .paginator__current-page {
     position: static;

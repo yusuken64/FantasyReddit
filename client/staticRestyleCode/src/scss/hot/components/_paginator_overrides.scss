@@ -1,6 +1,19 @@
 @use "../../base/base_variables";
 
 .paginator {
+    // For the cool visual effect where the paginator is on the same horizontal plane as the
+    // ... absolute .card--thread-options card.
+    @media screen and (max-width: 64rem) {
+        &:last-child {
+            margin-top: 8rem;
+        }
+    }
+    @media screen and (max-width: base_variables.$breakpoint-md-sm) {
+        &:last-child {
+            margin-top: 2rem;
+        }
+    }
+    
     @media screen and (max-width: base_variables.$breakpoint-lg) {
         .paginator__current-page {
             position: static;
