@@ -11,7 +11,6 @@
   margin-top: 0.5rem;
   height: 2rem;
   aspect-ratio: 1/1;
-  position: relative;
   transition: 0.2s background, 0.2s scale ease;
 }
 .btn--edit:hover {
@@ -23,7 +22,6 @@
   aspect-ratio: 1/1;
 }
 
-section h2 ~ *,
 section h3 ~ * {
   margin-left: 1rem;
 }

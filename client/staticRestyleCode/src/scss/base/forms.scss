@@ -1,4 +1,4 @@
-@use "../../base/base_variables";
+@use "base_variables";
 
 #auth-form {
     // Uses implicit defaults of grid-auto-flow, grid-template-rows, and automatic track generation given a lack of a defined template
@@ -19,12 +19,7 @@
         border: 1px solid rgb(150, 150, 150);
         font-size: 1rem;
     }
-    .btn--reset {
-        // Override some .btn--black properties
-        width: fit-content;
-        padding: 0 1rem;
-        font-size: 1rem;
-    }
+
     .btn--orange,
     .btn--black {
         margin-top: .5rem; // adds up to a 1rem length between the button's block-start and the element above's block-end
@@ -32,6 +27,13 @@
         @media screen and (max-width: base_variables.$breakpoint-xxsm) {
             width: 100%;
         }
+    }
+    
+    .btn--reset {
+        // Override some .btn--black properties
+        width: fit-content;
+        padding: 0 1rem;
+        font-size: 1rem;
     }
     
     .password-group {
@@ -52,9 +54,13 @@
     }
 }
 
+// .forgot-password paragraph style is shared only by the login page...
+// Welp. We'd need a regular .scss file (not a partial) and that's too many CSS files IMO.
+// CSS in JS (React) is far cleaner compared to either choice. JSX FTW!!
 .forgot-password {
     margin-top: 2rem;
     width: fit-content;
+    color: base_variables.$color-orange;
     
     a {
         transition: .2s color;

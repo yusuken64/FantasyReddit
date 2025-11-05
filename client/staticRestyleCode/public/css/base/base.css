@@ -107,6 +107,10 @@ svg {
   text-decoration: none;
 }
 
+.text-medium {
+  font-size: 1.5rem;
+}
+
 .underline-hover {
   text-decoration: none;
   position: relative;

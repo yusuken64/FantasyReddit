@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="./css/base/base.css">
     <script type="module" src="./js/btn--toggle-sidebar.js"></script>
 
-    <link rel="stylesheet" href="./css/auth/auth.css">
+    <link rel="stylesheet" href="./css/base/forms.css">
     <link rel="stylesheet" href="./css/account-options/account-options.css">
     <!-- <script type="module" src="./js/btn--toggle-order.js"></script> -->
 
@@ -237,13 +237,15 @@
     <main>
         <article class="scrollable-container">
             <section>
-                <h2 class="text-orange">Account info</h2>
+                <h2 class="sr-only">Account settings:</h2>
+                
+                <h3 class="text-orange text-medium">Account info:</h3>
                 
                 <p>
                     Username: greg_heffley
                     
-                    <button class="btn btn--edit">
-                        <span class="sr-only">Update username</span>
+                    <button class="btn btn--edit" title="Edit username">
+                        <span class="sr-only">Edit username</span>
                         <svg class="icon" aria-hidden="true">
                             <use href="./assets/svg/edit-icon.svg#edit-icon"></use>
                         </svg>
@@ -252,8 +254,8 @@
                 <p>
                     Password: ********
                     
-                    <button class="btn btn--edit">
-                        <span class="sr-only">Update password</span>
+                    <button class="btn btn--edit" title="Edit password">
+                        <span class="sr-only">Edit password</span>
                         <svg class="icon" aria-hidden="true">
                             <use href="./assets/svg/edit-icon.svg#edit-icon"></use>
                         </svg>
@@ -261,8 +263,8 @@
                 </p>
                 <p>
                     Email: x*******@gmail.com
-                    <button class="btn btn--edit">
-                        <span class="sr-only">Update email</span>
+                    <button class="btn btn--edit" title="Edit email">
+                        <span class="sr-only">Edit email</span>
                         <svg class="icon" aria-hidden="true">
                             <use href="./assets/svg/edit-icon.svg#edit-icon"></use>
                         </svg>
@@ -275,8 +277,8 @@
                 
                 <p>
                     Username is currently public
-                    <button class="btn btn--edit">
-                        <span class="sr-only">Hide your credit amount to leaderboard</span>
+                    <button class="btn btn--edit" title="Click to hide your username on the leaderboard">
+                        <span class="sr-only">Hide your username on the leaderboard</span>
                         <svg class="icon" aria-hidden="true">
                             <use href="./assets/svg/eye-open-icon.svg#eye-open-icon"></use>
                         </svg>
@@ -284,7 +286,7 @@
                 </p> 
                 <p>
                     Credit is currently hidden
-                    <button class="btn btn--edit">
+                    <button class="btn btn--edit" title="Click to show your credit amount on the leaderboard">
                         <span class="sr-only">Publicize your credit amount to leaderboard</span>
                         <svg class="icon" aria-hidden="true">
                             <use href="./assets/svg/eye-closed-icon.svg#eye-closed-icon"></use>
