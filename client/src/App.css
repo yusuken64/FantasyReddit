@@ -40,3 +40,12 @@
 .read-the-docs {
   color: #888;
 }
+
+@import url("https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
+body {
+  font-family: 'Rubik', sans-serif;
+}
+
+#root {
+    display: contents;
+}
