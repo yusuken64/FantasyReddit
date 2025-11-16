@@ -11,6 +11,41 @@ services:
       - "1433:1433"
     volumes:
       - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/1433' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build: ./server
+    container_name: local-backend
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - DB_CONNECTION_STRING=${DB_CONNECTION_STRING}
+      - PORT=${PORT}
+      - REDDIT_CLIENT_ID=${REDDIT_CLIENT_ID}
+      - REDDIT_CLIENT_SECRET=${REDDIT_CLIENT_SECRET}
+      - REDDIT_REDIRECT_URI=${REDDIT_REDIRECT_URI}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - "8080:8080"
+    command: ["node", "server.js"]
+
+  frontend:
+    build: ./client
+    container_name: local-frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+    environment:
+      VITE_API_URL: "http://localhost:8080"
 
 volumes:
   sqlserver-data:
