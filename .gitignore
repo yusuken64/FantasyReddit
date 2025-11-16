@@ -11,3 +11,4 @@ client/.env.production
 server/.env.cloud
 server/.env.local
 .env.local
+.env
