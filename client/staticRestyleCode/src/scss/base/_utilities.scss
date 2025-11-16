@@ -1,19 +1,83 @@
 @use "base_variables";
 
+///////////////////////
+// Display Utilities //
+///////////////////////
+
+.block {
+    display: block;
+}
+
+//////////////////////////
+// Positional Utilities //
+//////////////////////////
+
+.pos-relative {
+    position: relative;
+}
+
+////////////////////
+// A11y Utilities //
+////////////////////
+
 // Screen reader utilities
 .sr-only {
     position: absolute;
     left: -300vw;
 }
 
-// Text utilities
+///////////////////
+// Box Utilities //
+///////////////////
+
+.mt-05 {
+    margin-top: 0.5rem;
+}
+
+.mt-1 {
+    margin-top: 1rem;
+}
+
+.h-100 {
+    height: 100%;
+}
+
+.width-mc {
+    width: max-content;
+}
+
+//////////////////////
+// Layout Utilities //
+//////////////////////
+
+.grid {
+    display: grid;
+}
+
+.gap-05 {
+    gap: 0.5rem;
+}
+
+////////////////////
+// Text Utilities //
+////////////////////
+
 .text-orange {
     color: base_variables.$color-orange;
+}
+
+.decoration-none {
+    text-decoration: none;
+}
+
+.text-medium {
+    font-size: 1.5rem;
 }
 
 // A psuedo-element underline that will animate in length to become visible when
 // ... the target element is hovered:
 .underline-hover {
+    text-decoration: none;
     position: relative;
     
     &::after {
@@ -45,6 +109,8 @@
 
 // <a> <span>Click to view profile</span> <svg class="icon icon--external">...</svg></a>
 .underline-hover-minus-svg {
+    text-decoration: none;
+    
     > *:not(svg) {
         position: relative;
     }
@@ -72,18 +138,8 @@
 }
 
 // Color the psuedo-element orange
-.underline-hover--orange {
+.underline-hover.underline-hover--orange {
     &::after {
         background: base_variables.$color-orange;
     }
-}
-
-// Position utilities
-.pos-relative {
-    position: relative;
-}
-
-// Length utilities
-.h-100 {
-    height: 100%;
 }

@@ -1,0 +1,435 @@
+@use "../base_variables";
+
+/*===
+Navbar Header
+==== */
+
+#page-header {
+    // Sidebar will anchor position underneath header if supported on the user's browser
+    anchor-name: --page-header;
+}
+
+// Navbar's <ul> of <li>s:
+.nav-list {
+    padding: 1.25rem 4rem;
+    // Act as the container for absolutely positioned ::before and ::after fake linear-gradient borders
+    position: relative;
+
+    --search-field-width: 28rem;
+    
+    // TODO: sort out --search-field-width and list item descendant width craziness.
+
+    display: grid;
+    align-items: center; // block direction item alignment within its grid area if there is free space
+    // logo-item,    search-field,    account-info-item
+    grid: 1fr / max-content max-content max-content;
+    justify-content: space-between;  // inline direction container free space distribution among tracks
+    column-gap: 1rem;
+    // Fake borders with position absolute and psuedo-elements. We can't use two different gradients
+    // ... for a border-image, but this trick works.
+    &::before {
+        content: "";
+
+        position: absolute;
+        top: 0;
+        // [?] Unknown: research more into this:
+        // I guess by default, absolute elements account for relative parent's padding
+        left: 0;
+
+        height: 2px;
+        width: 100%;
+
+        background: linear-gradient(#E9EAEC 0%, rgb(189 192 198 / 64%) 8%, rgb(189 192 198 / 64%) 92%, #E9EAEC 100%);
+    }
+    &::after {
+        content: "";
+
+        position: absolute;
+        bottom: 0;
+        // [?] Unknown: research more into this:
+        // I guess by default, absolute elements account for relative parent's padding
+        left: 0;
+
+        height: 2px;
+        width: 100%; // I guess the default width: auto; does not provide width to psuedo elements.
+        // todo: read into width: auto; for psuedo elements
+
+        background: linear-gradient(90deg, rgb(156 160 170 / 0.2) 0%, rgb(156 160 170 / 0.2) 12%, rgb(222 135 104 / 0.1) 13.82%, rgb(222 135 104 / 0.1) 22.2%, rgb(156 160 170 / 0.2) 24%, rgb(156 160 170 / 0.2) 31%, rgb(222 135 104 / 0.1) 33.14%, rgb(222 135 104 / 0.1) 66.12%, rgb(156 160 170 / 0.2) 68%, rgb(156 160 170 / 0.2) 71.33%, rgb(222 135 104 / 0.1) 73.11%, rgb(222 135 104 / 0.1) 86.84%, rgb(156 160 170 / 0.2) 89%);
+    }
+    
+    .nav-item {
+        // Hide list item marker. Since the .nav-item (<li>) is a descendant of .nav-list (<ul>),
+        // ... this makes no difference to a11y when compared to list-style: none;
+        // [?] Unknown: read more about this and when we would ever want this:
+        // &::marker {
+        //     font-size: 0px;
+        // }
+        list-style: none;
+    }
+    
+    .toggle-sidebar-form-item {
+        display: none;
+    }
+    
+    // TODO: review
+    // .search-item <li>
+    .nav-item.search-item {
+        // LTE medium screen size
+        @media screen and (max-width: base_variables.$breakpoint-md) {
+            width: 100%;
+        }
+        
+        // LTE extra extra small screen size
+        @media screen and (max-width: base_variables.$breakpoint-xxsm) {
+            // Crazy explanation:
+            
+            // justify-items defaults to legacy.
+            // if justify-self is auto, then justify-items doesn't take effect for that descendant.
+            // justify-self defaults to auto.
+            // implicitly and hinted at by this relationship, auto means normal for justify-self
+            // justify-self: auto means stretch if the element has no aspect-ratio or no instrinsic size,
+            // otherwise auto means start. So if the item has content, justify-self: auto means start.
+            // Wacky.
+            
+            // Grid items pack to the start of the container along the inline access. override this and center
+            // ... the search list item in what is now (due to xxsm screen size's grid definition) a (semi) column-based block layout
+            justify-self: center;
+            width: 82%; // kind of hacky since we could update --search-field-width but meh
+        }
+        
+        #search-form {
+            .icon-field-wrapper {
+                position: relative;
+                height: 3rem;
+                
+                .field-icon {
+                    position: absolute;
+                    // 27px by 24px
+                    width: 1.3rem;
+                    height: 1.25rem;
+                    left: 0.5rem;
+                    top: 50%; // move top face by 50% from the top of the pos-relative div
+                    transform: translate(1rem, -50%); // translate 50% of width up such that the icon is positioned relative to the center of itself by 50% from the top of the pos-relative div
+
+                    path {
+                        fill: base_variables.$color-orange-light;
+                    }
+                }
+
+
+                #search-field {
+                    height: 100%;
+                    width: var(--search-field-width);
+                    border-radius: 1rem;
+                    // user text
+                    color: base_variables.$color-orange-light;
+
+                    border: 1px solid rgba(163, 44, 1, 0.24);
+                    background: linear-gradient(180deg, rgb(239 217 210 / 0.72) 0%, rgb(234 205 195 / 0.72) 100%);
+                    box-shadow: inset 0px 4px 4px rgb(240 67 5 / 0.24);
+                    
+                    font-size: 1.25rem;
+                    padding-left: 3.6875rem; // hold space for the icon
+
+                    &::placeholder {
+                        color: base_variables.$color-orange-light;
+                    }
+
+                    transition: .2s box-shadow, .4s border-color;
+
+                    &:focus {
+                        border-color: hsl(from base_variables.$color-orange h s calc(l + 32));
+                        outline: none; // override browser default
+                        box-shadow: inset 0px 4px 4px rgb(240 67 5 / 0.24),
+                                    0 0 0 2px rgba(218, 151, 135, 0.24);
+                    }
+                    
+                    &:hover {
+                        border-color: hsl(from base_variables.$color-orange h s calc(l + 32));
+                    }
+                }
+            }
+        }
+    }
+    
+    // LTE medium screen size
+    @media screen and (max-width: base_variables.$breakpoint-md) {
+        --search-field-width: 24rem;
+    }
+    
+    // LTE small screen size
+    @media screen and (max-width: base_variables.$breakpoint-sm) {
+        // [?] Unknown: how do ignored grid area names (.) work in greater depth, according to practice and their specification definition?
+        grid: "logo-item logo-item logo-item" 1fr
+              ". search-item account-info-item" 1fr
+        / max-content 1fr max-content; // why does (.) do nothing?
+        
+        // [?] Why do the tracks stretch such that the gap is bigger than what's defined here?:
+        gap: 2rem 1rem;
+        
+        --search-field-width: 100%;
+        
+        .account-info-item--logged-in,
+        .account-info-item--logged-out {
+            grid-area: account-info-item;
+        }
+        .search-item {
+            grid-area: search-item;
+        }
+        .logo-item {
+            grid-area: logo-item;
+            // [?] Unknown: I'm not sure why .logo doesn't default to justify-self: start instead of stretch...
+            // [!] Answer: .logo-item has a width of auto, which by default fills all available inline space.
+            //             justify-self makes an item's width fit to its contents (min or max?), and aligns it within its grid area too.
+            text-align: center; // text-align is left by default, so we must align-center
+        }
+    }
+    
+    // LTE extra small screen size
+    @media screen and (max-width: base_variables.$breakpoint-xsm) {
+        &:has(> .account-info-item--logged-in) {
+            grid: "logo-item logo-item logo-item" 1fr
+                  "toggle-sidebar-form-item search-item btn--options" 1fr
+                  "credits credits credits" 1fr
+            / max-content 1fr max-content;
+        }
+        &:has(> .account-info-item--logged-out) {
+            grid: "logo-item logo-item logo-item" 1fr
+                  "toggle-sidebar-form-item search-item account-info-item" 1fr
+            / max-content 1fr max-content;
+        }
+        
+        // [?] Unknown: why does space-between justify-content increase the width of the container's content area?
+        // requires a dive back into grid!! and the spec!! :D
+        
+        row-gap: .5rem;
+    
+        .toggle-sidebar-form-item {
+            display: block;
+            grid-area: toggle-sidebar-form-item;
+        }
+    }
+    
+    // LTE extra extra small screen size
+    @media screen and (max-width: base_variables.$breakpoint-xxsm) {
+        &:has(> .account-info-item--logged-in) {
+            grid: "logo-item logo-item logo-item logo-item" 1fr
+                "search-item search-item search-item search-item" 1fr
+                "toggle-sidebar-form-item toggle-sidebar-form-item btn--options btn--options" 1fr
+                "credits credits credits credits" 1fr
+            / max-content max-content max-content max-content;
+        }
+        &:has(> .account-info-item--logged-out) {
+            grid: "logo-item logo-item logo-item logo-item" 1fr
+                "search-item search-item search-item search-item" 1fr
+                "toggle-sidebar-form-item toggle-sidebar-form-item toggle-sidebar-form-item toggle-sidebar-form-item" 1fr
+            / max-content max-content max-content max-content;
+            
+            .toggle-sidebar-form-item {
+                justify-self: center;
+            }
+        }
+        
+        padding: 1.25rem 1rem; // reduced left/right padding
+        
+        gap: 1rem;
+    }
+    
+    .toggle-sidebar-form-item {
+        justify-self: right; // override default (in practice the default is `start` as explained somewhere in this file)
+    }
+    
+    #toggle-sidebar-form {
+        // The sidebar disappears at LTE $breakpoint-xsm.
+        // The #toggle-sidebar-form is hidden at GTE $breakpoint-xsm.
+        // At a screen size of exactly $breakpoint-xsm, the sidebar and toggler will be hidden, with no way to show it.
+        // Add 1px to the media query to ensure #toggle-sidebar-form displays when the sidebar disappears.
+        
+        // GT $breakpoint-xsm
+        @media screen and (min-width: calc(base_variables.$breakpoint-xsm + 1px)) {
+            display: none;
+        }
+        
+        // I could use a sr-only style to keep the sidebar in the accessibility tree,
+        // ... then show it for mobile users to save space.
+        #btn--toggle-sidebar {
+            appearance: none; // Override browser default styling for an input checkbox
+            
+            background: rgb(240 240 240);
+            border: 2px solid #C4BBBB;
+            box-shadow: 0 1px 0 rgb(156 161 170 / 32%);
+            
+            border-radius: 1rem;
+            width: 3rem;
+            aspect-ratio: 1 / 1;
+            
+            display: grid;
+            place-items: center; // Center the psuedo-element icon
+            
+            // Warning: on initial appearance this will not appear until the client loads it.
+            // We can preload this by moving the icons to the HTML.
+            &::after {
+                content: url("../../assets/svg/hamburger-icon.svg")
+                        / "An icon of three horizontal lines which represent a textured hamburger menu icon.";
+                display: block;
+                width: 52%;
+                // [?] Todo: Learn more about SVG
+                height: 1.2rem; // magic number to make it look centered. fit-content leaves some space after for some reason (svg scaling/viewport issue).
+                
+            }
+            
+            &[aria-expanded="true"] {
+                &::after {
+                    content: url("../../assets/svg/close-icon.svg")
+                        / "A letter X representing a close icon.";
+                    width: 64%;
+                    height: 1.7rem; // magic number to make it look centered. fit-content leaves some space after for some reason (svg scaling/viewport issue).
+                }
+                background: rgb(232 227 227);
+            }
+            
+            transition: .2s background;
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
+
+    .account-info-item--logged-in {
+        display: grid;
+        grid: "username btn--options" auto "credits btn--options" auto / auto auto;
+        column-gap: 1rem;
+
+        // LTE 
+        @media screen and (max-width: base_variables.$breakpoint-md) {
+            // Without a gap of 0, unwanted space appears even though username & credit count are hidden (absolutely positioned for a11y ux)
+            column-gap: 0;
+        }
+        
+        // LTE
+        @media screen and (max-width: base_variables.$breakpoint-xsm) {
+            // Pretend the div no longer exists so that we can place the consituent children (button; username & credit count are hidden at LTE $breakpoint-md) as a direct child of .nav-list
+            display: contents;
+        }
+        
+        .username {
+            grid-area: username;
+            align-self: end; // Place at the bottom of the grid area's block axis
+            
+            // LTE $breakpoint-md
+            @media screen and (max-width: base_variables.$breakpoint-md) {
+                display: none;
+            }
+        }
+
+        // Credit count
+        .credits {
+            position: relative;
+            
+            // LTE $breakpoint-md: hide credits in header since the sidebar displays them at this screen width
+            @media screen and (max-width: base_variables.$breakpoint-md) {
+                display: none;
+            }
+            
+            // Display credit count at LTE $breakpoint-xsm as per client user story.
+            // Give it some re-styling for better effect
+            @media screen and (max-width: base_variables.$breakpoint-xsm) {
+                display: block;
+                position: static;
+                
+                width: fit-content;
+                
+                justify-self: center; // Override default (in practice, default value acts like `start`)
+                grid-area: credits; // Place in a .nav-list grid area since .account-info-item has destructured via `display: contents;` 
+                
+                background: linear-gradient(45deg hsl(15.79deg 100% 78.54% / 25%) 0%, rgba(255, 255, 255, 0.144) 100%);
+                border-radius: .5rem;
+                
+                a {    
+                    display: inline-block; // Permit width changes
+                    width: fit-content;            
+                    
+                    color: hsl(15.79deg 100% 54.79% / 95%);
+                    font-size: 1.5rem;
+                    
+                    padding: 0.25rem 1rem .25rem 1rem;
+                    
+                    border: 2px solid #f6450082;
+                    border-radius: .5rem;
+                    box-shadow: 0 .15em 2px rgba(0, 0, 0, 0.075);
+                    
+                                    
+                    &:hover {
+                        /* Disable .underline-hover effect */
+                        &::after {
+                            display: none;
+                        }
+                    }
+                    
+                    // use ::before to avoid underline-hover collisions
+                    // &::before {
+                    //     content: "[ $5.99 USD ]" / "credits are equal to $5.99 USD";
+                    //     position: absolute;
+                    //     width: fit-content;
+                    //     right: 1rem;
+                    //     top: 55%; // visual center
+                    //     transform: translateY(-50%);
+                    //     font-size: 1rem;
+                    // }
+                }
+            }
+        }
+
+        // [?] Unknown: Relationship between width, aspect-ratio, and child svg with 100% w/h?
+        // Why does width sometimes not respect aspect ratio? Maybe due to how svg scales weirdly, or an improper viewport definition.
+        .btn--options {
+            width: 3rem;
+            aspect-ratio: 1 / 1;
+
+            grid-area: btn--options;
+            background: base_variables.$color-black;
+            border-radius: 1rem;
+            padding: 0.875rem;
+
+            svg {
+                width: 100%;
+                height: 100%;
+                fill: base_variables.$color-white;
+                
+                // [?] Unknown: Forgot if it's the <use> or <svg> that is the replaced element (probably <use>)
+                /* Remove whitespace underneath replaced element */
+                vertical-align: bottom;
+
+                path {
+                    fill: base_variables.$color-white;
+                }
+            }
+
+            transition: .2s background, .4s outline;
+            outline: 2px solid transparent;
+            outline-offset: -4px;
+            
+            &:hover {
+                background: rgb(from base_variables.$color-black r g b / 98%);
+                outline: 2px solid base_variables.$color-white;
+            }
+        }
+    }
+    
+    .account-info-item--logged-out {
+        display: flex;
+        gap: 2rem;
+        
+        // LTE 
+        @media screen and (max-width: base_variables.$breakpoint-lg) {
+            column-gap: 1rem;
+        }
+        
+        // Critical bug: for some reason, both #sidebar's logged out account info
+        // .. and this account info appear. I'm not sure why this is. It goes against what I am writing here......
+        // LTE 
+        @media screen and (max-width: calc(base_variables.$breakpoint-md - 1px)) {
+            display: none;
+        }
+    }
+}

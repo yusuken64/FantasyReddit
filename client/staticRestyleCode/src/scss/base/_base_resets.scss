@@ -1,5 +1,12 @@
 @use "base_variables";
 
+// Problem:
+// If <main>'s content exceeds 100vh,
+// I can scroll past the <html>, <body>, and <main>. 
+
+// Solution:
+// ...hacked it for now...
+
 *, ::before, ::after {
     box-sizing: border-box;
     margin: 0;
@@ -23,6 +30,10 @@ body {
         "header header" auto
         "sidebar main" 1fr
         / max-content 1fr;
+        
+    // On Firefox only, for some reason there is overflow that allows the user
+    // ... to scroll past the body and its contents. I'm not sure why..
+    overflow: hidden;
         
     > header {
         grid-area: header;
@@ -66,6 +77,16 @@ html {
     // i guess the body fits to its contents so there's no overflow?
     // the html is limited by the viewport size maybe?
     // the aside overflows the body, which is 100% of the viewport height for some reason.
+    
+    // Overflow x causes a horizonal scroll track to appear.
+    // This takes up space in the desired 100vh width of the body.
+    // Thus a vertical scroll track is created so we can scroll to see the space that was taken
+    // ... up by the horizontal scroll track.
+    // But, why is there horizontal overflow???
+    // We can do a quick hacky fix by hiding overflow along the x axis:
+    // Grr.. the relationship between overflown content is tricky..
+    overflow-x: hidden;
+    overflow-y: scroll;
 }
 
 main {
@@ -85,10 +106,6 @@ main {
 h1 {
     font-size: 2.25rem;
     font-weight: 500;
-}
-
-a {
-    text-decoration: none;
 }
 
 button {
@@ -113,7 +130,9 @@ button {
     // Not supported on Firefox unfortunately...
     // width: attr(data-width px);
     // height: attr(data-height px);
-    
+}
+
+svg {
     /* Warning: disables event emission for the svg */
     pointer-events: none; // don't display <svg> <title>s on hover
 }

@@ -1,0 +1,16 @@
+@use "../../base/base_variables";
+
+.btn--toggle-graphmode {
+    background: rgb(20, 119, 165);
+    box-shadow: 0 2px 0 rgba(118, 190, 223, 0.24);
+    
+    color: base_variables.$color-white;
+    padding: .5rem 1rem;
+    border-radius: 1rem;
+    
+    transition: .4s background;
+    
+    &:hover {
+        background: rgb(15, 93, 130);
+    }
+}

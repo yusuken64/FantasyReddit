@@ -1,0 +1,41 @@
+@use "../../base/base_variables";
+
+.paginator {
+    @media screen and (max-width: base_variables.$breakpoint-lg) {
+        .paginator__current-page {
+            position: static;
+            left: 0;
+        }
+    
+        align-items: start;
+    }
+    
+    @media screen and (max-width: base_variables.$breakpoint-md-sm) {
+        .paginator__current-page {
+            // Visually center
+            position: relative;
+            left: var(--current-page-left-offset);
+        }
+    
+        align-items: center;
+    }
+    
+    @media screen and (max-width: base_variables.$breakpoint-xsm) {
+        .paginator__current-page {
+            position: static;
+            left: 0;
+        }
+    
+        align-items: start;
+    }
+    
+    @media screen and (max-width: base_variables.$breakpoint-xxsm) {
+        .paginator__current-page {
+            // Visually center
+            position: relative;
+            left: var(--current-page-left-offset);
+        }
+    
+        align-items: center;
+    }
+}

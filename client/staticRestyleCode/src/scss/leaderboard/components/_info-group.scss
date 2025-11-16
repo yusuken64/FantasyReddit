@@ -1,0 +1,154 @@
+@use '../../base/base_variables';
+
+// First three .info_position elements:
+.info-group .user-info:nth-child(-n + 3) {
+    .info__position {
+        color: base_variables.$color-orange;
+        font-size: 2rem;
+    }
+}
+
+.info-group {
+    // We make this a grid so that all column tracks assume
+    // ... the inline-length of the largest child item.
+    // If we instead make the .user-info elements themselves into grids, they won't all have the
+    // ... same track lengths.
+    display: grid;
+    grid: "place-value profile-image username credit-count" max-content
+        / max-content max-content max-content max-content;
+    gap: 1rem;
+    align-items: center;
+    
+    margin-top: 2rem;
+    
+    .user-info {
+        // For layout purposes, pretend like .user-info doesn't exist.
+        display: contents;
+        
+        // After the first child, separate info rows via margin:
+        &:nth-child(n+2) {
+            margin-top: 1rem;
+        }
+        
+        // All children of .user-info are placed automatically into the grid defined by .info-group.
+        // This is so the children fill the cells of a new auto-generated track once the first row is filled.
+        // Note to self: If we define the grid-area property on these children, they'll all fill the same cell.
+        .info__position {
+            text-align: center;
+            text-shadow: 0 2px 1px #00000016;
+            color: hsla(251, 65%, 10%, 0.72);
+            font-size: 1.5rem;
+            width: 3rem; // [?] Unknown: Is there a better way in CSS to resolve the font width differences between number characters?
+        }
+        .info__avatar {
+            border-radius: 50%;
+            width: 2rem;
+            aspect-ratio: 1 / 1;
+            border: 1px solid grey;
+        }
+        .info__credits {
+            color: base_variables.$color-orange;
+            font-size: 1.5rem;
+        }
+        
+        .hidden-info {
+            // Override color for if the element's class is .info__credits.hidden-info
+            color: base_variables.$color-black;
+            // Override font size for if the element's class is .info__credits.hidden-info
+            font-size: 1rem; 
+        }
+    }
+    
+    @media screen and (max-width: base_variables.$breakpoint-md-sm) {
+        display: block;
+
+        .user-info {
+            position: relative; // contain absolute children
+            
+            // On mobile, make .user-info its own grid instead of filling its parent's grid.
+            // This allows us to be more explicit (via the grid-area prop) as to the relationship
+            // ... between the grid parent, grid cells and grid items.
+            display: grid;
+            grid: "place-value place-value" max-content
+            "profile-image profile-image" max-content
+            "username username" max-content
+            "credit-count credit-count" max-content
+                / 1fr 1fr;
+                
+            // To make this work we'd need some js to keep the element on desktop (so that the auto-placement
+            // ... of items works correctly), and remove the element on mobile (so that we don't get a gap
+            // ... or some overflow). I'll just concede the gap on mobile for now.
+            // If the user disabled their username and credit count from appearing on the leaderboard,
+            // ... we remove .info__credits. Otherwise, if we just remove its TextNode
+            // ... a gap will appear for the empty element and will distrupt the layout.
+            // &:not(&:has(.info__credits)) {
+            //     grid: "place-value place-value" max-content
+            //     "profile-image profile-image" max-content
+            //     "username username" max-content
+            //         / 1fr 1fr;
+            // }
+            place-items: center;
+            gap: 1rem;
+            
+            // Win against original .user-info selector
+            &:nth-child(n) {
+                margin-top: 3rem;
+            }
+            
+            // :first-child is present purely to win against the top three position selectors
+            // ... at the top of the file.
+            .info__position:first-child {
+                grid-area: place-value;
+                
+                // Give the place values a cool background
+                background: rgba(241, 220, 205, 0.603);
+                font-size: 2.5rem;
+                
+                border-radius: 50%;
+                width: fit-content;
+                padding: .6rem;
+                aspect-ratio: 1/1;
+                
+                // Center text within circle
+                display: grid;
+                place-items: center;
+            }
+            
+            // The background after the top 3 .user-info elements should be grey.
+            &:nth-child(n + 4) .info__position {
+                background: rgba(196, 196, 196, 0.32);
+            }
+            
+            .info__avatar {
+                grid-area: profile-image;
+                width: 4rem;
+            }
+            .info__name {
+                grid-area: username;
+                font-size: 1.5rem;
+            }
+            .info__credits {
+                grid-area: credit-count;
+                justify-self: center; // Override default justification
+                font-size: 1.5rem;
+            }
+            .hidden-info {
+                font-size: 1.32rem;
+                font-style: italic;
+            }
+        }
+        
+        // Place a faint visual line above .user-info elements, after the first element.
+        .user-info:nth-child(n+2)::before {
+            content: "";
+            display: block;
+            
+            position: absolute;
+            top: -1.5rem;
+            
+            height: .1rem;
+            width: 100%;
+            background: rgb(221, 221, 221);
+        }
+    }
+}

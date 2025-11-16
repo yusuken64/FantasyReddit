@@ -1,0 +1,117 @@
+.info-group .user-info:nth-child(-n+3) .info__position {
+  color: hsl(16, 99%, 46%);
+  font-size: 2rem;
+}
+
+.info-group {
+  display: grid;
+  grid: "place-value profile-image username credit-count" max-content/max-content max-content max-content max-content;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 2rem;
+}
+.info-group .user-info {
+  display: contents;
+}
+.info-group .user-info:nth-child(n+2) {
+  margin-top: 1rem;
+}
+.info-group .user-info .info__position {
+  text-align: center;
+  text-shadow: 0 2px 1px rgba(0, 0, 0, 0.0862745098);
+  color: hsla(251, 65%, 10%, 0.72);
+  font-size: 1.5rem;
+  width: 3rem;
+}
+.info-group .user-info .info__avatar {
+  border-radius: 50%;
+  width: 2rem;
+  aspect-ratio: 1/1;
+  border: 1px solid grey;
+}
+.info-group .user-info .info__credits {
+  color: hsl(16, 99%, 46%);
+  font-size: 1.5rem;
+}
+.info-group .user-info .hidden-info {
+  color: hsl(278, 18%, 9%);
+  font-size: 1rem;
+}
+@media screen and (max-width: 59rem) {
+  .info-group {
+    display: block;
+  }
+  .info-group .user-info {
+    position: relative;
+    display: grid;
+    grid: "place-value place-value" max-content "profile-image profile-image" max-content "username username" max-content "credit-count credit-count" max-content/1fr 1fr;
+    place-items: center;
+    gap: 1rem;
+  }
+  .info-group .user-info:nth-child(n) {
+    margin-top: 3rem;
+  }
+  .info-group .user-info .info__position:first-child {
+    grid-area: place-value;
+    background: rgba(241, 220, 205, 0.603);
+    font-size: 2.5rem;
+    border-radius: 50%;
+    width: fit-content;
+    padding: 0.6rem;
+    aspect-ratio: 1/1;
+    display: grid;
+    place-items: center;
+  }
+  .info-group .user-info:nth-child(n+4) .info__position {
+    background: rgba(196, 196, 196, 0.32);
+  }
+  .info-group .user-info .info__avatar {
+    grid-area: profile-image;
+    width: 4rem;
+  }
+  .info-group .user-info .info__name {
+    grid-area: username;
+    font-size: 1.5rem;
+  }
+  .info-group .user-info .info__credits {
+    grid-area: credit-count;
+    justify-self: center;
+    font-size: 1.5rem;
+  }
+  .info-group .user-info .hidden-info {
+    font-size: 1.32rem;
+    font-style: italic;
+  }
+  .info-group .user-info:nth-child(n+2)::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: -1.5rem;
+    height: 0.1rem;
+    width: 100%;
+    background: rgb(221, 221, 221);
+  }
+}
+
+.paginator {
+  margin-top: 4rem;
+}
+@media screen and (max-width: 78rem) {
+  .paginator {
+    align-items: start;
+  }
+  .paginator .paginator__current-page {
+    left: 0;
+  }
+}
+@media screen and (max-width: 59rem) {
+  .paginator {
+    align-items: center;
+  }
+  .paginator .paginator__current-page {
+    position: relative;
+    left: var(--current-page-left-offset);
+  }
+}
+
+/*# sourceMappingURL=leaderboard.css.map */

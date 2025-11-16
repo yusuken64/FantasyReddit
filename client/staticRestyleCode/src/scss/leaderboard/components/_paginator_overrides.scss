@@ -1,0 +1,23 @@
+@use "../../base/base_variables";
+
+.paginator {
+    margin-top: 4rem;
+
+    @media screen and (max-width: base_variables.$breakpoint-lg) {
+        align-items: start;
+
+        .paginator__current-page {
+            left: 0;
+        }
+    }
+
+    @media screen and (max-width: base_variables.$breakpoint-md-sm) {
+        align-items: center;
+
+        .paginator__current-page {
+            // Visually center
+            position: relative;
+            left: var(--current-page-left-offset);
+        }
+    }
+}

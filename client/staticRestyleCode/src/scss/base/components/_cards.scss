@@ -1,0 +1,243 @@
+@use "../base_variables";
+
+/*===
+Main components shared by many pages
+==== */
+
+// Thread Card & purchase card container (.card-group)
+
+.card-group {
+    display: flex;
+    // make items' block length fit-content instead of stretch if they have no height set
+    // we could also set height: fit-content for items but meh either way works
+    align-items: flex-start;
+    gap: 2rem;
+    margin-top: 1rem;
+    
+    @media screen and (max-width: base_variables.$breakpoint-lg) {
+        flex-direction: column;
+        position: relative; // allow for item absolute positioning relative to this container
+        
+        &.card-group:nth-of-type(n+2) {
+            margin-top: 10rem;
+        }
+    }
+    
+    @media screen and (max-width: base_variables.$breakpoint-md-sm) {
+        align-items: center;
+        
+        &.card-group:nth-of-type(n+2) {
+            margin-top: 2rem;
+        }
+    }
+}
+
+.card {
+    padding: .75rem;
+    border-radius: 1rem;
+    border: 1px solid rgb(19 20 22 / 32%);
+    background: #E9EAEC;
+    
+    a {
+        text-decoration: none;
+    }
+}
+
+.card--thread-card {
+    margin-left: 1rem;
+    width: 40rem;
+    
+    @media screen and (max-width: base_variables.$breakpoint-lg) {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .card-publication-info {
+        display: grid;
+        grid: "icon-img subreddit-title date-published" 1fr "icon-img author-name ." 1fr / auto auto auto;
+        column-gap: .5rem;
+        row-gap: .25rem;
+        width: fit-content;
+
+        .icon-img {
+            grid-area: icon-img;
+        }
+
+        .subreddit-title {
+            grid-area: subreddit-title;
+        }
+
+        .date-published {
+            grid-area: date-published;
+            font-size: .75rem;
+            color: rgb(14 17 27 / 56%); // translucent grey
+            align-self: center;
+            
+            /*
+               An inherited value takes effect for an element
+               only if no other style declaration has been
+               applied directly to the element.
+               
+               A style exists in the base to color all element text nodes black ( * {color: ...} ).
+               Thus, we must override time's black color to make it inherit from published.
+            */
+            time {
+                color: inherit;
+            }
+        }
+
+        .author-name {
+            grid-area: author-name;
+            font-size: .75rem;
+        }
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        margin-top: .5rem;
+    }
+
+    .card-body {
+        margin-top: .5rem;
+    }
+    
+    .card-engagement-buttons {
+        margin-top: .75rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        
+        /*
+            An inherited value takes effect for an element
+            only if no other style declaration has been
+            applied directly to the element.
+            
+            A style exists in the base to color all elements black.
+            If we want to change the p to say, grey (as per the design),
+            .. we must override the nested paragraph's black color to make it inherit from .card-engagement-buttons.
+        */
+        p {
+            // color: inherit;
+            // [?] Unknown: I do not know why we need this to center the text within its content block...
+            line-height: 1.5;
+        }
+        
+        .btn--like,
+        .btn--dislike {
+            display: flex;
+            gap: .75rem;
+        }
+    }
+}
+
+.card--thread-options {
+    display: grid;
+    grid: "credits badge" 1fr
+          "btn-share btn-share" 1fr
+          "btn-buy btn-sell" 1fr
+          / 1fr 1fr;
+    place-items: center;
+    gap: 1.25rem .75rem;
+    
+    text-align: center;
+    
+    @media screen and (max-width: base_variables.$breakpoint-lg) {
+        position: absolute;
+        right: 1rem;
+        bottom: -8.5rem;
+    }
+    
+    @media screen and (max-width: base_variables.$breakpoint-md-sm) {
+        position: static;
+    }
+    
+    .credit-cost {
+        grid-area: credits;
+        font-size: 1.25rem;
+    }
+    
+    .badge--growth {
+        grid-area: badge;
+        position: relative; // position relative for nested absolute .icon-wrapper
+        
+        .icon-wrapper {
+            position: absolute; // automatically positioned in the top left
+            width: 2rem;
+            // [?] Unknown: interesting: removing place-items for the card causes the stretch value default to make height look to the card itself instead of the container?
+            height: 100%;
+            border-radius: 0.375rem;
+            background: #0B6F1A;
+            
+            // [?] Unknown: why does grid w/ place-items not work here?
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            .icon--growth {
+                fill: #2CC944;
+                width: 1rem;
+            }
+        }
+        
+        .growth-amount {
+            width: fit-content;
+            padding: 0 0.75rem 0 2.5rem;
+            background: #8DE29A;
+            color: #1D862D;
+            border-radius: 0.375rem;
+        }
+    }
+    
+    .btn--share {
+        grid-area: btn-share;
+        
+        // flex is less to think about compared to grid properties
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        
+        column-gap: 1.5rem;
+        padding: .25rem .75rem .25rem 1rem;
+        width: 100%;
+        border-radius: .75rem;
+        background: #E0E0E0;
+        border: 1px solid rgb(14 17 27 / 16%);
+        
+        transition: .2s scale ease-out;
+        &:hover {
+            scale: 1.05;
+        }
+    }
+    
+    .btn--buy {
+        grid-area: btn-buy;
+
+        color: #ECEDEE; // orangish white
+        background: base_variables.$color-orange;
+        
+        border-radius: 1rem;
+        padding: .5rem 2.5rem;
+        
+        transition: .2s background-color;
+        &:hover {
+            background: hsl(from base_variables.$color-orange h s calc(l - 4));
+        }
+    }
+    
+    .btn--sell {
+        grid-area: btn-sell;
+        
+        --bg-color: hsl(8, 89%, 42%);
+        
+        color: #ECEDEE; // red-ish white
+        background: var(--bg-color);
+        
+        border-radius: 1rem;
+        padding: .5rem 2.5rem;
+        
+        transition: .2s background-color;
+        &:hover {
+            background: hsl(from var(--bg-color) h s calc(l - 4));
+        }
+    }
+}

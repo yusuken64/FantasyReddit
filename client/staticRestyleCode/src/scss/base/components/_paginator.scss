@@ -1,0 +1,98 @@
+@use '../../base/base_variables';
+
+.paginator {
+    display: flex;
+    flex-direction: column;
+    margin-top: 2rem;
+    
+    @media screen and (max-width: base_variables.$breakpoint-lg) {
+        align-items: center;
+    }
+    
+    .paginator__current-page {
+        @media screen and (max-width: base_variables.$breakpoint-lg) {
+            // Visually center
+            position: relative;
+            --current-page-left-offset: -.3rem;
+            left: var(--current-page-left-offset);
+        }
+        
+        @media screen and (max-width: base_variables.$breakpoint-sm) {
+            --current-page-left-offset: -.4rem;
+            font-size: 1.5rem;
+        }
+    }
+    
+    .paginator__buttons {
+        // [?] I have no idea why we need flex here for the arrow buttons to align properly along the block axis. I need to learn svg better.
+        display: flex;
+        gap: .5rem;
+    
+        margin-top: .5rem;
+        
+        @media screen and (max-width: base_variables.$breakpoint-xxsm) {
+            margin-top: 1rem;
+        }
+        
+        .btn--pager {
+            width: 1.75rem;
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+            
+            background: rgb(111, 200, 242);
+            border: 1px solid rgb(94, 165, 198);
+            box-shadow: 0 2px 0 rgba(96, 174, 210, 0.16);
+            font-size: 1rem;
+            
+            // Disable user selection of button text
+            user-select: none;
+            
+            transition: .4s background, .2s border-color;
+            
+            &:hover {
+                background: rgb(104, 177, 211);
+                border-color: rgb(62, 147, 187);
+            }
+            
+            &:has(.arrow-icon) {
+                // Allow absolute svg arrow-icon to be placed relative to button parent
+                position: relative;
+                
+                .arrow-icon {
+                    position: absolute;
+                    rotate: 90deg;
+                    top: 0;
+                    // [?] Unknown: I have no clue why this works. I need to learn svg better
+                    transform: translate(50%, 50%);
+                }
+                
+                .arrow-icon--right {
+                    rotate: 90deg;
+                    // [?] Unknown: I have no clue why this works. I need to learn svg better
+                    transform: translate(50%, 50%);
+                }
+                
+                .arrow-icon--left {
+                    rotate: -90deg;
+                    // [?] Unknown: I have no clue why this works. I need to learn svg better
+                    transform: translate(-50%, -50%);
+                }
+            }
+            
+            @media screen and (max-width: base_variables.$breakpoint-sm) {
+                width: 2.5rem;
+            }
+        }
+        
+        .btn--current-pager {
+            background: rgb(82, 159, 195);
+            border-color: rgb(15, 121, 170);
+            
+            &:hover {
+                background: rgb(82, 159, 195);
+                // Don't change the border color on hover
+                border-color: rgb(15, 121, 170);
+            }
+        }
+    }
+}

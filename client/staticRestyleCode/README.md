@@ -10,16 +10,38 @@ Pull requests & git logs will reveal what changes occur for you
 
 ✅ Shared page base
 ✅ Landing page content
-Top chart page content
-Trade chart page* content
-    *we may forgo this if such a feature is not desired
-Portfolio page content
-Transaction History page content (accessible from the Portfolio)
 
-Login page content
-Registration page content
-Password reset page content
+✅ Top chart page content
+✅ Hot chart page content
 
+✅ Options page
+
+✅ Login
+✅ Register
+✅ password reset page
+✅ Leaderboard
+
+✅ Transaction History page content (accessible from the Portfolio)
+
+✅ Portfolio page content
+    📜 - "Sort by" width not the same as the card group visual width
+        (hard >:) )
+        -- put off for now
+    ✅ - Portfolio thread list
+    ✅ - Holdings page in graphical format on the portfolio
+
+📜 Refactor forms
+📜 Final pass
+📜 React integration
+
+📜 Big bugs (
+    - logged-out auth buttons appear on sidebar and header in some cases,
+    - viral search bar,
+    - portfolio tricky layout alignment (maybe it requires js) understand the overflow issue
+    
+    I might hold off on these
+)
+    
 ## Known issues:
 
 The search bar width changes are not designed very well (too viral).
@@ -37,3 +59,13 @@ HTML, CSS, Sass
 
 Compile SCSS for development:
 `sass --watch src/scss:public/css`
+
+## Biggest issues as of present:
+
+1. bug where both logged-out button sets for the sidebar & header appear at the same time
+
+2. weird adjustment hack with the header's search bar width
+
+3. hacks throughout the code
+
+4. mobile logged-in destructured account-info variable spacing between the options button and hamburger button

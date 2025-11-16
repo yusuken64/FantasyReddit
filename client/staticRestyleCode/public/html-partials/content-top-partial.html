@@ -1,0 +1,292 @@
+            <h2 class="text-orange">Top Threads:</h2>
+
+            <section class="paginator">
+                <h3 class="paginator__current-page">Page 3 of 4</h3>
+
+                <div class="paginator__buttons">
+                    <!-- dynamically add to the GET URL query list via JS -->
+                    <button class="btn btn--pager">
+                        <span class="sr-only">Previous page</span>
+
+                        <svg class="arrow-icon arrow-icon--left" viewBox="0 0 24 24">
+                            <title>A left-pointing arrow</title>
+                            <use href="./assets/svg/up-arrow.svg#up-arrow"></use>
+                        </svg>
+                    </button>
+                    <!--
+                            Yusuke,
+                            
+                            You might want to implement a limited number of page buttons relative to the current page
+                            ... so as to save on space and memory. For example, a user with 500 pages of items
+                            ... would not like to see 500 buttons on the screen. Instead, they might prefer something like:
+                            
+                            <- 1 ... 45 46 (47) 48 49 ... 500 ->
+                            
+                            where (47) is the current page.
+                            -->
+                    <button class="btn btn--pager">
+                        <span class="sr-only">Page</span>
+                        1
+                    </button>
+                    <button class="btn btn--pager">
+                        <span class="sr-only">Page</span>
+                        2
+                    </button>
+                    <button class="btn btn--pager btn--current-pager">
+                        <span class="sr-only">Page</span>
+                        3
+                    </button>
+                    <button class="btn btn--pager">
+                        <span class="sr-only">Page</span>
+                        4
+                    </button>
+                    <button class="btn btn--pager">
+                        <span class="sr-only">Next page</span>
+
+                        <svg class="arrow-icon arrow-icon--right" viewBox="0 0 24 24">
+                            <title>A right-pointing arrow</title>
+                            <use href="./assets/svg/up-arrow.svg#up-arrow"></use>
+                        </svg>
+                    </button>
+                </div>
+            </section>
+
+            <div class="card-group">
+                <!-- Thread card -->
+                <article class="card card--thread-card">
+                    <a href="#">
+                        <!-- BEM can be improved here -->
+                        <div class="card-publication-info">
+                            <img class="icon-img" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                            <p class="subreddit-title">r/RedesignHelp</p>
+                            <p class="author-name">ZadocPaet</p>
+                            <p class="date-published">
+                                <time datetime="2017"><span aria-hidden="true">•</span> 8 yr. ago</time>
+                            </p>
+                        </div>
+
+                        <h3 class="card-title">Official reddit brand hex color codes...</h3>
+                        <p class="card-body">
+                            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illum corporis vero cum, numquam
+                            necessitatibus obcaecati ratione earum eaque delectus, nobis maiores quisquam ea voluptas
+                            eum
+                            consectetur quidem perferendis nisi pariatur.
+                        </p>
+
+                        <div class="card-engagement-buttons">
+                            <!-- We probably don't need to actually make these into buttons -->
+                            <div class="btn btn--like">
+                                <svg class="icon" viewBox="0 0 18 20">
+                                    <title>Up arrow icon</title>
+                                    <use href="./assets/svg/like-icon.svg#like-icon"></use>
+                                </svg>
+
+                                <p>
+                                    3.9k
+                                    <span class="sr-only">likes</span>
+                                </p>
+                            </div>
+
+                            <div class="btn btn--dislike">
+                                <svg class="icon" viewBox="0 0 18 20">
+                                    <title>Down arrow icon</title>
+                                    <use href="./assets/svg/dislike-icon.svg#dislike-icon"></use>
+                                </svg>
+
+                                <p>
+                                    231
+                                    <span class="sr-only">dislikes</span>
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </article>
+
+                <!-- Price, relative thread growth within x time, share, buy, sell card -->
+                <div class="card card--thread-options">
+                    <h3 class="credit-cost">52 credits</h3>
+
+                    <div class="badge badge--growth">
+                        <div class="icon-wrapper">
+                            <svg class="icon icon--growth" viewBox="0 0 15 9">
+                                <title>Diagonal jagged green arrow icon going from bottom left to top right</title>
+                                <use href="./assets/svg/rise-icon.svg#rise-icon"></use>
+                            </svg>
+                        </div>
+
+                        <p class="growth-amount">
+                            +35%
+                            <!-- Dynamically populate for a11y -->
+                            <span class="sr-only">
+                                in credit value compared to
+                                <time datetime="2025">five minutes ago</time>
+                            </span>
+                        </p>
+                    </div>
+
+                    <!-- Share our page on Reddit for +30 credits -->
+                    <!-- Dynamically generate href based on thread -->
+                    <a class="btn btn--share"
+                        href="https://www.reddit.com/submit?url=https%3A%2F%2Fexample.com&title=Check+this+out">
+                        Share for +30 credits
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <title>Reddit logo</title>
+                            <use href="./assets/svg/reddit-icon.svg#reddit-icon"></use>
+                        </svg>
+                    </a>
+
+                    <button class="btn btn--buy">
+                        Buy
+                    </button>
+
+                    <button class="btn btn--sell">
+                        Sell
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-group">
+                <!-- Thread card -->
+                <article class="card card--thread-card">
+                    <a href="#">
+                        <!-- BEM can be improved here -->
+                        <div class="card-publication-info">
+                            <img class="icon-img" src="./media/recent-1.png" alt="Subreddit logo for r/RedesignHelp">
+                            <p class="subreddit-title">r/RedesignHelp</p>
+                            <p class="author-name">ZadocPaet</p>
+                            <p class="date-published">
+                                <time datetime="2017"><span aria-hidden="true">•</span> 8 yr. ago</time>
+                            </p>
+                        </div>
+
+                        <h3 class="card-title">Official reddit brand hex color codes...</h3>
+                        <p class="card-body">
+                            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illum corporis vero cum, numquam
+                            necessitatibus obcaecati ratione earum eaque delectus, nobis maiores quisquam ea voluptas
+                            eum
+                            consectetur quidem perferendis nisi pariatur.
+                        </p>
+
+                        <div class="card-engagement-buttons">
+                            <!-- We probably don't need to actually make these into buttons -->
+                            <div class="btn btn--like">
+                                <svg class="icon" viewBox="0 0 18 20">
+                                    <title>Up arrow icon</title>
+                                    <use href="./assets/svg/like-icon.svg#like-icon"></use>
+                                </svg>
+
+                                <p>
+                                    3.9k
+                                    <span class="sr-only">likes</span>
+                                </p>
+                            </div>
+
+                            <div class="btn btn--dislike">
+                                <svg class="icon" viewBox="0 0 18 20">
+                                    <title>Down arrow icon</title>
+                                    <use href="./assets/svg/dislike-icon.svg#dislike-icon"></use>
+                                </svg>
+
+                                <p>
+                                    231
+                                    <span class="sr-only">dislikes</span>
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </article>
+
+                <!-- Price, relative thread growth within x time, share, buy, sell card -->
+                <div class="card card--thread-options">
+                    <h3 class="credit-cost">52 credits</h3>
+
+                    <div class="badge badge--growth">
+                        <div class="icon-wrapper">
+                            <svg class="icon icon--growth" viewBox="0 0 15 9">
+                                <title>Diagonal jagged green arrow icon going from bottom left to top right</title>
+                                <use href="./assets/svg/rise-icon.svg#rise-icon"></use>
+                            </svg>
+                        </div>
+
+                        <p class="growth-amount">
+                            +35%
+                            <!-- Dynamically populate for a11y -->
+                            <span class="sr-only">
+                                in credit value compared to
+                                <time datetime="2025">five minutes ago</time>
+                            </span>
+                        </p>
+                    </div>
+
+                    <!-- Share our page on Reddit for +30 credits -->
+                    <!-- Dynamically generate href based on thread -->
+                    <a class="btn btn--share"
+                        href="https://www.reddit.com/submit?url=https%3A%2F%2Fexample.com&title=Check+this+out">
+                        Share for +30 credits
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <title>Reddit logo</title>
+                            <use href="./assets/svg/reddit-icon.svg#reddit-icon"></use>
+                        </svg>
+                    </a>
+
+                    <button class="btn btn--buy">
+                        Buy
+                    </button>
+
+                    <button class="btn btn--sell">
+                        Sell
+                    </button>
+                </div>
+            </div>
+            
+
+            <section class="paginator">
+                <h3 class="paginator__current-page">Page 3 of 4</h3>
+
+                <div class="paginator__buttons">
+                    <!-- dynamically add to the GET URL query list via JS -->
+                    <button class="btn btn--pager">
+                        <span class="sr-only">Previous page</span>
+
+                        <svg class="arrow-icon arrow-icon--left" viewBox="0 0 24 24">
+                            <title>A left-pointing arrow</title>
+                            <use href="./assets/svg/up-arrow.svg#up-arrow"></use>
+                        </svg>
+                    </button>
+                    <!--
+                            Yusuke,
+                            
+                            You might want to implement a limited number of page buttons relative to the current page
+                            ... so as to save on space and memory. For example, a user with 500 pages of items
+                            ... would not like to see 500 buttons on the screen. Instead, they might prefer something like:
+                            
+                            <- 1 ... 45 46 (47) 48 49 ... 500 ->
+                            
+                            where (47) is the current page.
+                            -->
+                    <button class="btn btn--pager">
+                        <span class="sr-only">Page</span>
+                        1
+                    </button>
+                    <button class="btn btn--pager">
+                        <span class="sr-only">Page</span>
+                        2
+                    </button>
+                    <button class="btn btn--pager btn--current-pager">
+                        <span class="sr-only">Page</span>
+                        3
+                    </button>
+                    <button class="btn btn--pager">
+                        <span class="sr-only">Page</span>
+                        4
+                    </button>
+                    <button class="btn btn--pager">
+                        <span class="sr-only">Next page</span>
+
+                        <svg class="arrow-icon arrow-icon--right" viewBox="0 0 24 24">
+                            <title>A right-pointing arrow</title>
+                            <use href="./assets/svg/up-arrow.svg#up-arrow"></use>
+                        </svg>
+                    </button>
+                </div>
+            </section>

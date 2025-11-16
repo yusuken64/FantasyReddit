@@ -1,0 +1,26 @@
+@use "../../base/base_variables";
+
+.btn--edit {
+    background: rgb(243, 240, 240);
+    border: 1px solid rgba(24, 19, 27, 0.42);
+    padding: .2rem;
+    
+    // Try to visually center and provide spacing to button
+    vertical-align: sub;
+    margin-left: .5rem;
+    margin-top: .5rem;
+    
+    height: 2rem;
+    aspect-ratio: 1/1;
+    
+    transition: .2s background, .2s scale ease;
+    &:hover {
+        background: rgb(227, 227, 227);
+        scale: 0.95;
+    }
+    
+    svg {
+        width: .5rem;
+        aspect-ratio: 1/1;
+    }
+}

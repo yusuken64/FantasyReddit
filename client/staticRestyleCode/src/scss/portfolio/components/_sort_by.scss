@@ -1,0 +1,124 @@
+@use '../../base/base_variables';
+
+#sort-fieldset {
+    margin-top: 1rem;
+    padding: .5rem;
+    
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    
+    @media screen and (max-width: base_variables.$breakpoint-md) {
+        justify-content: center;
+    }
+}
+
+.sort-control {
+    // Act as the container for absolute .control__input & .btn--toggle-order
+    position: relative;
+    width: fit-content;
+    
+   // For a button-like press effect,
+   // the block-end of the box-shadow should also be the block-end of the control when the box-shadow isn't active
+    transform: translateY(-2px);
+    box-shadow: 0 2px 0 rgb(177 177 177);
+    
+    /* Visual space to put the absolutely positioned .btn--toggle-order into */
+    padding: .5rem 2.8rem .5rem .8rem;
+    border-radius: 1rem;
+    overflow: hidden; // clip rectangle children
+    
+    --color-bg: rgb(237 167 115);
+    --color-bg--hover: rgb(222 152 107);
+    --color-border: rgb(145 85 45);
+    
+    // Checked input visuals
+    &:has(.control__input:checked) {
+        --color-bg: rgb(211 136 87);
+        --color-bg--hover: rgb(219 142 92);
+        --color-border: rgb(127 62 18);
+        transform: none;
+        box-shadow: 0 0 0 transparent;
+    }
+    
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    transition: .2s background, .2s border-color, .2s transform, .2s box-shadow, .2s outline;
+    
+    &:hover {
+        background: var(--color-bg--hover);
+    }
+    
+    // Don't allow selections of the input label's text for an improved visual
+    .control__label {
+        user-select: none;
+    }
+    
+    .control__input {
+        appearance: none;
+        background: transparent;
+        /* Fill the parent ( .sort-control ) */
+        width: 100%;
+        height: 100%;
+        // I forgot the exact render order according to the spec, but absolute items
+        // ... render above static/relative items.
+        // [?] Unknown: Do sticky items render in the same layer, thus become dependent on document order?
+        position: absolute;
+        left: 0;
+        top: 0;
+        
+        &:hover {
+            cursor: pointer;
+        }
+    }
+    
+    .btn--toggle-order {
+        // Content-box makes it easier to create perfect circles w/ borders
+        box-sizing: content-box;
+        width: 1rem;
+        height: 1rem;
+        
+        border: 1px solid rgb(128, 89, 25);
+        background: rgb(222, 151, 88);
+        border-radius: 50%;
+        
+        /*
+            Make a stacking context and draw element over-top .control__input to allow clicks.
+            This element appears later in the source order than absolute .control__input,
+            ... so it appears on top.
+        */
+        isolation: isolate;
+        
+        // absolute, as it won't affect the intrinsic size of the button and make the parent layout look wonky.
+        // inline might have this capability too but I would have to research it more in-depth
+        position: absolute;
+        right: 0.5rem;
+        
+        // Translate the element's block-length center by 50% from the parent's block-start.
+        top: 50%;
+        transform: translateY(-50%);
+        
+        // Center the arrow svg icon
+        display: grid;
+        place-items: center;
+        
+        transition: .2s background;
+        &:hover {
+            background: rgb(230, 172, 120);
+        }
+        
+        .order-icon {
+            display: inline-block; // Allow for rotation
+            rotate: -180deg; // Initial descending rotation
+            
+            // I'm not sure how to explain the effect of the following size adjustments on the <svg>:
+            width: 100%;
+            height: 100%;
+            
+            svg {
+                width: 100%;
+                height: 100%;
+            }
+        }
+    }
+}
