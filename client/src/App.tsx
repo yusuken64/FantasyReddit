@@ -8,7 +8,9 @@ import Transactions from './components/Transactions';
 import Portfolio from './components/Portfolio';
 import Options from './components/Options';
 
+import './ReactOverrides.css';
 import '../staticRestyleCode/public/css/base/base.css';
+
 import { useContext, useEffect, useState, type ReactNode } from 'react';
 import { BrowserRouter, Routes, Route, NavLink, Outlet, Navigate, useNavigate } from 'react-router-dom';
 
@@ -51,7 +53,7 @@ function Navigation() {
                                 <use href="./assets/svg/magnification-list-icon.svg#magnification-list-icon"></use>
                             </svg>
 
-                            {/* <input id="search-field" type="text" placeholder="Search for threads" name="search-query"> */}
+                            <input id="search-field" type="text" placeholder="Search for threads" name="search-query"/>
                         </div>
                     </form>
                 </li>
@@ -354,7 +356,7 @@ function App() {
     <BrowserRouter>
       <Navigation />
       <Sidebar />
-      <main>
+      <main id="main">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
