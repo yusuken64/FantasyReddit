@@ -35,13 +35,13 @@ body {
     // ... to scroll past the body and its contents. I'm not sure why..
     overflow: hidden;
         
-    > header {
+    #page-header {
         grid-area: header;
     }
-    > aside {
+    #sidebar {
         grid-area: sidebar;
     }
-    > main {
+    #main {
         grid-area: main;
     }
     

@@ -1,0 +1,4 @@
+#root {
+    /* Pretend like this box doesn't exist when other boxes relate to it. */
+    display: contents;
+}

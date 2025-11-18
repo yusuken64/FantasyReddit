@@ -13,13 +13,13 @@ body {
   grid: "header header" auto "sidebar main" 1fr/max-content 1fr;
   overflow: hidden;
 }
-body > header {
+body #page-header {
   grid-area: header;
 }
-body > aside {
+body #sidebar {
   grid-area: sidebar;
 }
-body > main {
+body #main {
   grid-area: main;
 }
 @media screen and (max-width: 48rem) {
@@ -562,7 +562,7 @@ Sidebar
 @media screen and (max-width: 48rem) {
   #sidebar {
     position: absolute;
-    z-index: 10;
+    z-index: 1;
     top: 15.5rem;
     width: 100%;
   }
