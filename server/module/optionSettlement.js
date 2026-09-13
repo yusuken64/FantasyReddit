@@ -1,6 +1,5 @@
 const database = require('../database');
-const { fetchPostWithPrice, getAuthenticatedUserById } = require('../controllers/redditController');
-const { calculatePrice } = require('./priceCalculator');
+const { readQuote } = require('./priceCalculator');
 
 let nextExpiry = null;
 let currentTimer = null;
@@ -40,26 +39,31 @@ async function processOptions({ onlyExpired = false, optionIds = [] } = {}) {
 
   // Step 2: compute payouts (no DB writes yet)
   for (const option of result.recordset) {
-    const user = await getAuthenticatedUserById(option.user_id);
-    if (!user) continue;
-
-    let currentPrice = option.strike_price;
-    try {
-      const data = await fetchPostWithPrice(
-        `https://oauth.reddit.com/by_id/t3_${option.stock_symbol}.json`,
-        user,
-        true
-      );
-      const post = data?.data?.children?.[0]?.data;
-      if (post) {
-        try {
-          currentPrice = await calculatePrice(post);
-        } catch {
-          currentPrice = option.strike_price;
-        }
+    let currentPrice;
+    let quoteId;
+    const expired = onlyExpired || new Date(option.expires_at).getTime() <= Date.now();
+    if (expired) {
+      // Use the last fresh published quote at expiry, or the first subsequent quote after an outage.
+      const history = await pool.request()
+        .input('symbol', database.sql.NVarChar(10), option.stock_symbol)
+        .input('expiry', database.sql.DateTime2, option.expires_at)
+        .query(`SELECT TOP 1 price FROM stock_price_history
+          WHERE stock_symbol = @symbol AND pricing_model = 'momentum-v1'
+            AND timestamp > DATEADD(minute, -10, @expiry)
+          ORDER BY CASE WHEN timestamp <= @expiry THEN 0 ELSE 1 END,
+            CASE WHEN timestamp <= @expiry THEN timestamp END DESC,
+            CASE WHEN timestamp > @expiry THEN timestamp END ASC`);
+      if (!history.recordset.length) continue;
+      currentPrice = Number(history.recordset[0].price);
+    } else {
+      const quote = await readQuote(option.stock_symbol);
+      if (quote.status !== 'ready') {
+        const error = new Error('Quote unavailable. Refresh and try again after the next update.');
+        error.status = 409;
+        throw error;
       }
-    } catch {
-      currentPrice = option.strike_price;
+      currentPrice = quote.price;
+      quoteId = quote.id;
     }
 
     let payout = 0;
@@ -69,14 +73,18 @@ async function processOptions({ onlyExpired = false, optionIds = [] } = {}) {
       payout = Math.max(0, option.strike_price - currentPrice) * option.quantity;
     }
 
-    processed.push({ option, payout });
+    processed.push({ option, payout, quoteId, expired });
   }
 
   // Step 3: apply updates in one short transaction
   const tx = new database.sql.Transaction(pool);
   await tx.begin();
   try {
-    for (const { option, payout } of processed) {
+    for (const { option, payout, quoteId, expired } of processed) {
+      const existing = await tx.request().input('optionId', database.sql.BigInt, option.id)
+        .query('SELECT id FROM options WITH (UPDLOCK, HOLDLOCK) WHERE id = @optionId');
+      if (!existing.recordset.length) continue;
+      if (quoteId) await readQuote(option.stock_symbol, tx, quoteId);
       await tx.request()
         .input('payout', database.sql.BigInt, payout)
         .input('userId', database.sql.BigInt, option.user_id)
@@ -90,7 +98,7 @@ async function processOptions({ onlyExpired = false, optionIds = [] } = {}) {
         .input('premium', database.sql.BigInt, option.premium_paid)
         .input('quantity', database.sql.BigInt, option.quantity)
         .input('payout', database.sql.BigInt, payout)
-        .input('action', database.sql.NVarChar(10), onlyExpired ? 'EXPIRE' : 'EXERCISE')
+        .input('action', database.sql.NVarChar(10), expired ? 'EXPIRE' : 'EXERCISE')
         .query(`
           INSERT INTO option_transactions
             (user_id, stock_symbol, option_type, strike_price, premium_paid, quantity, payout, action)
@@ -104,7 +112,7 @@ async function processOptions({ onlyExpired = false, optionIds = [] } = {}) {
     await tx.commit();
   } catch (err) {
     await tx.rollback();
-    console.error('Option processing failed during commit:', err);
+    throw err;
   }
 }
 
@@ -133,13 +141,15 @@ async function findAndScheduleNext() {
 function scheduleNextExpiry(expiryTime) {
   if (currentTimer) clearTimeout(currentTimer);
 
-  const waitMs = Math.max(0, expiryTime.getTime() - Date.now());
+  const waitMs = Math.max(60000, expiryTime.getTime() - Date.now());
   nextExpiry = expiryTime;
 
   currentTimer = setTimeout(async () => {
-    await processExpiredOptions();
-    await findAndScheduleNext();
+    try { await processExpiredOptions(); }
+    catch (error) { console.error('Option settlement failed:', error.message); }
+    finally { await findAndScheduleNext(); }
   }, waitMs);
+  currentTimer.unref();
 }
 
 // Call this after creating a new option to reschedule if it's earlier than current
@@ -161,6 +171,7 @@ async function exerciseOptions(optionIds) {
 }
 
 module.exports = {
+  processExpiredOptions,
   startOptionSettlementWorker,
   maybeReschedule,
   exerciseOptions

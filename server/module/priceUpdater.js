@@ -3,13 +3,14 @@
 const database = require('../database');
 const axios = require('axios');
 const cron = require('node-cron');
-const { calculatePrice } = require('./priceCalculator');
+const { observePost } = require('./priceCalculator');
+const { getValidAccessToken } = require('../controllers/authController');
 
 const COOLDOWN_MINUTES = 5;
 let isRunning = false;
 
 function startPriceUpdateCron() {
-  cron.schedule('*/5 * * * *', async () => {
+  cron.schedule('* * * * *', async () => {
     if (isRunning) {
       console.warn('Skipping cron job: previous job still running');
       return;
@@ -46,10 +47,11 @@ async function updateAllTrackedStockPrices() {
         id.startsWith('t3_') ? id : `t3_${id}`
       );
 
-      const posts = await fetchPostsFromReddit(postFullnames, user.username, user.access_token);
-      if (posts.length === 0) continue;
-
-      await insertStockPriceHistories(posts);
+      const accessToken = await getValidAccessToken(user);
+      for (let i = 0; i < postFullnames.length; i += 100) {
+        const posts = await fetchPostsFromReddit(postFullnames.slice(i, i + 100), user.username, accessToken);
+        await insertStockPriceHistories(posts);
+      }
 
     } catch (err) {
       console.error(`Error updating prices for user ${user.id}:`, err);
@@ -68,7 +70,7 @@ async function getAllUsers() {
   try {
     await database.poolConnect;
     const query = `
-      SELECT u.id, u.username, u.access_token, u.credits
+      SELECT u.*
       FROM users u
       WHERE u.access_token IS NOT NULL
     `;
@@ -83,15 +85,13 @@ async function getAllUsers() {
 // 2. For a user, find post_ids needing update (last update older than cooldown)
 async function getStalePostIdsForUser(userId) {
   const query = `
-    SELECT p.stock_symbol
-    FROM holdings p
-    LEFT JOIN (
-      SELECT stock_symbol, MAX(timestamp) AS last_updated
-      FROM stock_price_history
-      GROUP BY stock_symbol
-    ) sph ON p.stock_symbol = sph.stock_symbol
-    WHERE p.user_id = @userId
-      AND (sph.last_updated IS NULL OR sph.last_updated < DATEADD(minute, -${COOLDOWN_MINUTES}, SYSUTCDATETIME()))
+    SELECT tracked.stock_symbol FROM (
+    SELECT stock_symbol FROM holdings WHERE user_id = @userId AND shares > 0
+    UNION SELECT stock_symbol FROM options WHERE user_id = @userId
+    UNION SELECT stock_symbol FROM momentum_quotes
+      WHERE registered_at > DATEADD(day, -1, SYSUTCDATETIME())
+    ) tracked LEFT JOIN momentum_quotes q ON q.stock_symbol = tracked.stock_symbol
+    WHERE q.observed_at IS NULL OR q.observed_at <= DATEADD(minute, -5, SYSUTCDATETIME())
   `;
 
   const request = database.pool.request();
@@ -132,29 +132,7 @@ async function fetchPostsFromReddit(postIds, username, accessToken) {
 async function insertStockPriceHistories(posts) {
   if (posts.length === 0) return;
 
-  // Using a single INSERT with multiple VALUES
-  const values = [];
-  const input = {};
-
-  const prices = await Promise.all(posts.map((post) => calculatePrice(post)));
-
-  posts.forEach((post, i) => {
-    values.push(`(@stock_symbol${i}, @score${i}, @price${i}, SYSUTCDATETIME())`);
-    input[`stock_symbol${i}`] = { type: database.sql.NVarChar(10), value: post.id };
-    input[`score${i}`] = { type: database.sql.BigInt, value: post.score };
-    input[`price${i}`] = { type: database.sql.BigInt, value: prices[i] };
-  });
-
-  const query = `
-    INSERT INTO stock_price_history (stock_symbol, score, price, timestamp)
-    VALUES ${values.join(', ')}
-  `;
-
-  const request = database.pool.request();
-  for (const key in input) {
-    request.input(key, input[key].type, input[key].value);
-  }
-  await request.query(query);
+  for (const post of posts) await observePost(post);
 }
 
 async function updatePortfolioValues() {

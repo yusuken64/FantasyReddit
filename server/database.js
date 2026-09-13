@@ -4,7 +4,6 @@ const nodeEnv = process.env.NODE_ENV || 'development';
 console.log(`Running in ${nodeEnv} mode`);
 
 const connectionString = process.env.DB_CONNECTION_STRING;
-console.log(connectionString);
 
 if (!connectionString) {
   console.error("❌ DB_CONNECTION_STRING not set in environment variables!");
@@ -81,6 +80,22 @@ async function createTables(pool) {
           timestamp DATETIME2 DEFAULT SYSUTCDATETIME()
         )
       `);
+
+    // Preserve legacy history; new quotes start with fresh observations at cutover.
+    await txRequest.query(`
+      IF COL_LENGTH('stock_price_history', 'pricing_model') IS NULL
+        ALTER TABLE stock_price_history ADD pricing_model NVARCHAR(32) NOT NULL DEFAULT 'legacy-age-v1';
+      IF OBJECT_ID('momentum_quotes', 'U') IS NULL
+        CREATE TABLE momentum_quotes (
+          stock_symbol NVARCHAR(10) PRIMARY KEY,
+          observations NVARCHAR(MAX) NOT NULL,
+          observed_at DATETIME2 NOT NULL,
+          registered_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+          price BIGINT NULL,
+          momentum FLOAT NULL,
+          quote_at DATETIME2 NULL
+        );
+    `);
 
     // PORTFOLIO VALUE HISTORY
     await txRequest.query(`

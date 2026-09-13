@@ -24,6 +24,7 @@ interface RedditPost {
   subreddit: string;
   author: string;
   created_utc: number;
+  quote?: { id: string | null; status: string; momentum: number | null; expiresAt: string | null };
 }
 
 interface RedditStockItemProps {
@@ -67,9 +68,9 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
 
   const handleConfirm = async (amount: number) => {
     if (modalType === "buy") {
-      await buy(post.id, amount);
+      await buy(post.id, amount, post.quote?.id);
     } else {
-      await sell(post.id, amount);
+      await sell(post.id, amount, post.quote?.id);
     }
 
     await handleRefresh(); // ensure latest shares info
@@ -84,6 +85,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
     premium: number;
     contracts: number;
     totalCost: number;
+    quoteId: string;
   }) => {
     try {
       // POST to your backend
@@ -100,6 +102,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
           premiumPaid: order.premium,
           quantity: order.contracts,
           expiresAt: order.expiration,
+          quoteId: order.quoteId,
         }),
       });
 
@@ -179,6 +182,8 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/holdings/${post.id}`, {
         method: "DELETE",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quoteId: post.quote?.id }),
         credentials: "include",
       });
 
@@ -220,7 +225,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
           setModalOpen(false);
         }}
         max={modalType === "buy" ? 1000000 : sharesState}
-        min={0}
+        min={1}
         initialAmount={1}
         title={modalType === "buy" ? "Buy Shares" : "Sell Shares"}
         onConfirm={handleConfirm}
@@ -332,7 +337,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
           fontVariantNumeric: 'tabular-nums',
         }}
       >
-        ${post.price?.toFixed(2) ?? 'N/A'}
+        {post.quote?.status === 'collecting' ? 'Collecting price data' : `$${post.price?.toFixed(2) ?? 'N/A'}`}
       </Typography>
 
       {/* Holding Info */}
@@ -349,6 +354,7 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
             color="default"
           />
           {(() => {
+            if (!post.quote?.id) return null;
             const pl = (post.price - avgCostState) * sharesState;
             const sign = pl > 0 ? '+' : pl < 0 ? '−' : '';
             const emoji = pl > 0 ? '📈' : pl < 0 ? '📉' : '⚖️';
@@ -377,25 +383,32 @@ export const RedditStockItem: React.FC<RedditStockItemProps> = ({
           stockSymbol={post.id}
           start={start}
           end={end}
-          latestPrice={{ timestamp: end, price: post.price }}
+          latestPrice={post.quote?.id ? { timestamp: post.quote.id, price: post.price } : undefined}
           buyInPrice={avgCost}
         />
       )}
 
+      <Typography variant="caption" display="block">
+        Prices follow score growth over the last 15 minutes, with no age penalty.
+        {post.quote?.momentum != null && ` Momentum: ${post.quote.momentum.toFixed(1)} points/min.`}
+        {post.quote?.id && ` Updated ${new Date(post.quote.id).toLocaleTimeString()}.`}
+        {post.quote?.status === 'collecting' && ' Trading opens after at least five minutes of observations. Refresh to check.'}
+        {post.quote?.status === 'stale' && ' Quote is stale. Trading resumes after a fresh update.'}
+      </Typography>
       {/* Action Buttons */}
       {owned ? (
         // Existing holding actions: Buy, Sell, Delete, P&L
         <Stack direction="row" spacing={2}>
-          <Button onClick={() => openModal(true)}>Buy</Button>
-          <Button onClick={() => openModal(false)} disabled={sharesState === 0}>Sell</Button>
+          <Button disabled={post.quote?.status !== 'ready'} onClick={() => openModal(true)}>Buy</Button>
+          <Button onClick={() => openModal(false)} disabled={sharesState === 0 || post.quote?.status !== 'ready'}>Sell</Button>
           <Button onClick={handleDelete}>Delete</Button>
         </Stack>
       ) : (
         // Options actions: Buy Call / Put
         <Stack direction="row" spacing={2}>
-          <Button onClick={() => openModal(true)}>Buy</Button>
-          <Button onClick={() => openModal(false)} disabled={sharesState === 0}>Sell</Button>
-          <Button onClick={() => openOptionModal()}>Options</Button>
+          <Button disabled={post.quote?.status !== 'ready'} onClick={() => openModal(true)}>Buy</Button>
+          <Button onClick={() => openModal(false)} disabled={sharesState === 0 || post.quote?.status !== 'ready'}>Sell</Button>
+          <Button disabled={post.quote?.status !== 'ready'} onClick={() => openOptionModal()}>Options</Button>
         </Stack>
       )}
     </Paper>

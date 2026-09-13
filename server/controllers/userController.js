@@ -2,6 +2,7 @@ const database = require('../database')
 const { buy, sell } = require('../trades');
 const { fetchPostWithPrice, getAuthenticatedUser } = require('./redditController');
 const sql = require('mssql');
+const { readQuote } = require('../module/priceCalculator');
 
 /**
  * Get authenticated user's basic info
@@ -121,54 +122,23 @@ exports.deleteStock = async (req, res) => {
   try {
     await database.poolConnect;
 
-    const transaction = new database.sql.Transaction(database.pool);
-    await transaction.begin();
-
-    const request = new database.sql.Request(transaction);
-
-    // Fetch current holdings entry
-    const result = await request
+    const result = await database.pool.request()
       .input('userId', database.sql.Int, userId)
-      .input('stockSymbol', database.sql.NVarChar(100), stockSymbol)
-      .query(`
-        SELECT shares, total_spent FROM holdings
-        WHERE user_id = @userId AND stock_symbol = @stockSymbol
-      `);
-
-    const entry = result.recordset[0];
+      .input('symbol', database.sql.NVarChar(10), stockSymbol)
+      .query('SELECT shares FROM holdings WHERE user_id = @userId AND stock_symbol = @symbol');
+    const sharesToSell = Number(result.recordset[0]?.shares ?? 0);
     let price = 0;
-
-    if (entry) {
-      const user = await getAuthenticatedUser(req);
-      if (!user) return res.status(401).json({ error: 'Unauthorized' });
-      const redditData = await fetchPostWithPrice(`https://oauth.reddit.com/by_id/t3_${stockSymbol}.json`, user, true);
-      const post = redditData?.data?.children?.[0]?.data;
-      price = post?.price ?? 0;
+    if (sharesToSell > 0) {
+      const quote = await readQuote(stockSymbol, undefined, req.body.quoteId ?? null);
+      price = await sell(userId, stockSymbol, sharesToSell, quote.id);
     }
-
-    const sharesToSell = entry?.shares ?? 0;
-    if (sharesToSell > 0 && price > 0) {
-      await sell(userId, stockSymbol, sharesToSell, price);
-    }
-
-    // Delete holdings entry
-    request.parameters = {};
-    await request
+    await database.pool.request()
       .input('userId', database.sql.Int, userId)
-      .input('stockSymbol', database.sql.NVarChar(100), stockSymbol)
-      .query(`
-        DELETE FROM holdings WHERE user_id = @userId AND stock_symbol = @stockSymbol
-      `);
-
-    await transaction.commit();
-    res.json({
-      success: true,
-      sold: sharesToSell,
-      price,
-    });
+      .input('symbol', database.sql.NVarChar(10), stockSymbol)
+      .query('DELETE FROM holdings WHERE user_id = @userId AND stock_symbol = @symbol AND shares = 0');
+    res.json({ success: true, sold: sharesToSell, price });
   } catch (err) {
-    console.error('Error deleting stock:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(err.status || 500).json({ error: err.message || 'Failed to delete holding' });
   }
 };
 

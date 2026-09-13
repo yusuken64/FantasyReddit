@@ -1,5 +1,6 @@
 const database = require('../database');
 const optionSettlement = require('../module/optionSettlement');
+const { readQuote } = require('../module/priceCalculator');
 const { fetchPostWithPrice, getAuthenticatedUser } = require('./redditController');
 
 /**
@@ -66,12 +67,34 @@ async function getOptionById(req, res) {
  */
 async function buyOption(req, res) {
   try {
-    const { stockSymbol, optionType, strikePrice, premiumPaid, quantity, expiresAt } = req.body;
+    const { stockSymbol, strikePrice, quantity, expiresAt, quoteId } = req.body;
+    const optionType = String(req.body.optionType).toUpperCase();
+    if (!Number.isSafeInteger(quantity) || quantity <= 0 || !['CALL', 'PUT'].includes(optionType)) {
+      return res.status(400).json({ error: 'Invalid option order' });
+    }
+    const user = await getAuthenticatedUser(req);
+    const data = await fetchPostWithPrice(`https://oauth.reddit.com/by_id/t3_${stockSymbol}.json`, user, true);
+    const post = data?.data?.children?.[0]?.data;
+    if (!post) return res.status(404).json({ error: 'Post not found' });
 
     const pool = database.pool;
     const tx = new database.sql.Transaction(pool);
     await tx.begin();
     try {
+      const quote = await readQuote(stockSymbol, tx, quoteId ?? null);
+      const contract = generateOptionChain({ ...post, price: quote.price, quote })
+        .find(c => c.type.toUpperCase() === optionType && c.strike === strikePrice && c.expiration.toISOString() === expiresAt);
+      if (!contract || contract.premium !== req.body.premiumPaid) {
+        const error = new Error('Option quote changed. Refresh the options and confirm again.');
+        error.status = 409;
+        throw error;
+      }
+      const premiumPaid = contract.premium * quantity * 100;
+      if (!Number.isSafeInteger(premiumPaid)) throw new Error('Order too large');
+      const balance = await tx.request().input('userId', database.sql.BigInt, req.user.id)
+        .input('cost', database.sql.BigInt, premiumPaid)
+        .query('UPDATE users SET credits = credits - @cost WHERE id = @userId AND credits >= @cost');
+      if (balance.rowsAffected[0] !== 1) throw new Error('Insufficient credits');
       const request = tx.request();
       await request
         .input('userId', database.sql.BigInt, req.user.id)
@@ -79,20 +102,13 @@ async function buyOption(req, res) {
         .input('optionType', database.sql.NVarChar(4), optionType)
         .input('strikePrice', database.sql.BigInt, strikePrice)
         .input('premiumPaid', database.sql.BigInt, premiumPaid)
-        .input('quantity', database.sql.BigInt, quantity)
+        .input('quantity', database.sql.BigInt, quantity * 100)
         .input('expiresAt', database.sql.DateTime2, expiresAt)
         .query(`
           INSERT INTO options
             (user_id, stock_symbol, option_type, strike_price, premium_paid, quantity, expires_at)
           VALUES (@userId, @stockSymbol, @optionType, @strikePrice, @premiumPaid, @quantity, @expiresAt)
         `);
-
-      // Deduct credits from user
-      await request.query(`
-        UPDATE users
-        SET credits = credits - @premiumPaid
-        WHERE id = @userId
-      `);
 
       await tx.commit();
 
@@ -106,7 +122,7 @@ async function buyOption(req, res) {
     }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to buy option' });
+    res.status(err.status || 500).json({ error: err.message || 'Failed to buy option' });
   }
 }
 
@@ -119,12 +135,16 @@ async function exerciseOption(req, res) {
     if (isNaN(optionId)) return res.status(400).json({ error: 'Invalid option ID' });
 
     // Trigger early exercise using the worker module
+    const owned = await database.pool.request().input('id', database.sql.BigInt, optionId)
+      .input('userId', database.sql.BigInt, req.user.id)
+      .query('SELECT id FROM options WHERE id = @id AND user_id = @userId');
+    if (!owned.recordset.length) return res.status(404).json({ error: 'Option not found' });
     await optionSettlement.exerciseOptions([optionId]);
 
     res.json({ success: true });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to exercise option' });
+    res.status(err.status || 500).json({ error: err.message || 'Failed to exercise option' });
   }
 }
 
@@ -150,24 +170,25 @@ async function getOptionHistory(req, res) {
 }
 
 function generateOptionChain(post) {
-  const { id: postId, price, age, score } = post;
+  const { id: postId, price, quote } = post;
+  const quotedAt = new Date(quote.id);
 
   const expirations = [1, 3, 7, 30].map(days => {
-    const d = new Date();
-    d.setDate(d.getDate() + days);
+    const d = new Date(quotedAt);
+    d.setUTCDate(d.getUTCDate() + days);
     return d;
   });
 
   const strikeSteps = [0.9, 0.95, 1, 1.05, 1.1];
 
-  const baseVolatility = Math.min(0.5, 0.1 + score / 100); // 10%-50%
+  const baseVolatility = Math.min(0.5, 0.1 + (quote.score ?? 0) / 100); // 10%-50%
 
   const contracts = [];
 
   expirations.forEach(exp => {
     strikeSteps.forEach(mult => {
       const strike = Math.round(price * mult);
-      const timeToExpiry = (exp - new Date()) / (1000 * 60 * 60 * 24 * 365);
+      const timeToExpiry = (exp - quotedAt) / (1000 * 60 * 60 * 24 * 365);
       
       // Premium = intrinsic + extrinsic
       const callIntrinsic = Math.max(0, price - strike);
@@ -198,11 +219,13 @@ async function getOptionChain(req, res) {
     const post = (await data)?.data?.children?.[0]?.data;
     if (!post) return res.status(404).json({ error: 'Post not found' });
 
+    if (post.quote.status !== 'ready') return res.status(409).json({ error: 'Price data is collecting or stale. Refresh after the next update.' });
     const contracts = generateOptionChain(post);
 
     res.json({
       postId: post.id,
       price: post.price,
+      quoteId: post.quote.id,
       contracts
     });
   } catch (err) {

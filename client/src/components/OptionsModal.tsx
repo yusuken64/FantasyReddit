@@ -26,6 +26,7 @@ interface OptionContract {
 }
 
 interface OptionChain {
+    quoteId: string;
     symbol: string;
     expirations: string[];
     price: number;
@@ -43,6 +44,7 @@ interface OptionsModalProps {
         premium: number;
         contracts: number;
         totalCost: number;
+        quoteId: string;
     }) => void;
     symbol: string;
     maxMoney: number;
@@ -87,6 +89,9 @@ export const OptionsModal: React.FC<OptionsModalProps> = ({
 
     // Reset when modal opens
     useEffect(() => {
+        if (!isOpen) return;
+        setError(null);
+        setStrike(null);
         setLoading(true);
         fetch(`${import.meta.env.VITE_API_URL}/options/chain/${symbol}`, {
             credentials: 'include'
@@ -105,7 +110,7 @@ export const OptionsModal: React.FC<OptionsModalProps> = ({
             })
             .catch(err => setError(err.message))
             .finally(() => setLoading(false));
-    }, [symbol]);
+    }, [symbol, isOpen]);
 
     // Filter contracts by expiration and type
     const filteredContracts = useMemo(() => {
@@ -141,6 +146,7 @@ export const OptionsModal: React.FC<OptionsModalProps> = ({
             premium: selectedContract.premium,
             contracts,
             totalCost,
+            quoteId: optionChain!.quoteId,
         });
         onClose();
     };

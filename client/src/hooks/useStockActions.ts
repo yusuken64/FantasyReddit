@@ -4,13 +4,13 @@ import { AuthContext } from '../context/AuthContext'
 export function useStockActions() {
   const { updateCredits } = useContext(AuthContext)
 
-  async function buy(symbol: string, quantity: number) {
+  async function buy(symbol: string, quantity: number, quoteId?: string | null) {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/buy`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ symbol, quantity: quantity }),
+        body: JSON.stringify({ symbol, quantity: quantity, quoteId }),
       })
       if (res.ok) {
         const data = await res.json();
@@ -26,13 +26,13 @@ export function useStockActions() {
     }
   }
 
-  async function sell(symbol: string, quantity: number) {
+  async function sell(symbol: string, quantity: number, quoteId?: string | null) {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/sell`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ symbol, quantity: quantity }),
+        body: JSON.stringify({ symbol, quantity: quantity, quoteId }),
       })
       if (res.ok) {
         const data = await res.json();

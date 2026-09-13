@@ -1,7 +1,7 @@
 const fetch = global.fetch;
 const database = require('../database');
 const { getValidAccessToken } = require('./authController');
-const { calculatePrice } = require('../module/priceCalculator');
+const { observePost, readQuote } = require('../module/priceCalculator');
 
 function getPublicHeaders(user) { 
   const username = user?.name ?? 'anonymous';
@@ -30,7 +30,9 @@ async function fetchPostWithPrice(url, user, useAuth = false) {
   // Calculate price for all posts asynchronously
   await Promise.all(json.data.children.map(async (child) => {
     const post = child.data;
-    post.price = await calculatePrice(post);
+    await observePost(post, { registerOnly: true });
+    post.quote = await readQuote(post.id);
+    post.price = post.quote.price ?? 10; // Display fallback only; collecting quotes cannot execute.
   }));
 
   return json;
