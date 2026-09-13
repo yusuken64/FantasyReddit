@@ -1,0 +1,43 @@
+name: Release verification
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      TEST_SQL_CONNECTION: 'Server=localhost,14339;Database=master;User Id=sa;Password=Disposable-Test-Only_98!;Encrypt=true;TrustServerCertificate=true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.21.0'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
+            client/package-lock.json
+      - run: npm ci
+      - run: npm ci --prefix server
+      - run: npm ci --prefix client
+      - run: npm run lint
+      - run: npm run build
+      - run: npm test
+      - run: npm run audit:all
+      - run: docker compose -f compose.test.yml -p fantasy-hardening-test up -d --wait
+      - run: npm run test:integration
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - run: docker build -t fantasy-reddit:verified .
+      - if: always()
+        run: docker compose -f compose.test.yml -p fantasy-hardening-test down -v
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-failure
+          path: |
+            playwright-report
+            test-results

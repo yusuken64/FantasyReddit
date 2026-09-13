@@ -1,167 +1,21 @@
-import React, { useEffect, useState } from "react"
-import { RedditStockItem } from './RedditStockItem'
-
-type HoldingItem = {
-  id: number
-  user_id: number
-  stock_symbol: string
-  shares: number
-  total_spent: number
-}
-
-type RedditPost = {
-  id: string
-  title: string
-  score: number
-  price: number
-  permalink: string
-  subreddit: string
-  author: string
-  created_utc: number
-}
-
-const Holdings: React.FC = () => {
-  const [holdings, setHoldings] = useState<HoldingItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [postsMap, setPostsMap] = useState<Record<string, RedditPost>>({})
-  const [sortBy, setSortBy] = useState<'shares' | 'total_spent'>('shares')
-  const [sortDir, setSortDir] = useState<'ASC' | 'DESC'>('ASC')
-  const [page, setPage] = useState(1)
-  const limit = 5
-  const [] = useState(0)
-
-  // Fetch holding on mount
-  useEffect(() => {
-    fetchHoldings()
-  }, [sortBy, sortDir, page])
-
-  async function getPost(stock_symbol: string): Promise<RedditPost | null> {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reddit-post/${stock_symbol}`, {
-        credentials: 'include',  // <-- required to send cookie
-      })
-      if (!res.ok) throw new Error(`Post not found for id ${stock_symbol}`)
-      const postData = await res.json()
-      return postData
-    } catch (err) {
-      console.error(err)
-      return null
-    }
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { api, message, mutation } from '../api'
+import { useAuth } from '../context/auth'
+import Trade from './Trade'
+interface Holding { symbol: string; title: string; shares: number; total_spent: number; price: number; terminal: boolean; stale: boolean }
+export default function Holdings() {
+  const { user, refresh } = useAuth(), [rows, setRows] = useState<Holding[]>([]), [error, setError] = useState(''), [busy, setBusy] = useState(false)
+  const [selected, setSelected] = useState<{ symbol: string; action: 'SELL' | 'SELL_REMOVE'; shares: number } | null>(null), pending = useRef(false)
+  const load = useCallback(async () => { try { setRows(await api<Holding[]>('/holdings')); setError('') } catch (e) { setError(message(e)) } }, [])
+  useEffect(() => { void load() }, [load])
+  async function remove(symbol: string) {
+    if (pending.current || !user) return
+    pending.current = true; setBusy(true)
+    try { await mutation(`/holdings/${symbol}`, { generation: user.generation }, crypto.randomUUID(), 'DELETE'); await refresh(); await load() } catch (e) { setError(message(e)) }
+    finally { pending.current = false; setBusy(false) }
   }
-
-  const handleDeleteStock = (deletedId: string) => {
-    setHoldings(prev => prev.filter(item => item.stock_symbol !== deletedId));
-  };
-
-  async function fetchHoldings() {
-    try {
-      const offset = (page - 1) * limit
-
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/holdings?sortBy=${sortBy}&sortDir=${sortDir}&limit=${limit}&offset=${offset}`,
-        { credentials: "include" }
-      )
-      if (!res.ok) throw new Error("Failed to fetch holdings")
-      const json = await res.json();
-      const holdingData: HoldingItem[] = json.data;
-      setHoldings(holdingData)
-
-      // Fetch posts for each stock_symbol to display details in RedditStockItem
-      const postsFetched: Record<string, RedditPost> = {}
-      await Promise.all(
-        holdingData.map(async (item) => {
-          const post = await getPost(item.stock_symbol)
-          if (post) postsFetched[item.stock_symbol] = post
-        })
-      )
-      setPostsMap(postsFetched)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  if (loading) return <p>Loading your portfolio...</p>
-
-  if (holdings.length === 0) return <p>You don't own any Reddit stocks yet.</p>
-
-  return (
-    <div className="p-4 max-w-2xl mx-auto">
-      <div className="mb-6 flex items-center space-x-4">
-        <label>
-          Sort By:&nbsp;
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="border rounded px-2 py-1"
-          >
-            {/* <option value="stock_symbol">Stock Symbol</option> */}
-            <option value="shares">Shares</option>
-            <option value="total_spent">Total Spent</option>
-          </select>
-        </label>
-        <button
-          onClick={() => setSortDir(sortDir === 'ASC' ? 'DESC' : 'ASC')}
-          className="border rounded px-3 py-1"
-          aria-label="Toggle sort direction"
-        >
-          {sortDir === 'ASC' ? 'Ascending ↑' : 'Descending ↓'}
-        </button>
-      </div>
-
-      <div className="flex justify-between mt-6">
-        <button
-          disabled={page === 1}
-          onClick={() => setPage(page - 1)}
-          className="px-3 py-1 border rounded disabled:opacity-50"
-        >
-          Previous
-        </button>
-        <button
-          disabled={holdings.length < limit}
-          onClick={() => setPage(page + 1)}
-          className="px-3 py-1 border rounded disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
-      {holdings.map((item) => {
-        const post = postsMap[item.stock_symbol]
-        if (!post) return null
-
-        const avgCost = item.shares > 0 ? item.total_spent / item.shares : 0
-
-        return (
-          <RedditStockItem
-            key={item.stock_symbol} 
-            post={post}
-            shares={item.shares}
-            avgCost={avgCost}
-            onDelete={() => handleDeleteStock(item.stock_symbol)}
-            owned={true}
-          />
-        )
-      })}
-
-      <div className="flex justify-between mt-6">
-        <button
-          disabled={page === 1}
-          onClick={() => setPage(page - 1)}
-          className="px-3 py-1 border rounded disabled:opacity-50"
-        >
-          Previous
-        </button>
-        <button
-          disabled={holdings.length < limit}
-          onClick={() => setPage(page + 1)}
-          className="px-3 py-1 border rounded disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
-    </div>
-  )
+  return <><h1>Holdings</h1>{error && <p role="alert">{error}</p>}{selected && <Trade key={`${selected.symbol}:${selected.action}`} {...selected} onDone={() => { setSelected(null); void load() }} />}
+    {!rows.length && <p>No holdings yet.</p>}{rows.map(h => <article key={h.symbol}><h2>{h.title}</h2><p>{h.shares} shares × {h.price} = {h.shares * h.price} credits. Cost basis: {h.total_spent} credits.</p>{!!h.stale && <p>Stale price — awaiting Reddit recovery.</p>}
+      {h.terminal || h.shares === 0 ? <button disabled={busy} onClick={() => void remove(h.symbol)}>Remove zero-value holding</button> : <><button onClick={() => setSelected({ symbol: h.symbol, shares: h.shares, action: 'SELL' })}>Sell shares</button> <button onClick={() => setSelected({ symbol: h.symbol, shares: h.shares, action: 'SELL_REMOVE' })}>Sell and remove</button></>}</article>)}
+  </>
 }
-
-export default Holdings

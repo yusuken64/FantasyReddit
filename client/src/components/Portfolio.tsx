@@ -1,94 +1,10 @@
-import { useContext, useEffect, useState } from 'react';
-import Debug from './Debug';
-import { AuthContext } from '../context/AuthContext';
-import { PortfolioCharts } from './PortfolioCharts';
-
-type PortfolioStats = {
-    username: string;
-    credits: number;
-    totalScore: number;
-    stocksOwned: number;
-    totalShares: number;
-    totalSpent: number;
-    totalValue: number;
-};
-
+import { useEffect, useState } from 'react'
+import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { api, message } from '../api'
+interface Portfolio { credits: number; holdings_value: number; portfolio_value: number; stale: boolean; history: { bucket: string; credits: number; holdings_value: number }[] }
 export default function Portfolio() {
-    const { username } = useContext(AuthContext);
-    const [stats, setStats] = useState<PortfolioStats | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-
-        async function fetchStats() {
-            if (!username) return;
-
-            setLoading(true);
-            setError(null);
-            try {
-                const res = await fetch(
-                    `${import.meta.env.VITE_API_URL}/portfolio`,
-                    {
-                        credentials: 'include',
-                    }
-                );
-                if (!res.ok) throw new Error('Failed to fetch portfolio stats');
-                const data = await res.json();
-                console.log(data);
-                setStats(data);
-            } catch (e: any) {
-                setError(e.message);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        fetchStats();
-    }, [username]);
-
-    if (loading) return <div>Loading your portfolio...</div>;
-    if (error) return <div>Error: {error}</div>;
-    if (!stats) return <div>No portfolio data available.</div>;
-
-    return (
-        <div style={{ maxWidth: 800, margin: 'auto', padding: 20 }}>
-            <div
-                style={{
-                    fontSize: '2rem',
-                    fontWeight: 'bold',
-                    // marginBottom: '1.5rem',
-                    // padding: '1rem',
-                    background: '#f5f5f5',
-                    borderRadius: '8px',
-                    textAlign: 'center',
-                }}
-            >
-                Total Portfolio Value: ${(stats.credits + stats.totalValue).toLocaleString()}
-            </div>
-
-            <PortfolioCharts
-                credits={stats.credits}
-                totalValue={stats.totalValue + stats.credits}
-                totalSpent={stats.totalSpent}
-            />
-            <section>
-                <h2>User Summary</h2>
-                <p><strong>Username:</strong> {stats.username}</p>
-                <p><strong>Credits:</strong> {stats.credits.toLocaleString()}</p>
-                <p><strong>Total Portfolio Value:</strong> {(stats.credits + stats.totalValue).toLocaleString()}</p>
-                <p><strong>Stocks Owned:</strong> {stats.stocksOwned}</p>
-                <p><strong>Total Shares:</strong> {stats.totalShares}</p>
-                <p><strong>Total Spent:</strong> {stats.totalSpent}</p>
-            </section>
-
-            {/* <section style={{ marginBottom: 40 }}>
-                <Leaderboard />
-            </section> */}
-
-            <section>
-                <Debug />
-            </section>
-        </div>
-    );
+  const [data, setData] = useState<Portfolio | null>(null), [error, setError] = useState('')
+  useEffect(() => { let active = true; api<Portfolio>('/portfolio').then(value => { if (active) setData(value) }).catch(e => { if (active) setError(message(e)) }); return () => { active = false } }, [])
+  return <><h1>Portfolio</h1>{error && <p role="alert">{error}</p>}{data && <><div className="summary"><article><h2>Cash</h2>{data.credits} credits</article><article><h2>Stocks</h2>{data.holdings_value} credits</article><article><h2>Cash + stocks</h2>{data.portfolio_value} credits</article></div><p>Open options are shown separately on the Options page; these totals exclude their unrealized value.</p>{data.stale && <p>Some prices are stale. Values will update after Reddit recovers.</p>}<h2>Cash and stock value over time</h2>
+    <ResponsiveContainer width="100%" height={300}><LineChart data={[...data.history].reverse().map(row => ({ time: new Date(row.bucket).toLocaleString(), value: row.credits + row.holdings_value }))}><XAxis dataKey="time" hide /><YAxis /><Tooltip /><Line dataKey="value" stroke="#2457a7" dot={false} /></LineChart></ResponsiveContainer></>}</>
 }
