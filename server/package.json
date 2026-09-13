@@ -1,1 +1,19 @@
-{"name":"fantasy-reddit-server","version":"2.0.0","private":true,"engines":{"node":">=24 <25"},"main":"server.js","scripts":{"start":"node server.js","migrate":"node migrate.js","test":"node --test test/domain.test.js test/http.test.js"},"dependencies":{"cookie-parser":"1.4.7","express":"5.2.1","mssql":"12.7.2"}}
+{
+    "name":  "fantasy-reddit-server",
+    "version":  "2.0.0",
+    "private":  true,
+    "engines":  {
+                    "node":  "\u003e=24 \u003c25"
+                },
+    "main":  "server.js",
+    "scripts":  {
+                    "start":  "node server.js",
+                    "migrate":  "node migrate.js",
+                    "test":  "node --test test/domain.test.js test/http.test.js test/momentum.test.js"
+                },
+    "dependencies":  {
+                         "cookie-parser":  "1.4.7",
+                         "express":  "5.2.1",
+                         "mssql":  "12.7.2"
+                     }
+}

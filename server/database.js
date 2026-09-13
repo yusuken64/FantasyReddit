@@ -29,6 +29,6 @@ function createDatabase(connectionString, { allowSystemDatabase = false } = {}) 
     }
   }
   return { pool, query, transaction, connect: () => pool.connect(), close: () => pool.close(), get errors() { return errors; },
-    async ready() { return (await query('SELECT version FROM schema_migrations WHERE version = 1')).length === 1; } };
+    async ready() { return (await query('SELECT version FROM schema_migrations WHERE version IN (1,2)')).length === 2; } };
 }
 module.exports = { createDatabase };

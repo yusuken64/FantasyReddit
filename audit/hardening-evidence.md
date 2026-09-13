@@ -48,3 +48,7 @@ Tests use an isolated SQL Server container (pinned image) and controlled Reddit 
 The following require the intended deployment environment, credentials and operator evidence: remote CI run; Azure what-if and resource deployment; private SQL and runtime least-privilege verification; Reddit approval/application-only access and real OAuth on the final HTTPS origin; proxy trust/caching/TLS checks; worker recovery and lag under expected production traffic; delivered operational alerts; and a timed backup restore with database integrity and settlement replay checks. Historical credential exposure must be reviewed. See [operations and rollout procedure](../docs/operations.md).
 
 These are release gates, not claims of completed production validation. No production cutover is authorized or performed by this change.
+
+## Momentum merge follow-up
+
+The momentum-pricing branch is integrated into the hardened services; see [the merged model and migration](../docs/momentum-pricing.md). The age-based calculation is replaced with measured score momentum. Migration 2 is now required. Existing 30-second order quotes and first-observation-at-or-after-expiry settlement rules remain authoritative. Original hardening verification above is historical; the merged branch is verified separately with the momentum tests and the existing hardening suites.

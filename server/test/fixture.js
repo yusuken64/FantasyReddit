@@ -23,4 +23,12 @@ function fakeReddit() {
   return { postsData: posts, ready: async () => true, identity: async () => ({ id: 'testreddit', name: 'Browser trader' }), posts: async ids => ids.map(post), listing: async () => [post('abc123')] };
 }
 const settings = { production: false, origin: 'http://127.0.0.1:18088', clientId: 'test-client', clientSecret: 'test-secret', userAgent: 'test/1.0', redirectUri: 'http://127.0.0.1:18088/api/auth/reddit/callback', authLimit: 1000, mutationLimit: 10000, trustProxy: false };
-module.exports = { fixture, fakeReddit, settings };
+// Seed a measured interval using the same publisher; no fake executable baseline.
+async function warm(db, market, reddit, symbol) {
+  if ((await db.query('SELECT symbol FROM market_state WHERE symbol=@symbol', { symbol })).length) return;
+  const post = (await reddit.posts([symbol]))[0]; await market.persist(post);
+  const time = (await db.query('SELECT DATEADD(minute,-5,SYSUTCDATETIME()) AS time'))[0].time;
+  await db.query('UPDATE market_state SET sampled_at=@time,samples=@samples WHERE symbol=@symbol', { symbol, time, samples: JSON.stringify([{ score: post.score, time: new Date(time).getTime() }]) });
+  await market.persist(post);
+}
+module.exports = { fixture, fakeReddit, settings, warm };

@@ -40,8 +40,9 @@ function createWorker(db, market, trading) {
   async function prices() {
     let after = '';
     while (!stopping) {
-      const symbols = await db.query(`SELECT TOP 100 symbol FROM instruments i WHERE symbol>@after AND terminal=0 AND
-        (EXISTS(SELECT 1 FROM holdings h WHERE h.symbol=i.symbol) OR EXISTS(SELECT 1 FROM options o WHERE o.symbol=i.symbol AND status='OPEN')) ORDER BY symbol`, { after });
+      const symbols = await db.query(`SELECT TOP 100 i.symbol FROM instruments i LEFT JOIN market_state m ON m.symbol=i.symbol
+        WHERE i.symbol>@after AND terminal=0 AND (m.sampled_at IS NULL OR m.sampled_at<=DATEADD(minute,-5,SYSUTCDATETIME())) AND
+        (m.registered_at>DATEADD(day,-1,SYSUTCDATETIME()) OR EXISTS(SELECT 1 FROM holdings h WHERE h.symbol=i.symbol AND h.shares>0) OR EXISTS(SELECT 1 FROM options o WHERE o.symbol=i.symbol AND status='OPEN')) ORDER BY i.symbol`, { after });
       if (!symbols.length || !await lease('prices')) break;
       try { await market.refresh(symbols.map(s => s.symbol)); } catch { metrics.failedJobs++; }
       after = symbols.at(-1).symbol;

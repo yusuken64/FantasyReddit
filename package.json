@@ -1,1 +1,23 @@
-{"name":"fantasy-reddit","version":"2.0.0","private":true,"engines":{"node":">=24 <25"},"scripts":{"build":"npm run build --prefix client","lint":"eslint server/*.js server/test/*.js tests/*.cjs && npm run lint --prefix client","test":"npm test --prefix server","test:integration":"node --test server/test/integration.test.js","test:browser":"playwright test","migrate":"npm run migrate --prefix server","start":"npm start --prefix server","audit:all":"npm audit --audit-level=low && npm audit --prefix server --audit-level=low && npm audit --prefix client --audit-level=low"},"devDependencies":{"@playwright/test":"1.63.0","eslint":"^9.39.0","globals":"^16.3.0"}}
+{
+    "name":  "fantasy-reddit",
+    "version":  "2.0.0",
+    "private":  true,
+    "engines":  {
+                    "node":  "\u003e=24 \u003c25"
+                },
+    "scripts":  {
+                    "build":  "npm run build --prefix client",
+                    "lint":  "eslint server/*.js server/scripts/*.js server/test/*.js tests/*.cjs \u0026\u0026 npm run lint --prefix client",
+                    "test":  "npm test --prefix server",
+                    "test:integration":  "node --test server/test/integration.test.js server/test/pricing.integration.test.js",
+                    "test:browser":  "playwright test",
+                    "migrate":  "npm run migrate --prefix server",
+                    "start":  "npm start --prefix server",
+                    "audit:all":  "npm audit --audit-level=low \u0026\u0026 npm audit --prefix server --audit-level=low \u0026\u0026 npm audit --prefix client --audit-level=low"
+                },
+    "devDependencies":  {
+                            "@playwright/test":  "1.63.0",
+                            "eslint":  "^9.39.0",
+                            "globals":  "^16.3.0"
+                        }
+}

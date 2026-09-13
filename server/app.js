@@ -37,7 +37,7 @@ function createApp({ db, config, reddit, market, trading, worker, assets = path.
   api.post('/auth/logout', auth.logout);
   api.get('/market', send(() => market.browse()));
   api.get('/market/:symbol', send(req => market.current(symbol(req.params.symbol), { fresh: false })));
-  api.get('/prices/:symbol', send(req => db.query('SELECT TOP 500 price,observed_at FROM observations WHERE symbol=@symbol ORDER BY observed_at DESC,id DESC', { symbol: symbol(req.params.symbol) })));
+  api.get('/prices/:symbol', send(req => db.query('SELECT TOP 500 price,observed_at,pricing_model,momentum FROM observations WHERE symbol=@symbol ORDER BY observed_at DESC,id DESC', { symbol: symbol(req.params.symbol) })));
   api.post('/quotes', send(req => trading.quote(req.session, req.body)));
   api.post('/orders', send(req => trading.execute(req.session, req.get('Idempotency-Key'), req.body)));
   api.post('/options/:id/exercise', send(req => trading.exercise(req.session, req.get('Idempotency-Key'), req.params.id, req.body)));
@@ -45,7 +45,7 @@ function createApp({ db, config, reddit, market, trading, worker, assets = path.
   api.delete('/account', async (req, res) => { const result = await trading.deleteAccount(req.session, req.body); res.clearCookie(auth.cookieName, auth.cookie); res.json(result); });
   api.delete('/holdings/:symbol', send(req => trading.remove(req.session, req.get('Idempotency-Key'), req.params.symbol, req.body)));
   api.get('/holdings', send(req => db.query(`SELECT h.*,i.title,i.terminal,p.price,p.observed_at,
-    CASE WHEN p.observed_at<DATEADD(minute,-5,SYSUTCDATETIME()) AND i.terminal=0 THEN 1 ELSE 0 END AS stale
+    CASE WHEN p.observed_at<DATEADD(minute,-10,SYSUTCDATETIME()) AND i.terminal=0 THEN 1 ELSE 0 END AS stale
     FROM holdings h JOIN instruments i ON i.symbol=h.symbol OUTER APPLY(SELECT TOP 1 price,observed_at FROM observations WHERE symbol=h.symbol ORDER BY observed_at DESC,id DESC) p WHERE h.user_id=@user ORDER BY h.symbol`, { user: req.session.user_id })));
   function page(req, fields, fallback) {
     const limit = Number(req.query.limit || 25), offset = Number(req.query.offset || 0);
@@ -62,7 +62,7 @@ function createApp({ db, config, reddit, market, trading, worker, assets = path.
   api.get('/transactions', send(req => history(req)));
   api.get('/options', send(req => {
     const { limit, offset, sort, dir } = page(req, ['expires_at','created_at','quantity'], 'expires_at');
-    return db.query(`SELECT o.*,100 AS contract_size,p.price,p.observed_at,CASE WHEN i.terminal=0 AND p.observed_at<DATEADD(minute,-5,SYSUTCDATETIME()) THEN 1 ELSE 0 END AS stale,
+    return db.query(`SELECT o.*,100 AS contract_size,p.price,p.observed_at,CASE WHEN i.terminal=0 AND p.observed_at<DATEADD(minute,-10,SYSUTCDATETIME()) THEN 1 ELSE 0 END AS stale,
       CASE WHEN status='OPEN' AND (expires_at<=SYSUTCDATETIME() OR i.terminal=1) THEN 'PENDING' ELSE status END AS settlement_status
       FROM options o JOIN instruments i ON i.symbol=o.symbol OUTER APPLY(SELECT TOP 1 price,observed_at FROM observations WHERE symbol=o.symbol ORDER BY observed_at DESC,id DESC) p
       WHERE user_id=@user ORDER BY o.${sort} ${dir},o.id ${dir} OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY`, { user: req.session.user_id, limit, offset });
@@ -72,7 +72,7 @@ function createApp({ db, config, reddit, market, trading, worker, assets = path.
     const rows = await q(`SELECT h.shares,p.price,p.observed_at,i.terminal FROM holdings h JOIN instruments i ON i.symbol=h.symbol
       OUTER APPLY(SELECT TOP 1 price,observed_at FROM observations WHERE symbol=h.symbol ORDER BY observed_at DESC,id DESC) p WHERE user_id=@user`, { user: user.id });
     const holdings = rows.reduce((total, h) => amount(total + BigInt(h.shares) * BigInt(h.price)), 0n);
-    return { credits: user.credits, holdings_value: holdings, portfolio_value: amount(holdings + BigInt(user.credits)), stale: rows.some(r => !r.terminal && Date.now() - new Date(r.observed_at) > 300000),
+    return { credits: user.credits, holdings_value: holdings, portfolio_value: amount(holdings + BigInt(user.credits)), stale: rows.some(r => !r.terminal && Date.now() - new Date(r.observed_at) > 600000),
       history: await q('SELECT TOP 500 * FROM snapshots WHERE user_id=@user ORDER BY bucket DESC', { user: user.id }) };
   })));
   api.get('/metrics', send(async () => ({ ...worker.metrics, databaseErrors: db.errors, ...await gauges(db) })));

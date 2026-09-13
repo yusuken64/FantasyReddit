@@ -42,11 +42,12 @@ function createTrading(db, market) {
       if (instrument.terminal && (body.action === 'BUY' || body.action === 'OPTION')) fail(409, 'DELISTED', 'This post is removed and cannot be purchased.');
       // A crash observed between the network fetch and this lock invalidates this observation.
       if (instrument.terminal && !observation.terminal) fail(409, 'PRICE_CHANGED', 'Price changed. Request a new quote.');
+      await market.validate(q, id, observation.id);
       const result = { id: randomUUID(), user_id: user.id, generation: gen, symbol: id, observation_id: observation.id,
         action: body.action, quantity: count, price: amount(observation.price), cost, option_type: body.action === 'OPTION' ? body.optionType : null, ...contract };
       const rows = await q(`INSERT INTO quotes(id,user_id,generation,symbol,observation_id,action,quantity,price,cost,option_type,strike,premium,option_expiry,expires_at)
         OUTPUT inserted.* VALUES(@id,@user_id,@generation,@symbol,@observation_id,@action,@quantity,@price,@cost,@option_type,@strike,@premium,
-        CASE WHEN @days IS NULL THEN NULL ELSE DATEADD(day,CAST(@days AS int),SYSUTCDATETIME()) END, DATEADD(second,30,SYSUTCDATETIME()))`, { ...result, days: body.action === 'OPTION' ? body.days : null });
+        CASE WHEN @days IS NULL THEN NULL ELSE DATEADD(day,CAST(@days AS int),@observed_at) END, DATEADD(second,30,SYSUTCDATETIME()))`, { ...result, days: body.action === 'OPTION' ? body.days : null, observed_at: observation.observed_at });
       return json({ ...rows[0], contract_size: body.action === 'OPTION' ? 100 : 1, total_premium: body.action === 'OPTION' ? cost : null, price_observed_at: observation.observed_at });
     });
   }
@@ -59,6 +60,7 @@ function createTrading(db, market) {
       if (!order.valid || order.consumed) fail(409, 'QUOTE_EXPIRED', 'Quote expired or was used. Request a new quote.');
       const instrument = (await q('SELECT * FROM instruments WITH(UPDLOCK,HOLDLOCK) WHERE symbol=@symbol', { symbol: order.symbol }))[0];
       if (instrument.terminal && (order.action === 'BUY' || order.action === 'OPTION' || BigInt(order.price) !== 0n)) fail(409, 'DELISTED', 'The post was removed. Request a new quote.');
+      await market.validate(q, order.symbol, order.observation_id);
       const cost = amount(order.cost), count = BigInt(order.quantity);
       let credits = amount(user.credits), optionId = null;
       const buying = order.action === 'BUY' || order.action === 'OPTION';
@@ -122,6 +124,7 @@ function createTrading(db, market) {
       if (!current) fail(409, 'OPTION_UNAVAILABLE', 'Option unavailable or expired.');
       const instrument = (await q('SELECT * FROM instruments WITH(UPDLOCK,HOLDLOCK) WHERE symbol=@symbol', { symbol: current.symbol }))[0];
       if (instrument.terminal && !observation.terminal) fail(409, 'PRICE_CHANGED', 'Post removed; settlement is pending.');
+      await market.validate(q, current.symbol, observation.id);
       return settleInTransaction(q, user, current, observation, observation.terminal ? 'DELIST' : 'EXERCISE');
     });
   }

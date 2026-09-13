@@ -1,7 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { quantity, amount, MAX, premium, payout, symbol } = require('../domain');
-const { calculate, removed, createReddit, chunks } = require('../market');
+const { removed, createReddit, chunks } = require('../market');
 const { config } = require('../config');
 test('quantities, symbols and safe integer bounds reject malformed and overflowing values', () => {
   for (const value of [-10, 0, 1.5, '1', null, {}, NaN, Infinity, 1000001, Number.MAX_SAFE_INTEGER + 1]) assert.throws(() => quantity(value));
@@ -16,13 +16,11 @@ test('option premiums and intrinsic payouts use 100 shares for each contract', (
   assert.equal(payout({ option_type: 'CALL', strike: 100, quantity: 2 }, 0), 0n);
   assert.throws(() => payout({ option_type: 'PUT', strike: MAX, quantity: 1000000 }, 0));
 });
-test('only explicit deletion or removal crashes; created_utc determines pricing', () => {
+test('only explicit deletion or removal crashes', () => {
   const now = Date.now(), post = { id: 'abc', score: 100, created_utc: now / 1000 - 3600 };
   assert.equal(removed({ ...post, author: '[deleted]' }), false); assert.equal(removed({ ...post, author: null }), false);
   assert.equal(removed({ ...post, removed_by_category: 'moderator' }), true);
-  assert.equal(calculate({ ...post, selftext: '[removed]' }, null, now), 0n);
-  assert.throws(() => calculate({ score: 1 }, null, now));
-  assert.notEqual(calculate(post, null, now), calculate({ ...post, created_utc: now / 1000 - 60 }, null, now));
+  assert.equal(removed({ ...post, selftext: '[removed]' }), true);
 });
 test('Reddit timeouts, auth failures, throttling, malformed payloads never fabricate posts', async () => {
   for (const status of [401,429,500]) {

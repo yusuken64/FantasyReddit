@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { fixture, fakeReddit, settings } = require('./fixture');
+const { fixture, fakeReddit, settings, warm } = require('./fixture');
 const { createMarket } = require('../market');
 const { createTrading } = require('../trading');
 const { createWorker } = require('../worker');
@@ -9,7 +9,8 @@ const { randomUUID, hash, token, MAX } = require('../domain');
 test('disposable SQL Server integrity and lifecycle', { timeout: 360000 }, async t => {
   const f = await fixture(); t.after(() => f.close());
   const { db } = f, reddit = fakeReddit(), market = createMarket(db, reddit), trading = createTrading(db, market);
-  const buy = async (session, overrides = {}) => trading.quote(session, { generation: 0, symbol: 'abc123', action: 'BUY', quantity: 1, ...overrides });
+  await warm(db, market, reddit, 'abc123');
+  const buy = async (session, overrides = {}) => { await warm(db, market, reddit, overrides.symbol || 'abc123'); return trading.quote(session, { generation: 0, symbol: 'abc123', action: 'BUY', quantity: 1, ...overrides }); };
   const balance = async session => BigInt((await db.query('SELECT credits FROM accounts WHERE id=@id', { id: session.user_id }))[0].credits);
   await t.test('migrations are repeatable and constraints reject negative balances', async () => {
     await require('../migrate').migrate(db); assert.equal(await db.ready(), true);
@@ -72,9 +73,11 @@ test('disposable SQL Server integrity and lifecycle', { timeout: 360000 }, async
       ids.push((await trading.execute(user, randomUUID(), { quoteId: quote.id })).optionId);
     }
     await db.query('UPDATE observations SET observed_at=DATEADD(minute,-10,SYSUTCDATETIME()) WHERE symbol=@symbol', { symbol: 'crash' });
+    await db.query('UPDATE market_state SET quote_at=DATEADD(minute,-11,SYSUTCDATETIME()) WHERE symbol=@symbol', { symbol: 'crash' });
     const fetchPosts = reddit.posts; reddit.posts = async () => { throw new Error('temporary failure'); };
     await assert.rejects(trading.exercise(user, randomUUID(), ids[0], { generation: 0 }));
     assert.equal((await db.query("SELECT * FROM options WHERE user_id=@user AND status='OPEN'", { user: user.user_id })).length, 2); reddit.posts = fetchPosts;
+    await db.query('UPDATE market_state SET quote_at=SYSUTCDATETIME() WHERE symbol=@symbol', { symbol: 'crash' });
     const outstanding = await buy(user, { symbol: 'crash' });
     await market.persist({ id: 'crash', selftext: '[removed]', score: 1, created_utc: Date.now()/1000 - 3600 });
     await assert.rejects(trading.execute(user, randomUUID(), { quoteId: outstanding.id }), { code: 'DELISTED' });
@@ -91,6 +94,8 @@ test('disposable SQL Server integrity and lifecycle', { timeout: 360000 }, async
     await trading.settleDue(order.optionId, user.user_id);
     assert.equal((await db.query('SELECT status FROM options WHERE id=@id', { id: order.optionId }))[0].status, 'OPEN');
     await assert.rejects(trading.exercise(user, randomUUID(), order.optionId, { generation: 0 }));
+    const time = new Date(Date.now()-300001);
+    await db.query('UPDATE market_state SET sampled_at=@time,samples=@samples WHERE symbol=@symbol', { symbol: 'expiry', time, samples: JSON.stringify([{score:1,time:time.getTime()}]) });
     const first = await market.persist({ id: 'expiry', score: 1, created_utc: Date.now()/1000-3600 });
     await market.persist({ id: 'expiry', selftext: '[removed]' });
     await trading.settleDue(order.optionId, user.user_id);

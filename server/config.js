@@ -4,6 +4,8 @@ function config(env = process.env) {
   }
   const origin = new URL(env.PUBLIC_ORIGIN);
   const production = env.NODE_ENV === 'production';
+  const weight = Number(env.MOMENTUM_SCORE_WEIGHT ?? 5);
+  if (!Number.isFinite(weight) || weight <= 0) throw new Error('Invalid MOMENTUM_SCORE_WEIGHT');
   if (origin.origin !== env.PUBLIC_ORIGIN || (production && origin.protocol !== 'https:')) throw new Error('PUBLIC_ORIGIN must be an origin, with HTTPS in production');
   function integer(key, fallback) {
     const value = Number(env[key] || fallback);
