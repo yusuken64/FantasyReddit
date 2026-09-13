@@ -13,3 +13,5 @@ The client Playwright config serves Vite on port 18189 and mocks the existing AP
 Orders and exercise operations save their exact request identity in session storage before submission. An uncertain result blocks replacement trading until the player explicitly retries that operation. Recovery survives same-tab reload and re-login for the same account/generation. It does not promise recovery across closed tabs or devices. Explicit logout clears local recovery, and an account reset or account change invalidates incompatible records. CSRF and session tokens are never stored with operations.
 
 Price availability is refreshed manually and checked when returning to the tab. History shows persisted observations with pricing-model labels. Exercise estimates are indicative because the API does not offer a locked exercise quote.
+
+Stocks without measured history can be bought and sold at a server-owned opening estimate based on score and age. Market cards and quote confirmations label it; options remain unavailable until measured momentum arrives. Price history is optional for purchasing.

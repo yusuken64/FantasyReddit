@@ -31,3 +31,5 @@ Symbols are lowercase Reddit base36 post IDs without a `t3_` prefix. Quantities 
 Options accept `limit` (1–100, default 25), `offset` (0–1,000,000), `sort` (expires_at, created_at, quantity) and `dir` (ASC/DESC). Both history routes use the same paging bounds, sort by created_at/quantity/payout, and add ID as a deterministic tie-breaker. Defaults are descending except clients may request ASC expiry order.
 
 There are no `/debug/*` endpoints or legacy root trade routes. Non-API page paths return the SPA; API paths never fall through to it. All state-changing operations use the authenticated identity, never a caller-supplied user ID.
+
+Stocks without measured history can trade at a persisted `opening-score-age-v1` estimate derived from score and age (minimum age one minute). Market and quote responses include `pricing_model`; momentum remains null until measured. The first measured observation replaces the estimate and supersedes its outstanding quotes normally. OPTION quotes and exercise require a measured price. Quote expiry, replay, stale-data rejection, and removal behavior still apply.

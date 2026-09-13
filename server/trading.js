@@ -1,4 +1,5 @@
 const { amount, quantity, symbol, uuid, generation, exact, premium, payout, hash, randomUUID, fail, json } = require('./domain');
+const { OPENING_VERSION } = require('./momentum');
 function createTrading(db, market) {
   async function lock(q, userId, session) {
     const user = (await q('SELECT * FROM accounts WITH(UPDLOCK,HOLDLOCK) WHERE id=@id', { id: userId }))[0];
@@ -33,6 +34,7 @@ function createTrading(db, market) {
     if (!['BUY','SELL','SELL_REMOVE','OPTION'].includes(body.action)) fail(400, 'INVALID_ACTION', 'Select a supported order action.');
     if (body.action !== 'OPTION' && ['optionType','step','days'].some(k => body[k] !== undefined)) fail(400, 'INVALID_INPUT', 'Stock orders cannot specify option terms.');
     const observation = await market.current(id);
+    if (body.action === 'OPTION' && observation.pricing_model === OPENING_VERSION) fail(503, 'MARKET_UNAVAILABLE', 'Options require a measured momentum price. Stocks can trade at the estimated opening price.');
     let contract = { strike: null, premium: null };
     if (body.action === 'OPTION') contract = premium(observation.price, observation.score, body.optionType, body.step, body.days);
     const cost = amount((body.action === 'OPTION' ? contract.premium * 100n : BigInt(observation.price)) * count);
@@ -48,7 +50,7 @@ function createTrading(db, market) {
       const rows = await q(`INSERT INTO quotes(id,user_id,generation,symbol,observation_id,action,quantity,price,cost,option_type,strike,premium,option_expiry,expires_at)
         OUTPUT inserted.* VALUES(@id,@user_id,@generation,@symbol,@observation_id,@action,@quantity,@price,@cost,@option_type,@strike,@premium,
         CASE WHEN @days IS NULL THEN NULL ELSE DATEADD(day,CAST(@days AS int),@observed_at) END, DATEADD(second,30,SYSUTCDATETIME()))`, { ...result, days: body.action === 'OPTION' ? body.days : null, observed_at: observation.observed_at });
-      return json({ ...rows[0], contract_size: body.action === 'OPTION' ? 100 : 1, total_premium: body.action === 'OPTION' ? cost : null, price_observed_at: observation.observed_at });
+      return json({ ...rows[0], contract_size: body.action === 'OPTION' ? 100 : 1, total_premium: body.action === 'OPTION' ? cost : null, price_observed_at: observation.observed_at, pricing_model: observation.pricing_model });
     });
   }
   async function execute(session, key, body) {
@@ -119,6 +121,7 @@ function createTrading(db, market) {
     const option = (await db.query("SELECT * FROM options WHERE id=@id AND user_id=@user AND status='OPEN' AND expires_at>SYSUTCDATETIME()", { id: optionId, user: session.user_id }))[0];
     if (!option) fail(409, 'OPTION_UNAVAILABLE', 'Option unavailable or expired; expired options settle automatically.');
     const observation = await market.current(option.symbol);
+    if (observation.pricing_model === OPENING_VERSION) fail(503, 'MARKET_UNAVAILABLE', 'Exercise requires a measured momentum price.');
     return mutate(session, key, input, gen, async (q, user) => {
       const current = (await q("SELECT * FROM options WHERE id=@id AND user_id=@user AND status='OPEN' AND expires_at>SYSUTCDATETIME()", { id: optionId, user: user.id }))[0];
       if (!current) fail(409, 'OPTION_UNAVAILABLE', 'Option unavailable or expired.');

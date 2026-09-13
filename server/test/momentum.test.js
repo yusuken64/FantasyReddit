@@ -1,17 +1,30 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { advance, publicQuote, assertQuote, INTERVAL_MS: step, STALE_MS } = require('../momentum');
+const { advance, openingPrice, publicQuote, assertQuote, INTERVAL_MS: step, STALE_MS, SCORE_WEIGHT } = require('../momentum');
 
 function replay(scores) {
   let state = { observations: [] };
   return scores.map((score, i) => { state = advance(state.observations, score, i * step); return state; });
 }
-test('initial observations are not executable; sub-five-minute calls cannot reset them', () => {
+test('initial samples have no measured momentum; sub-five-minute calls cannot reset them', () => {
   const first = advance([], 100, 0);
   assert.equal(first.price, null);
   assert.equal(advance(first.observations, 101, 1000), null);
   assert.equal(advance(first.observations, 150, step).price, 60);
   assert.throws(() => assertQuote(publicQuote(null), null), /unavailable/);
+});
+
+test('opening prices estimate lifetime score rate and use a one-minute age minimum', () => {
+  const now = 2000000000000;
+  assert.equal(openingPrice(600, (now - 3600000) / 1000, now), Math.round(10 + SCORE_WEIGHT * 10));
+  assert.equal(openingPrice(600, (now - 7200000) / 1000, now), Math.round(10 + SCORE_WEIGHT * 5));
+  assert.equal(openingPrice(20, now / 1000, now), Math.round(10 + SCORE_WEIGHT * 20));
+  assert.equal(openingPrice(20, (now - 30000) / 1000, now), Math.round(10 + SCORE_WEIGHT * 20));
+  assert.equal(openingPrice(-100, (now - 60000) / 1000, now), 10);
+  assert.equal(openingPrice(0, (now - 60000) / 1000, now), 10);
+  for (const score of [NaN, Infinity, 1.5]) assert.throws(() => openingPrice(score, now / 1000, now));
+  assert.throws(() => openingPrice(1, now / 1000 + 1, now));
+  assert.throws(() => openingPrice(Number.MAX_SAFE_INTEGER, now / 1000, now));
 });
 test('equal sustained momentum has equal value at any post age and score level', () => {
   assert.equal(replay([100, 150, 200, 250, 300]).at(-1).price, 60);

@@ -1,13 +1,14 @@
 import { credits } from '../data'
 export function PricesExplanation() {
   return <section className="explanation" aria-label="How prices work"><h2>How prices work</h2>
-    <p>Prices follow Reddit score growth over a measured trailing 15-minute window. Slower growth can lower a price even while the post's score keeps rising.</p>
+    <p>Prices reflect the post's score, age, and recent score growth. Slower growth can lower a price even while the score keeps rising.</p>
     <details><summary>See a price and profit example</summary>
       <p>Illustration using a score weight of 5: growth of 10 points per minute gives a price of 60 virtual credits. Slowing to 4 points per minute gives 30. The server's configured weight may differ. Normal prices have a 10-credit floor.</p>
       <p>Buy 3 shares at 30: spend 90 virtual credits. Sell them at 40: receive 120 in proceeds and make 30 profit. Proceeds are not the same as profit.</p>
     </details>
     <details><summary>Why a price may be unavailable</summary>
-      <p>A new post needs a measured interval of at least five minutes before trading. Sampling gaps over ten minutes require a new interval. Old prices remain references while collection recovers. Refresh checks for observations; it does not speed collection.</p>
+      <p>You can buy shares without prior price history. Options unlock once enough price data has been collected.</p>
+      <p>Sampling gaps over ten minutes require a new interval. Old prices remain references while collection recovers. Refresh checks for observations; it does not speed collection.</p>
       <p>Confirmed removed posts have a terminal price of zero: shares lose their value and purchases stop. Calls pay zero; puts settle using zero as the underlying price. A temporarily unavailable post is not necessarily removed.</p>
     </details>
   </section>

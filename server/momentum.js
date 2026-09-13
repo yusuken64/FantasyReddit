@@ -1,9 +1,20 @@
 const VERSION = 'momentum-v1';
+const OPENING_VERSION = 'opening-score-age-v1';
 const INTERVAL_MS = 5 * 60 * 1000;
 const STALE_MS = 10 * 60 * 1000;
 const HORIZON_MS = 15 * 60 * 1000;
 const SCORE_WEIGHT = Number(process.env.MOMENTUM_SCORE_WEIGHT ?? 5);
 if (!Number.isFinite(SCORE_WEIGHT) || SCORE_WEIGHT <= 0) throw new Error('Invalid MOMENTUM_SCORE_WEIGHT');
+
+// A first stock price is an estimate from lifetime score, not measured momentum.
+// Freeze it with the first sample; repeated browsing must not reprice the stock.
+function openingPrice(score, createdUtc, now) {
+  if (!Number.isSafeInteger(score) || !Number.isFinite(createdUtc) || createdUtc <= 0 || createdUtc * 1000 > now) throw new Error('Invalid opening observation');
+  const ageMinutes = Math.max(1, (now - createdUtc * 1000) / 60000);
+  const price = Math.max(10, Math.round(10 + SCORE_WEIGHT * score / ageMinutes));
+  if (!Number.isSafeInteger(price)) throw new Error('Price exceeds supported range');
+  return price;
+}
 
 function advance(observations, score, now) {
   if (!Number.isSafeInteger(score)) throw new Error('Invalid Reddit score');
@@ -46,4 +57,4 @@ function assertQuote(quote, expectedId) {
   }
   return quote.price;
 }
-module.exports = { advance, publicQuote, assertQuote, VERSION, INTERVAL_MS, STALE_MS, HORIZON_MS, SCORE_WEIGHT };
+module.exports = { advance, openingPrice, publicQuote, assertQuote, VERSION, OPENING_VERSION, INTERVAL_MS, STALE_MS, HORIZON_MS, SCORE_WEIGHT };

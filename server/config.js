@@ -7,6 +7,8 @@ function config(env = process.env) {
   const weight = Number(env.MOMENTUM_SCORE_WEIGHT ?? 5);
   if (!Number.isFinite(weight) || weight <= 0) throw new Error('Invalid MOMENTUM_SCORE_WEIGHT');
   if (origin.origin !== env.PUBLIC_ORIGIN || (production && origin.protocol !== 'https:')) throw new Error('PUBLIC_ORIGIN must be an origin, with HTTPS in production');
+  const redirectUri = env.REDDIT_REDIRECT_URI || `${origin.origin}/api/auth/reddit/callback`;
+  if (![`${origin.origin}/api/auth/reddit/callback`, `${origin.origin}/auth/reddit/callback`].includes(redirectUri)) throw new Error('REDDIT_REDIRECT_URI must match a supported callback path on PUBLIC_ORIGIN');
   function integer(key, fallback) {
     const value = Number(env[key] || fallback);
     if (!Number.isSafeInteger(value) || value < 1) throw new Error(`Invalid configuration: ${key}`);
@@ -14,7 +16,7 @@ function config(env = process.env) {
   }
   return { connectionString: env.DB_CONNECTION_STRING, origin: origin.origin, production,
     clientId: env.REDDIT_CLIENT_ID, clientSecret: env.REDDIT_CLIENT_SECRET, userAgent: env.REDDIT_USER_AGENT,
-    redirectUri: `${origin.origin}/api/auth/reddit/callback`, port: integer('PORT', 8080),
+    redirectUri, port: integer('PORT', 8080),
     authLimit: integer('AUTH_RATE_LIMIT', 30), mutationLimit: integer('MUTATION_RATE_LIMIT', 60), trustProxy: env.TRUST_PROXY || false };
 }
 module.exports = { config };

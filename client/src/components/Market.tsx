@@ -5,7 +5,7 @@ import { useOperations } from '../operations'
 import ReadState from './ReadState'
 import PriceHistory from './PriceHistory'
 import { PricesExplanation } from './Explanations'
-interface Post { symbol: string; title?: string; price: number | null; terminal: boolean; observed_at: string | null; stale?: boolean; status: 'ready' | 'collecting' | 'stale'; momentum: number | null }
+interface Post { symbol: string; title?: string; price: number | null; terminal: boolean; observed_at: string | null; stale?: boolean; status: 'ready' | 'collecting' | 'stale'; momentum: number | null; pricing_model?: string }
 interface Ownership { symbol: string; shares: number }
 export default function Market() {
   const [symbol, setSymbol] = useState(''), [query, setQuery] = useState(''), [history, setHistory] = useState<string | null>(null)
@@ -32,13 +32,15 @@ export default function Market() {
     {market.data && !posts.length && <p>No posts in this result. Refresh or find a post by ID.</p>}
     {posts.map(post => {
       const ready = post.status === 'ready' && fresh(post, now) && !post.terminal && !market.error
+      const opening = post.pricing_model === 'opening-score-age-v1'
       const held = ownership.data?.find(row => row.symbol === post.symbol)?.shares ?? 0
       return <article key={post.symbol}><h2>{post.title || post.symbol}</h2><a href={`https://www.reddit.com/comments/${post.symbol}`} target="_blank" rel="noreferrer">View Reddit post</a>
-        <p>{post.price === null ? 'No measured price yet' : credits(post.price)} · {post.terminal ? 'Removed — terminal price zero' : post.status === 'collecting' ? 'Collecting momentum — allow at least five minutes, then refresh' : !ready ? 'Stale price — refresh to check for a measured observation' : `Observed ${new Date(post.observed_at!).toLocaleString()}`}</p>
+        <p>{post.price === null ? 'No price yet' : credits(post.price)} · {post.terminal ? 'Removed — terminal price zero' : post.status === 'collecting' ? 'Collecting momentum — allow at least five minutes, then refresh' : !ready ? 'Stale price — refresh to check for a new price' : `Observed ${new Date(post.observed_at!).toLocaleString()}`}</p>
         <p>{ownership.data === undefined ? 'Ownership unavailable' : `Owned: ${number(held)} shares${ownership.error ? ' (may be out of date)' : ''}`}</p>
+        {opening && <p>Options unlock once enough price data has been collected.</p>}
         {post.momentum !== null && <p>Score growth: {post.momentum.toFixed(2)} points/minute</p>}
         <div className="actions"><button disabled={!ready || blocked} onClick={() => setSelected({ symbol: post.symbol, title: post.title, action: 'BUY' })}>Buy shares</button>
-          <button disabled={!ready || blocked} onClick={() => setSelected({ symbol: post.symbol, title: post.title, action: 'OPTION' })}>Buy option</button>
+          <button disabled={!ready || blocked || opening} onClick={() => setSelected({ symbol: post.symbol, title: post.title, action: 'OPTION' })}>Buy option</button>
           <button aria-expanded={history === post.symbol} onClick={() => setHistory(history === post.symbol ? null : post.symbol)}>Price history</button></div>
         {history === post.symbol && <PriceHistory symbol={post.symbol} />}
       </article>

@@ -26,6 +26,7 @@ for (const failure of ['lost', 'unreadable', 'not committed']) {
     await page.getByRole('button', { name: 'Confirm order', exact: true }).click()
     await expect(page.getByRole('heading', { name: 'Trade outcome unknown' })).toBeVisible()
     await expect(page.getByRole('button', { name: 'New quote' })).toBeDisabled()
+    await page.getByRole('button', { name: 'Close trade dialog' }).click()
     await page.getByRole('link', { name: 'Holdings', exact: true }).click()
     await page.reload()
     await expect(page.getByRole('button', { name: 'Sell shares', exact: true })).toBeDisabled()

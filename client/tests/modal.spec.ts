@@ -1,0 +1,60 @@
+import { test, expect } from '@playwright/test'
+import { mockApi } from './fixtures'
+test.beforeEach(async ({ page }) => { await mockApi(page) })
+for (const width of [320, 1280]) {
+  test(`trade modal traps focus, restores focus and fits ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 })
+    await page.goto('/holdings')
+    const trigger = page.getByRole('button', { name: 'Sell shares', exact: true })
+    await trigger.click()
+    const dialog = page.getByRole('dialog', { name: 'Sell shares · A growing conversation' })
+    await expect(dialog).toBeVisible()
+    expect(await dialog.evaluate(element => element.matches(':modal'))).toBe(true)
+    await expect(dialog.getByRole('heading')).toBeFocused()
+    await expect(page.getByRole('link', { name: 'Stocks', exact: true })).toHaveCount(0)
+    await dialog.getByRole('button', { name: 'Cancel', exact: true }).focus()
+    await page.keyboard.press('Tab')
+    await expect(dialog.getByRole('button', { name: 'Close trade dialog' })).toBeFocused()
+    await page.keyboard.press('Shift+Tab')
+    await expect(dialog.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused()
+    const bounds = await dialog.boundingBox()
+    expect(bounds!.x).toBeGreaterThanOrEqual(0)
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width)
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(800)
+    await page.screenshot({ path: `evidence/trade-modal-${width}.png` })
+    await page.keyboard.press('Escape')
+    await expect(dialog).toHaveCount(0)
+    await expect(trigger).toBeFocused()
+    expect(await page.evaluate(() => document.body.style.overflow)).not.toBe('hidden')
+    await trigger.click()
+    await page.mouse.click(2, 2)
+    await expect(dialog).toHaveCount(0)
+    await expect(trigger).toBeFocused()
+  })
+}
+test('submitting modal stays open and uncertain orders remain recoverable after closing', async ({ page }) => {
+  let release!: () => void
+  const gate = new Promise<void>(resolve => { release = resolve })
+  let calls = 0
+  await page.route('**/api/orders', async route => {
+    calls++
+    if (calls === 1) { await gate; await route.abort() }
+    else await route.fulfill({ json: { success: true, credits: 9940 } })
+  })
+  await page.goto('/redditStocks'); await page.getByRole('button', { name: 'Buy shares', exact: true }).click()
+  await page.getByRole('button', { name: 'Get quote', exact: true }).click()
+  await page.getByRole('button', { name: 'Confirm order', exact: true }).click()
+  const dialog = page.getByRole('dialog')
+  await page.keyboard.press('Escape')
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByRole('button', { name: 'Close trade dialog' })).toBeDisabled()
+  await expect(dialog.getByRole('heading', { name: 'Submitting trade…' })).toBeVisible()
+  release()
+  await expect(dialog.getByRole('heading', { name: 'Trade outcome unknown' })).toBeVisible()
+  await expect(dialog.getByRole('button', { name: 'New quote' })).toBeDisabled()
+  await page.keyboard.press('Escape')
+  await expect(dialog).toHaveCount(0)
+  await page.getByRole('button', { name: 'Retry same operation' }).click()
+  await expect(page.getByRole('heading', { name: 'Trade confirmed' })).toBeVisible()
+  expect(calls).toBe(2)
+})

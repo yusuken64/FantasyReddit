@@ -53,3 +53,12 @@ test('configuration rejects absent secrets and insecure production origins', () 
   assert.throws(() => createDatabase('Server=localhost;Database=master;User Id=test;Password=test'));
   assert.throws(() => createDatabase('Server=localhost;User Id=test;Password=test'));
 });
+
+test('configured Reddit callback is exact, same-origin, and served by a supported route', () => {
+  const env = { DB_CONNECTION_STRING: 'x', PUBLIC_ORIGIN: 'http://localhost:8080', REDDIT_CLIENT_ID: 'x', REDDIT_CLIENT_SECRET: 'x', REDDIT_USER_AGENT: 'x', NODE_ENV: 'development' };
+  assert.equal(config(env).redirectUri, 'http://localhost:8080/api/auth/reddit/callback');
+  assert.equal(config({ ...env, REDDIT_REDIRECT_URI: 'http://localhost:8080/auth/reddit/callback' }).redirectUri, 'http://localhost:8080/auth/reddit/callback');
+  for (const redirect of ['http://localhost:5173/auth/reddit/callback', 'https://other.test/auth/reddit/callback', 'http://localhost:8080/auth/reddit/callback?x=1', 'http://localhost:8080/unsupported']) {
+    assert.throws(() => config({ ...env, REDDIT_REDIRECT_URI: redirect }), /REDDIT_REDIRECT_URI/);
+  }
+});

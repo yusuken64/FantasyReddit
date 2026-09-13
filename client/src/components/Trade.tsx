@@ -1,24 +1,43 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { guidance, mutation } from '../api'
 import { useAuth } from '../context/auth'
 import { useOperations } from '../operations'
 import { credits, number, useNow } from '../data'
 import { OptionsExplanation, OptionTerms } from './Explanations'
-export interface Quote { id: string; price: number; cost: number; expires_at: string; strike: number | null; premium: number | null; contract_size: number; quantity: number; option_expiry: string | null }
+import OperationNotice from './OperationNotice'
+export interface Quote { id: string; price: number; cost: number; expires_at: string; strike: number | null; premium: number | null; contract_size: number; quantity: number; option_expiry: string | null; pricing_model?: string }
 export default function Trade({ symbol, title, action, shares, onDone }: { symbol: string; title?: string; action: 'BUY' | 'SELL' | 'SELL_REMOVE' | 'OPTION'; shares?: number; onDone: () => void }) {
   const { user } = useAuth()
   const { run, blocked, operation } = useOperations()
   const [quantity, setQuantity] = useState(action === 'SELL_REMOVE' ? shares || 1 : 1), [type, setType] = useState('CALL'), [days, setDays] = useState(1), [step, setStep] = useState(100)
   const [quote, setQuote] = useState<Quote | null>(null), [busy, setBusy] = useState(false), [error, setError] = useState('')
   const pending = useRef(false), heading = useRef<HTMLHeadingElement>(null)
+  const dialog = useRef<HTMLDialogElement>(null), headingId = useId()
   const now = useNow()
   useEffect(() => {
     if (operation?.status === 'success' && 'quoteId' in operation.body && operation.body.quoteId === quote?.id) onDone()
   }, [operation, quote?.id, onDone])
   useEffect(() => {
     const trigger = document.activeElement as HTMLElement
+    const element = dialog.current!
+    const background = document.getElementById('root')!
+    const wasInert = background.inert
+    const wasHidden = background.getAttribute('aria-hidden')
+    const overflow = document.body.style.overflow
+    element.showModal()
+    document.body.style.overflow = 'hidden'
     heading.current?.focus()
-    return () => { if (trigger?.isConnected) trigger.focus() }
+    background.inert = true
+    background.setAttribute('aria-hidden', 'true')
+    return () => {
+      background.inert = wasInert
+      if (wasHidden === null) background.removeAttribute('aria-hidden')
+      else background.setAttribute('aria-hidden', wasHidden)
+      element.close()
+      document.body.style.overflow = overflow
+      if (trigger?.isConnected) trigger.focus()
+    }
   }, [])
   const selling = action.startsWith('SELL')
   const label = action === 'SELL_REMOVE' ? 'Sell and remove' : action === 'OPTION' ? 'Buy option' : selling ? 'Sell shares' : 'Buy shares'
@@ -39,7 +58,24 @@ export default function Trade({ symbol, title, action, shares, onDone }: { symbo
     } catch (e) { setError(guidance(e)) }
     finally { pending.current = false; setBusy(false) }
   }
-  return <section className="trade" aria-label={`${label} ${symbol}`}><h2 ref={heading} tabIndex={-1}>{label} · {title || symbol}</h2>
+  return createPortal(<dialog ref={dialog} className="trade trade-modal" aria-labelledby={headingId} aria-modal="true"
+    onKeyDown={event => {
+      if (event.key !== 'Tab') return
+      const controls = [...event.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), a[href], summary, [tabindex]:not([tabindex="-1"])')].filter(element => element.tabIndex >= 0 && element.getClientRects().length > 0)
+      const first = controls[0], last = controls.at(-1)
+      if (!first) { event.preventDefault(); heading.current?.focus() }
+      else if (event.shiftKey && (document.activeElement === first || document.activeElement === heading.current)) { event.preventDefault(); last?.focus() }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
+    }}
+    onCancel={event => { event.preventDefault(); if (!busy) onDone() }}
+    onClick={event => {
+      if (event.target !== event.currentTarget || busy) return
+      const bounds = event.currentTarget.getBoundingClientRect()
+      if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) onDone()
+    }}>
+    <div className="trade-modal-header"><h2 id={headingId} ref={heading} tabIndex={-1}>{label} · {title || symbol}</h2>
+      <button className="modal-close" aria-label="Close trade dialog" disabled={busy} onClick={onDone}>×</button></div>
+    {operation && 'quoteId' in operation.body && operation.body.quoteId === quote?.id && <OperationNotice />}
     <p>Post ID: {symbol} · Available balance: {credits(user?.credits || 0)}</p>
     {action === 'SELL_REMOVE' && <p>Sell the entire holding and free its position slot.</p>}
     {action === 'OPTION' && <OptionsExplanation />}
@@ -59,7 +95,7 @@ export default function Trade({ symbol, title, action, shares, onDone }: { symbo
       {!safe && <p role="alert">This total exceeds the supported integer range.</p>}
       <button disabled={busy || blocked || !affordable || !safe || now >= Date.parse(quote.expires_at)} onClick={() => void submit(true)}>{busy ? 'Submitting…' : 'Confirm order'}</button>
       <button disabled={busy || blocked} onClick={() => { setQuote(null); setError('') }}>New quote</button></>}
-    <button disabled={busy} onClick={onDone}>Close trade panel</button>
+    <button disabled={busy} onClick={onDone}>Cancel</button>
     {error && <p role="alert">{error}</p>}
-  </section>
+  </dialog>, document.body)
 }

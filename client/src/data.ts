@@ -5,7 +5,7 @@ let revision = 0
 const listeners = new Set<() => void>()
 export function invalidateData() { revision++; listeners.forEach(fn => fn()) }
 const subscribe = (fn: () => void) => { listeners.add(fn); return () => { listeners.delete(fn) } }
-export function useResource<T>(path: string | null) {
+export function useResource<T>(path: string | null, load: typeof api<T> = api<T>) {
   const { user } = useAuth()
   const userId = user?.id, generation = user?.generation
   const version = useSyncExternalStore(subscribe, () => revision)
@@ -18,13 +18,13 @@ export function useResource<T>(path: string | null) {
     let active = true
     const controller = new AbortController()
     setState(previous => ({ key, data: previous.key === key ? previous.data : undefined, error: '', loading: true }))
-    api<T>(path, { signal: controller.signal }).then(data => {
+    load(path, { signal: controller.signal }).then(data => {
       if (active) setState({ key, data, error: '', loading: false })
     }).catch(error => {
       if (active) setState(previous => ({ ...previous, error: message(error), loading: false }))
     })
     return () => { active = false; controller.abort() }
-  }, [key, path, userId, generation, version, attempt])
+  }, [key, path, userId, generation, version, attempt, load])
   return { data: state.key === key ? state.data : undefined, error: state.key === key ? state.error : '', loading: state.key !== key || state.loading, reload }
 }
 export const number = (value: number) => new Intl.NumberFormat().format(value)

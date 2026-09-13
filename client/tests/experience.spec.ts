@@ -39,7 +39,7 @@ test('market ownership failure remains distinct from zero shares', async ({ page
   await page.getByRole('button', { name: 'Retry ownership' }).click()
   await expect(page.getByText('Owned: 3 shares')).toBeVisible()
 })
-test('history loads on demand, shows sparse data and labels model changes', async ({ page }) => {
+test('history loads on demand and displays all models as prices', async ({ page }) => {
   let calls = 0
   await page.route('**/api/prices/*', async route => { calls++; await route.fulfill({ json: [{ price: 60, observed_at: new Date().toISOString(), pricing_model: 'momentum-v1' }] }) })
   await page.goto('/redditStocks')
@@ -50,9 +50,10 @@ test('history loads on demand, shows sparse data and labels model changes', asyn
   await page.getByRole('button', { name: 'Price history', exact: true }).click()
   await page.route('**/api/prices/*', route => route.fulfill({ json: [{ price: 60, observed_at: '2026-09-13T12:00:00Z', pricing_model: 'momentum-v1' }, { price: 10, observed_at: '2026-09-12T12:00:00Z', pricing_model: 'legacy-age-v1' }] }))
   await page.getByRole('button', { name: 'Price history', exact: true }).click()
-  await expect(page.getByRole('cell', { name: 'legacy-age-v1' })).toBeVisible()
-  await expect(page.getByRole('cell', { name: 'momentum-v1' })).toBeVisible()
-  await expect(page.getByRole('row').nth(1)).toContainText('legacy-age-v1')
+  await page.getByText('View price observations', { exact: true }).click()
+  await expect(page.getByRole('columnheader')).toHaveText(['Observed', 'Price'])
+  await expect(page.getByRole('row').nth(1).getByRole('cell').nth(1)).toHaveText('10 virtual credits')
+  await expect(page.getByRole('row').nth(2).getByRole('cell').nth(1)).toHaveText('60 virtual credits')
 })
 test('empty later history pages keep Previous and filter changes discard old rows', async ({ page }) => {
   const rows = Array.from({ length: 25 }, (_, i) => ({ id: String(i), symbol: 'abc123', instrument: 'STOCK', action: 'BUY', quantity: 1, cost: 60, payout: 0, created_at: new Date().toISOString() }))
@@ -78,6 +79,7 @@ test('quantity constraints and affordability block invalid orders', async ({ pag
   await page.getByRole('button', { name: 'Get quote', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('Insufficient virtual credits')
   await expect(page.getByRole('button', { name: 'Confirm order', exact: true })).toBeDisabled()
+  await page.getByRole('button', { name: 'Close trade dialog' }).click()
   await page.getByRole('link', { name: 'Holdings', exact: true }).click()
   await page.getByRole('button', { name: 'Sell shares', exact: true }).click()
   await page.getByLabel('Shares', { exact: true }).fill('4')
@@ -111,7 +113,7 @@ for (const width of [320, 375, 1280]) {
     const buy = page.getByRole('button', { name: 'Buy shares', exact: true })
     await buy.focus(); await page.keyboard.press('Enter')
     await expect(page.getByRole('heading', { name: 'Buy shares · A growing conversation' })).toBeFocused()
-    await page.getByRole('button', { name: 'Close trade panel' }).focus(); await page.keyboard.press('Enter')
+    await page.getByRole('button', { name: 'Close trade dialog' }).focus(); await page.keyboard.press('Enter')
     await expect(buy).toBeFocused()
     await page.keyboard.press('Enter')
     await page.getByRole('button', { name: 'Get quote', exact: true }).focus(); await page.keyboard.press('Enter')

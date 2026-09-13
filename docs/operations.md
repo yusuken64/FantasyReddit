@@ -4,6 +4,18 @@ This release starts with a **new SQL Server/Azure SQL database**. It has no lega
 
 ## Environment and local operation
 
+### Local Docker app
+
+The local stack uses `compose.local.yml` and an ignored `.env.docker.local` containing `LOCAL_SQL_PASSWORD`, `LOCAL_RUNTIME_PASSWORD`, `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, and `REDDIT_USER_AGENT`. Use separate generated local SQL passwords; this stack provisions its own `FantasyRedditLocal` database and does not use the database connection in `.env`.
+
+Start or rebuild: `docker compose --env-file .env.docker.local -f compose.local.yml -p fantasy-reddit-local up -d --build`.
+
+Open `http://localhost:8080`. Set `REDDIT_REDIRECT_URI` in `.env.docker.local` to the exact Reddit-registered callback. Both `http://localhost:8080/auth/reddit/callback` (the existing local registration) and `http://localhost:8080/api/auth/reddit/callback` are supported. When unset, the latter is the default. The initializer applies migrations and gives the app a separate runtime user. SQL is only exposed inside the Docker network; data persists in the `fantasy-reddit-local_local-sql` volume. Local HTTP uses development-mode cookies.
+
+Check status: `docker compose --env-file .env.docker.local -f compose.local.yml -p fantasy-reddit-local ps -a`. Stop while preserving data: `docker compose --env-file .env.docker.local -f compose.local.yml -p fantasy-reddit-local down`.
+
+### Native development
+
 Use Node 24.21.0 (the container pins its image digest). Install with `npm ci`, `npm ci --prefix server`, and `npm ci --prefix client`. Copy `.env.example` to a locally ignored environment file. Nothing automatically reads or prints secrets. For development, load the file with Node's `--env-file` option: `node --env-file=.env.local server/server.js`. Run `npm run dev --prefix client`; Vite proxies `/api` to port 8080. `PUBLIC_ORIGIN=http://localhost:5173` must match the browser origin. Reddit's registered redirect must be that origin plus `/api/auth/reddit/callback`.
 
 Provision the database separately, create a dedicated migration user, then run `node --env-file=.env.migration server/migrate.js`. The migration command targets only the supplied database and serializes schema changes with a SQL application lock. Runtime never creates databases, schema or tables and does not connect to master. A missing migration makes readiness fail; apply it and restart the app to start its worker. Use a different runtime user with the permissions in `deploy/runtime-role.sql`. Runtime must not have schema DDL, server administration or master access.

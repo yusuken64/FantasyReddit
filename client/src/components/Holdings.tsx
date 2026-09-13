@@ -6,6 +6,7 @@ import { useOperations } from '../operations'
 import { credits, fresh, invalidateData, number, useNow, useResource } from '../data'
 import Trade from './Trade'
 import ReadState from './ReadState'
+import PriceHistory from './PriceHistory'
 interface Holding { symbol: string; title: string; shares: number; total_spent: number; price: number | null; observed_at: string | null; terminal: boolean; stale: boolean }
 export default function Holdings() {
   const { user, refresh } = useAuth(), { blocked } = useOperations()
@@ -26,8 +27,9 @@ export default function Holdings() {
     {state.data?.length === 0 && <p>No holdings yet. <NavLink to="/redditStocks">Browse stocks</NavLink></p>}
     {state.data?.map(h => <article key={h.symbol}><h2>{h.title || h.symbol}</h2>
       <p>{number(h.shares)} shares · {h.price === null ? 'Price unavailable' : `${credits(h.price)} per share · Value: ${credits(h.shares * h.price)}`}. Cost basis: {credits(h.total_spent)}.</p>
-      {!fresh(h, now) && <p>Price unavailable or stale — refresh to check for a measured observation.</p>}
+      {!fresh(h, now) && <p>Price unavailable or stale — refresh to check for a new price.</p>}
       {h.observed_at && <p>Observed {new Date(h.observed_at).toLocaleString()}</p>}
+      <PriceHistory symbol={h.symbol} />
       {h.terminal || h.shares === 0 ? <button disabled={busy || blocked} onClick={() => void remove(h.symbol)}>Remove zero-value holding</button> : <div className="actions"><button className="sell" disabled={blocked || !!state.error} onClick={() => setSelected({ symbol: h.symbol, title: h.title, shares: h.shares, action: 'SELL' })}>Sell shares</button><button className="sell" disabled={blocked || !!state.error} onClick={() => setSelected({ symbol: h.symbol, title: h.title, shares: h.shares, action: 'SELL_REMOVE' })}>Sell and remove</button></div>}
     </article>)}
   </>

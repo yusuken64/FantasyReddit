@@ -81,6 +81,7 @@ test('explicit logout clears pending personal recovery', async ({ page }) => {
   await page.goto('/redditStocks'); await page.getByRole('button', { name: 'Buy shares', exact: true }).click()
   await page.getByRole('button', { name: 'Get quote', exact: true }).click(); await page.getByRole('button', { name: 'Confirm order', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Trade outcome unknown' })).toBeVisible()
+  await page.getByRole('button', { name: 'Close trade dialog' }).click()
   await page.getByRole('button', { name: 'Logout', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Login', exact: true })).toBeVisible()
   expect(await page.evaluate(() => sessionStorage.getItem('fantasy-reddit-operation-v1'))).toBeNull()

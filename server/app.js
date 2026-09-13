@@ -25,6 +25,9 @@ function createApp({ db, config, reddit, market, trading, worker, assets = path.
   });
   app.get('/api/auth/reddit', auth.login);
   app.get('/api/auth/reddit/callback', auth.callback);
+  if (config.redirectUri === `${config.origin}/auth/reddit/callback`) {
+    app.get('/auth/reddit/callback', (req, res, next) => { res.set('Cache-Control', 'no-store'); next(); }, auth.callback);
+  }
   // An API miss must never return the SPA document, including /api itself.
   const api = express.Router(); app.use('/api', api);
   api.use(auth.authenticate);
